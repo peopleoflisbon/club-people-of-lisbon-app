@@ -1,0 +1,33 @@
+import { createServerClient } from '@/lib/supabase';
+import { redirect } from 'next/navigation';
+import AppShell from '@/components/layout/AppShell';
+
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const supabase = createServerClient();
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session) redirect('/auth/login');
+
+  const [{ data: profile }, { data: settings }] = await Promise.all([
+    supabase.from('profiles').select('*').eq('id', session.user.id).single(),
+    supabase.from('app_settings').select('key, value').in('key', [
+      'brand_square_image_url',
+      'login_background_image_url',
+    ]),
+  ]);
+
+  if (!profile?.is_active) redirect('/auth/login');
+
+  const settingsMap: Record<string, string> = {};
+  (settings || []).forEach((s: { key: string; value: string }) => {
+    settingsMap[s.key] = s.value;
+  });
+
+  const brandLogoUrl = settingsMap['brand_square_image_url'] || '/pol-logo.png';
+
+  return (
+    <AppShell profile={profile} brandLogoUrl={brandLogoUrl}>
+      {children}
+    </AppShell>
+  );
+}
