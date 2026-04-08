@@ -170,6 +170,7 @@ export default function RitaPhotosClient({ photos }: Props) {
         </div>
       )}
     </div>
+    </ScrollPage>
   );
 }
 
