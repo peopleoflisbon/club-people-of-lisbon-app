@@ -18,11 +18,11 @@ export default async function EventsPage() {
   ]);
 
   const countMap = new Map<string, number>();
-  (rsvpCounts || []).forEach((r) => {
+  (rsvpCounts || []).forEach((r: any) => {
     countMap.set(r.event_id, (countMap.get(r.event_id) || 0) + 1);
   });
 
-  const rsvpMap = new Map((userRsvps || []).map((r) => [r.event_id, r.status]));
+  const rsvpMap = new Map((userRsvps || []).map((r: any) => [r.event_id, r.status]));
 
   const enriched = (events || []).map((e) => ({
     ...e,
