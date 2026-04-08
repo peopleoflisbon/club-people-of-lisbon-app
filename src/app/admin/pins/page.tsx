@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase-server';
 import AdminPinsClient from '@/components/admin/AdminPinsClient';
 
 export const metadata = { title: 'Map Pins · Admin · People Of Lisbon' };

@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase-server';
 import AdminMembersClient from '@/components/admin/AdminMembersClient';
 
 export const metadata = { title: 'Members · Admin · People Of Lisbon' };

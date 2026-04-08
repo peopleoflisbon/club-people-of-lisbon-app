@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase-server';
 import AdminSponsorsClient from '@/components/admin/AdminSponsorsClient';
 
 export const metadata = { title: 'Sponsors · Admin · People Of Lisbon' };

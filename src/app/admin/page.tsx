@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase-server';
 import Link from 'next/link';
 
 export const metadata = { title: 'Admin · People Of Lisbon' };

@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase-server';
 import MessagesClient from '@/components/messages/MessagesClient';
 
 export const metadata = { title: 'Messages · People Of Lisbon' };

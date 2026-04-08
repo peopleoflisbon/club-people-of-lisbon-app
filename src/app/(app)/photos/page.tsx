@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase-server';
 import RitaPhotosClient from '@/components/photos/RitaPhotosClient';
 
 export const metadata = { title: "Rita's Photos · People Of Lisbon" };

@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase-server';
 import EventsClient from '@/components/events/EventsClient';
 
 export const metadata = { title: 'Events · People Of Lisbon' };

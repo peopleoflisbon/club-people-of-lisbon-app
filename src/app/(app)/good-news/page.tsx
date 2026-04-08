@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase-server';
 import GoodNewsClient from '@/components/goodnews/GoodNewsClient';
 
 export const metadata = { title: 'Good News · People Of Lisbon' };

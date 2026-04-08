@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase-server';
 import LisbonMap from '@/components/map/LisbonMap';
 
 export const metadata = { title: 'Map · People Of Lisbon' };
