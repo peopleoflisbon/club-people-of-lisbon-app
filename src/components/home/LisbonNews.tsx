@@ -6,36 +6,43 @@ interface NewsItem {
   title: string;
   link: string;
   description: string;
-  pubDate: string;
   source: string;
 }
+
+const RSS_SOURCES = [
+  { url: 'https://www.theportugalnews.com/rss', name: 'The Portugal News' },
+  { url: 'https://feeds.bbci.co.uk/news/world/europe/rss.xml', name: 'BBC News' },
+];
 
 export default function LisbonNews() {
   const [news, setNews] = useState<NewsItem | null>(null);
   const [showReader, setShowReader] = useState(false);
 
   useEffect(() => {
-    fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://feeds.bbci.co.uk/news/world/europe/rss.xml&count=5`)
-      .then(r => r.json())
-      .then(d => {
-        const items = d.items || [];
-        // Try to find a Portugal/Lisbon story, otherwise use first headline
-        const portugal = items.find((i: any) =>
-          i.title?.toLowerCase().includes('portugal') ||
-          i.title?.toLowerCase().includes('lisbon') ||
-          i.description?.toLowerCase().includes('portugal')
-        ) || items[0];
-        if (portugal) {
-          setNews({
-            title: portugal.title,
-            link: portugal.link,
-            description: portugal.description?.replace(/<[^>]*>/g, '') || '',
-            pubDate: portugal.pubDate,
-            source: 'BBC News',
-          });
-        }
-      })
-      .catch(() => {});
+    async function fetchNews() {
+      for (const source of RSS_SOURCES) {
+        try {
+          const res = await fetch(
+            `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(source.url)}&count=5`
+          );
+          const d = await res.json();
+          const items = d.items || [];
+          if (items.length > 0) {
+            const item = items[0];
+            setNews({
+              title: item.title,
+              link: item.link,
+              description: (item.description || item.content || '')
+                .replace(/<[^>]*>/g, '')
+                .slice(0, 400),
+              source: source.name,
+            });
+            return;
+          }
+        } catch {}
+      }
+    }
+    fetchNews();
   }, []);
 
   if (!news) return null;
@@ -45,8 +52,8 @@ export default function LisbonNews() {
       <div className="bg-white border border-stone-100">
         <div className="px-5 py-3 border-b border-stone-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-brand animate-pulse" />
-            <span className="text-xs font-semibold text-brand uppercase tracking-wider">Latest News</span>
+            <div className="w-2 h-2 bg-brand" />
+            <span className="text-sm font-semibold text-ink">Portugal News</span>
           </div>
           <span className="text-xs text-stone-400">{news.source}</span>
         </div>
@@ -54,27 +61,27 @@ export default function LisbonNews() {
           onClick={() => setShowReader(true)}
           className="w-full text-left px-5 py-4 hover:bg-stone-50 transition-colors"
         >
-          <p className="font-semibold text-sm text-ink leading-snug mb-1">{news.title}</p>
+          <p className="font-semibold text-base text-ink leading-snug mb-1">{news.title}</p>
           {news.description && (
-            <p className="text-xs text-stone-500 leading-relaxed line-clamp-2">{news.description}</p>
+            <p className="text-sm text-stone-500 leading-relaxed line-clamp-2">{news.description}</p>
           )}
-          <p className="text-xs text-brand font-semibold mt-2">Read full article →</p>
+          <p className="text-sm text-brand font-semibold mt-2">Read full article →</p>
         </button>
       </div>
 
-      {/* In-app reader overlay */}
+      {/* In-app reader */}
       {showReader && (
         <div
           className="fixed inset-0 z-50 bg-black/60 flex items-end lg:items-center justify-center"
           onClick={() => setShowReader(false)}
         >
           <div
-            className="bg-white w-full lg:max-w-2xl lg:mx-4 max-h-[85vh] flex flex-col"
+            className="bg-white w-full lg:max-w-2xl max-h-[85vh] flex flex-col"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
-              <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider">{news.source}</span>
-              <button onClick={() => setShowReader(false)} className="text-stone-400 hover:text-ink transition-colors">
+              <span className="text-sm font-semibold text-stone-500">{news.source}</span>
+              <button onClick={() => setShowReader(false)} className="text-stone-400 hover:text-ink transition-colors p-1">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -83,7 +90,7 @@ export default function LisbonNews() {
             <div className="flex-1 overflow-y-auto px-5 py-5">
               <h2 className="font-display text-2xl text-ink leading-tight mb-4">{news.title}</h2>
               {news.description && (
-                <p className="text-stone-600 text-sm leading-relaxed">{news.description}</p>
+                <p className="text-stone-600 text-base leading-relaxed">{news.description}</p>
               )}
             </div>
             <div className="px-5 py-4 border-t border-stone-100">

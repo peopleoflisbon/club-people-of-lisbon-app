@@ -7,6 +7,7 @@ import BrandLogo from '@/components/ui/BrandLogo';
 import LisbonWeather from '@/components/home/LisbonWeather';
 import LisbonNews from '@/components/home/LisbonNews';
 import PortuguesePhrase from '@/components/home/PortuguesePhrase';
+import LatestPodcast from '@/components/home/LatestPodcast';
 import { formatDate, formatDateTime, cn } from '@/lib/utils';
 import ScrollPage from '@/components/ui/ScrollPage';
 
@@ -178,7 +179,10 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           </section>
         )}
 
-        {/* 7. RITA'S PHOTOS */}
+        {/* 7. PODCAST */}
+        <LatestPodcast />
+
+        {/* 8. RITA'S PHOTOS */}
         {latestPhoto && (
           <section>
             <div className="flex items-center justify-between mb-3">
