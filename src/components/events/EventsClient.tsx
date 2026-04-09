@@ -137,13 +137,14 @@ function EventCard({
       className={cn('pol-card overflow-hidden animate-fade-up', isPast && 'opacity-60')}
       style={{ animationDelay: `${index * 0.05}s`, opacity: 0 }}
     >
-      {event.image_url && (
+      {(event.cover_image_url || event.image_url) && (
         <div className="relative h-48 bg-stone-100">
           <Image
-            src={event.image_url}
+            src={event.cover_image_url || event.image_url}
             alt={event.title}
             fill
             className="object-cover"
+            unoptimized
           />
           {event.status === 'live' && (
             <div className="absolute top-3 left-3 bg-brand text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5">

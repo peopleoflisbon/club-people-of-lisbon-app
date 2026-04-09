@@ -1,6 +1,4 @@
 import { createServerClient } from '@/lib/supabase-server';
-import Image from 'next/image';
-import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import { formatDate } from '@/lib/utils';
 
@@ -9,18 +7,33 @@ export const metadata = { title: 'Updates · People Of Lisbon' };
 export default async function UpdatesPage() {
   const supabase = createServerClient();
 
-  const { data: updates } = await (supabase as any)
-    .from('updates')
-    .select('*')
-    .eq('is_published', true)
-    .order('published_at', { ascending: false });
+  const [{ data: updates }, { data: settings }] = await Promise.all([
+    (supabase as any).from('updates').select('*').eq('is_published', true).order('published_at', { ascending: false }),
+    (supabase as any).from('app_settings').select('key, value').in('key', ['stephen_photo_url']),
+  ]);
+
+  const stephenPhoto = settings?.find((s: any) => s.key === 'stephen_photo_url')?.value || '';
 
   return (
     <div className="flex-1 overflow-y-auto overscroll-contain"><div className="max-w-2xl mx-auto">
-      <PageHeader
-        title="Updates"
-        subtitle="From Stephen"
-      />
+
+      {/* Stephen header */}
+      <div className="bg-ink px-4 lg:px-8 py-8">
+        <div className="flex items-center gap-4">
+          {stephenPhoto ? (
+            <img src={stephenPhoto} alt="Stephen O'Regan" className="w-16 h-16 rounded-2xl object-cover flex-shrink-0 ring-2 ring-white/10" />
+          ) : (
+            <div className="w-16 h-16 rounded-2xl bg-brand flex items-center justify-center flex-shrink-0">
+              <span className="text-white font-display text-2xl">S</span>
+            </div>
+          )}
+          <div>
+            <h1 className="font-display text-2xl text-white leading-tight">Stephen O'Regan</h1>
+            <p className="text-stone-400 text-sm mt-0.5">Filmmaker · People Of Lisbon</p>
+          </div>
+        </div>
+        <div className="mt-5 h-0.5 bg-gradient-to-r from-brand via-stone-700 to-transparent" />
+      </div>
 
       <div className="px-4 lg:px-8 pb-6">
         {!updates?.length ? (

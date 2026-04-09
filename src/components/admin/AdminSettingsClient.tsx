@@ -12,10 +12,13 @@ interface Props {
 export default function AdminSettingsClient({ settings: initial }: Props) {
   const [loginBg, setLoginBg] = useState(initial['login_background_image_url'] || '');
   const [brandLogo, setBrandLogo] = useState(initial['brand_square_image_url'] || '/pol-logo.png');
+  const [stephenPhoto, setStephenPhoto] = useState(initial['stephen_photo_url'] || '');
   const [savingBg, setSavingBg] = useState(false);
   const [savedBg, setSavedBg] = useState(false);
   const [savingLogo, setSavingLogo] = useState(false);
   const [savedLogo, setSavedLogo] = useState(false);
+  const [savingStephen, setSavingStephen] = useState(false);
+  const [savedStephen, setSavedStephen] = useState(false);
   const [bgImgError, setBgImgError] = useState(false);
   const supabase = createClient();
 
@@ -143,6 +146,33 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
                 Reset to default
               </button>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Stephen's Photo ── */}
+      <div className="pol-card p-6">
+        <h2 className="font-semibold text-sm text-ink mb-1">Stephen's Photo</h2>
+        <p className="text-xs text-stone-400 mb-5">
+          This photo appears at the top of the Updates from Stephen page.
+        </p>
+        <div className="space-y-3">
+          <ImageUpload
+            value={stephenPhoto}
+            onChange={(url) => { setStephenPhoto(url); setSavedStephen(false); }}
+            label="Stephen's Photo"
+            folder="brand"
+            preview="square"
+          />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => save('stephen_photo_url', stephenPhoto, setSavingStephen, setSavedStephen)}
+              disabled={savingStephen}
+              className="pol-btn-primary"
+            >
+              {savingStephen ? 'Saving…' : 'Save Photo'}
+            </button>
+            {savedStephen && <span className="text-sm text-emerald-600 font-medium">✓ Saved</span>}
           </div>
         </div>
       </div>
