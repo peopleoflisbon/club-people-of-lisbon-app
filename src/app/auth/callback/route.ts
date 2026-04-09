@@ -7,16 +7,18 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
   const type = requestUrl.searchParams.get('type');
+  const next = requestUrl.searchParams.get('next') || '/home';
 
   if (code) {
     const supabase = createRouteHandlerClient({ cookies });
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  // If this is an invite or recovery, send to password setup
+  // Invite or password reset → set password first
   if (type === 'invite' || type === 'recovery') {
     return NextResponse.redirect(new URL('/auth/set-password', request.url));
   }
 
-  return NextResponse.redirect(new URL('/home', request.url));
+  // For magic links with hash tokens, redirect to a client page that handles them
+  return NextResponse.redirect(new URL('/auth/confirm', request.url));
 }
