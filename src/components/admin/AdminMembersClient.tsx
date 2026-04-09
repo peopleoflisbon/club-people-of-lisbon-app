@@ -32,17 +32,23 @@ interface Props {
 export default function AdminMembersClient({ members, invitations }: Props) {
   const [tab, setTab] = useState<'members' | 'invites'>('members');
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviting, setInviting] = useState(false);
-  const [inviteMsg, setInviteMsg] = useState<{ text: string; ok: boolean } | null>(null);
-  const [localInvites, setLocalInvites] = useState(invitations);
+  const [generating, setGenerating] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState('');
+  const [generatedFor, setGeneratedFor] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState('');
   const [localMembers, setLocalMembers] = useState(members);
+  const [localInvites, setLocalInvites] = useState(invitations);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const supabase = createClient();
 
-  async function sendInvite() {
+  async function generateLink() {
     if (!inviteEmail.trim()) return;
-    setInviting(true);
-    setInviteMsg(null);
+    setGenerating(true);
+    setGeneratedLink('');
+    setError('');
+    setCopied(false);
+
     try {
       const res = await fetch('/api/invite', {
         method: 'POST',
@@ -51,27 +57,27 @@ export default function AdminMembersClient({ members, invitations }: Props) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setInviteMsg({ text: `Error: ${data.error}`, ok: false });
+        setError(data.error || 'Failed to generate link');
       } else {
-        setInviteMsg({ text: `✓ Invite sent to ${inviteEmail.trim()}`, ok: true });
+        setGeneratedLink(data.link);
+        setGeneratedFor(inviteEmail.trim());
         setLocalInvites(prev => {
-          const exists = prev.find(i => i.email === inviteEmail.trim());
-          if (exists) return prev;
+          if (prev.find(i => i.email === inviteEmail.trim())) return prev;
           return [{ id: Date.now().toString(), email: inviteEmail.trim(), status: 'pending', created_at: new Date().toISOString() }, ...prev];
         });
         setInviteEmail('');
       }
     } catch {
-      setInviteMsg({ text: 'Failed to send. Try again.', ok: false });
+      setError('Failed to generate. Try again.');
     }
-    setInviting(false);
+    setGenerating(false);
   }
 
-  async function resendInvite(email: string) {
-    setActionLoading(`resend-${email}`);
+  async function generateLinkForEmail(email: string) {
+    setActionLoading(`gen-${email}`);
     try {
       const res = await fetch('/api/invite', {
-        method: 'PUT',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
@@ -79,16 +85,34 @@ export default function AdminMembersClient({ members, invitations }: Props) {
       if (!res.ok) {
         alert(`Error: ${data.error}`);
       } else {
-        alert(`✓ Fresh invite link sent to ${email}`);
+        setGeneratedLink(data.link);
+        setGeneratedFor(email);
+        setCopied(false);
+        setTab('invites');
+        window.scrollTo(0, 0);
       }
     } catch {
-      alert('Failed to resend. Try again.');
+      alert('Failed to generate link.');
     }
     setActionLoading(null);
   }
 
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(generatedLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    } catch {
+      // fallback: select text
+      const el = document.getElementById('invite-link-text') as HTMLInputElement;
+      if (el) { el.select(); document.execCommand('copy'); }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    }
+  }
+
   async function deleteUser(memberId: string, memberName: string) {
-    if (!confirm(`Delete ${memberName || 'this member'}? This cannot be undone. They will need to be re-invited.`)) return;
+    if (!confirm(`Delete ${memberName || 'this member'}? They will need to be re-invited.`)) return;
     setActionLoading(`delete-${memberId}`);
     try {
       const res = await fetch('/api/invite', {
@@ -103,7 +127,7 @@ export default function AdminMembersClient({ members, invitations }: Props) {
         setLocalMembers(prev => prev.filter(m => m.id !== memberId));
       }
     } catch {
-      alert('Failed to delete. Try again.');
+      alert('Failed to delete.');
     }
     setActionLoading(null);
   }
@@ -148,6 +172,85 @@ export default function AdminMembersClient({ members, invitations }: Props) {
         ))}
       </div>
 
+      {/* INVITES TAB */}
+      {tab === 'invites' && (
+        <div className="space-y-5">
+
+          {/* Generated link display — shown prominently when ready */}
+          {generatedLink && (
+            <div className="bg-emerald-50 border-2 border-emerald-200 p-5">
+              <p className="font-bold text-emerald-800 text-sm mb-1">✓ Link ready for {generatedFor}</p>
+              <p className="text-emerald-700 text-xs mb-3">Copy this link and send it via WhatsApp, iMessage, or email. They click it → set password → done.</p>
+              <div className="flex gap-2">
+                <input
+                  id="invite-link-text"
+                  type="text"
+                  value={generatedLink}
+                  readOnly
+                  className="flex-1 text-xs bg-white border border-emerald-200 px-3 py-2 text-stone-600 truncate"
+                />
+                <button
+                  onClick={copyLink}
+                  className={cn('px-4 py-2 text-sm font-bold transition-all flex-shrink-0', copied ? 'bg-emerald-500 text-white' : 'bg-emerald-700 text-white hover:bg-emerald-800')}
+                >
+                  {copied ? '✓ Copied!' : 'Copy Link'}
+                </button>
+              </div>
+              {copied && (
+                <p className="text-emerald-700 text-xs mt-2 font-semibold">Paste this into WhatsApp or iMessage and send it to them now.</p>
+              )}
+            </div>
+          )}
+
+          {/* Generate new link */}
+          <div className="pol-card p-5">
+            <h2 className="font-bold text-sm text-ink mb-1">Invite a Member</h2>
+            <p className="text-xs text-stone-400 mb-4">Enter their email to generate a sign-up link. You copy it and send it to them yourself — WhatsApp, text, or email.</p>
+            <div className="flex gap-3">
+              <input
+                type="email"
+                value={inviteEmail}
+                onChange={e => { setInviteEmail(e.target.value); setError(''); }}
+                onKeyDown={e => e.key === 'Enter' && generateLink()}
+                placeholder="member@email.com"
+                className="pol-input flex-1"
+              />
+              <button onClick={generateLink} disabled={generating || !inviteEmail} className="pol-btn-primary flex-shrink-0">
+                {generating ? 'Generating…' : 'Get Link'}
+              </button>
+            </div>
+            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+          </div>
+
+          {/* Invite list */}
+          <div className="space-y-2">
+            {localInvites.length === 0 && (
+              <p className="text-stone-400 text-sm text-center py-8">No invites yet.</p>
+            )}
+            {localInvites.map(invite => (
+              <div key={invite.id} className="pol-card p-4 flex items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm text-ink">{invite.email}</p>
+                  <p className="text-xs text-stone-400 mt-0.5">{formatDate(invite.created_at)}</p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className={cn('text-xs px-2 py-1 font-semibold', invite.status === 'pending' ? 'bg-amber-100 text-amber-700' : invite.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-500')}>
+                    {invite.status === 'pending' ? 'Invited' : invite.status}
+                  </span>
+                  <button
+                    onClick={() => generateLinkForEmail(invite.email)}
+                    disabled={actionLoading === `gen-${invite.email}`}
+                    className="text-xs px-3 py-1.5 border border-brand text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-40"
+                  >
+                    {actionLoading === `gen-${invite.email}` ? '…' : 'New Link'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* MEMBERS TAB */}
       {tab === 'members' && (
         <div className="space-y-2">
@@ -161,7 +264,6 @@ export default function AdminMembersClient({ members, invitations }: Props) {
                   {!member.is_active && <span className="text-2xs bg-stone-100 text-stone-400 px-2 py-0.5 font-semibold">Inactive</span>}
                 </div>
                 <p className="text-xs text-stone-400">{member.email}</p>
-                {member.neighborhood && <p className="text-xs text-stone-400">{member.neighborhood}</p>}
               </div>
               <div className="flex gap-2 flex-shrink-0 flex-wrap justify-end">
                 <button onClick={() => toggleAdmin(member.id, member.role)} className="text-xs px-3 py-1.5 border border-stone-200 hover:border-brand hover:text-brand transition-colors">
@@ -180,60 +282,6 @@ export default function AdminMembersClient({ members, invitations }: Props) {
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* INVITES TAB */}
-      {tab === 'invites' && (
-        <div className="space-y-4">
-          {/* Send invite */}
-          <div className="pol-card p-5">
-            <h2 className="font-semibold text-sm text-stone-500 uppercase tracking-wider mb-3">Send Invite</h2>
-            <div className="flex gap-3">
-              <input
-                type="email"
-                value={inviteEmail}
-                onChange={e => setInviteEmail(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && sendInvite()}
-                placeholder="member@email.com"
-                className="pol-input flex-1"
-              />
-              <button onClick={sendInvite} disabled={inviting || !inviteEmail} className="pol-btn-primary">
-                {inviting ? '…' : 'Send'}
-              </button>
-            </div>
-            {inviteMsg && (
-              <p className={cn('text-sm mt-2', inviteMsg.ok ? 'text-emerald-600' : 'text-red-500')}>{inviteMsg.text}</p>
-            )}
-            <p className="text-xs text-stone-400 mt-3">The member will receive an email with a link to create their password.</p>
-          </div>
-
-          {/* Invite list */}
-          <div className="space-y-2">
-            {localInvites.length === 0 && (
-              <p className="text-stone-400 text-sm text-center py-8">No invites sent yet.</p>
-            )}
-            {localInvites.map(invite => (
-              <div key={invite.id} className="pol-card p-4 flex items-center gap-4">
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-ink">{invite.email}</p>
-                  <p className="text-xs text-stone-400 mt-0.5">Invited {formatDate(invite.created_at)}</p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className={cn('text-xs px-2 py-1 font-semibold capitalize', invite.status === 'pending' ? 'bg-amber-100 text-amber-700' : invite.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-500')}>
-                    {invite.status === 'pending' ? 'Invited' : invite.status}
-                  </span>
-                  <button
-                    onClick={() => resendInvite(invite.email)}
-                    disabled={actionLoading === `resend-${invite.email}`}
-                    className="text-xs px-3 py-1.5 border border-brand text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-40"
-                  >
-                    {actionLoading === `resend-${invite.email}` ? '…' : 'Resend'}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       )}
     </div>
