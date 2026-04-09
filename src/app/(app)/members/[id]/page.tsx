@@ -7,14 +7,14 @@ import { getInitials } from '@/lib/utils';
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const supabase = createServerClient();
-  const { data } = await supabase.from('profiles').select('full_name').eq('id', params.id).single();
+  const { data } = await (supabase as any).from('profiles').select('full_name').eq('id', params.id).single();
   return { title: `${data?.full_name || 'Member'} · People Of Lisbon` };
 }
 
 export default async function MemberProfilePage({ params }: { params: { id: string } }) {
   const supabase = createServerClient();
 
-  const { data: profile } = await supabase
+  const { data: profile } = await (supabase as any)
     .from('profiles')
     .select('*')
     .eq('id', params.id)

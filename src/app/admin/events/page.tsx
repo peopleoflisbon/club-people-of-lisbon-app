@@ -6,7 +6,7 @@ export const metadata = { title: 'Events · Admin · People Of Lisbon' };
 export default async function AdminEventsPage() {
   const supabase = createServerClient();
 
-  const { data: events } = await supabase
+  const { data: events } = await (supabase as any)
     .from('events')
     .select('*')
     .order('starts_at', { ascending: false });

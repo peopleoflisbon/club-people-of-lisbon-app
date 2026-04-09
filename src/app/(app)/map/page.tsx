@@ -6,7 +6,7 @@ export const metadata = { title: 'Map · People Of Lisbon' };
 export default async function MapPage() {
   const supabase = createServerClient();
 
-  const { data: pins } = await supabase
+  const { data: pins } = await (supabase as any)
     .from('map_pins')
     .select('*')
     .eq('is_published', true)

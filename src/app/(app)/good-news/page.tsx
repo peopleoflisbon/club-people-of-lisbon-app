@@ -9,7 +9,7 @@ export default async function GoodNewsPage() {
   const userId = session!.user.id;
 
   // BUG FIX: use explicit foreign key hint for author join
-  const { data: posts } = await supabase
+  const { data: posts } = await (supabase as any)
     .from('good_news_posts')
     .select(`
       id, title, body, category, link_url,

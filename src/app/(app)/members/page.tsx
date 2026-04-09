@@ -6,7 +6,7 @@ export const metadata = { title: 'Members · People Of Lisbon' };
 export default async function MembersPage() {
   const supabase = createServerClient();
 
-  const { data: members } = await supabase
+  const { data: members } = await (supabase as any)
     .from('profiles')
     .select('id, full_name, headline, neighborhood, avatar_url, short_bio, joined_at')
     .eq('is_active', true)

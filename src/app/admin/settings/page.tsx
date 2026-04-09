@@ -5,7 +5,7 @@ export const metadata = { title: 'Settings · Admin · People Of Lisbon' };
 
 export default async function AdminSettingsPage() {
   const supabase = createServerClient();
-  const { data: settings } = await supabase
+  const { data: settings } = await (supabase as any)
     .from('app_settings')
     .select('key, value');
 

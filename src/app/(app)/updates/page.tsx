@@ -9,7 +9,7 @@ export const metadata = { title: 'Updates · People Of Lisbon' };
 export default async function UpdatesPage() {
   const supabase = createServerClient();
 
-  const { data: updates } = await supabase
+  const { data: updates } = await (supabase as any)
     .from('updates')
     .select('*')
     .eq('is_published', true)

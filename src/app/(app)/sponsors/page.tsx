@@ -8,7 +8,7 @@ export const metadata = { title: 'Sponsors · People Of Lisbon' };
 export default async function SponsorsPage() {
   const supabase = createServerClient();
 
-  const { data: sponsors } = await supabase
+  const { data: sponsors } = await (supabase as any)
     .from('sponsors')
     .select('*')
     .eq('is_active', true)

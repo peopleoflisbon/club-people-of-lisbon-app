@@ -5,7 +5,7 @@ export const metadata = { title: 'Updates · Admin · People Of Lisbon' };
 
 export default async function AdminUpdatesPage() {
   const supabase = createServerClient();
-  const { data: updates } = await supabase
+  const { data: updates } = await (supabase as any)
     .from('updates')
     .select('*')
     .order('published_at', { ascending: false });

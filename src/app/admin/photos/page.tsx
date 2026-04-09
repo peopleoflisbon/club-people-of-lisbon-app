@@ -5,7 +5,7 @@ export const metadata = { title: "Rita's Photos · Admin · People Of Lisbon" };
 
 export default async function AdminPhotosPage() {
   const supabase = createServerClient();
-  const { data: photos } = await supabase
+  const { data: photos } = await (supabase as any)
     .from('rita_photos')
     .select('*')
     .order('sort_order', { ascending: true })

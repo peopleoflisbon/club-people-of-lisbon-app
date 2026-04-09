@@ -14,7 +14,7 @@ export default async function MessagesPage({
 
   // BUG FIX: avoid brittle foreign-key join names.
   // Fetch conversations then look up both profiles by ID.
-  const { data: conversations } = await supabase
+  const { data: conversations } = await (supabase as any)
     .from('conversations')
     .select('*')
     .or(`participant_a.eq.${userId},participant_b.eq.${userId}`)
@@ -27,7 +27,7 @@ export default async function MessagesPage({
       const [a, b] = [userId, targetId].sort();
       let { data: existing } = await supabase.from('conversations').select('id').eq('participant_a', a).eq('participant_b', b).single();
       if (!existing) {
-        const { data: created } = await supabase.from('conversations').insert({ participant_a: a, participant_b: b }).select('id').single();
+        const { data: created } = await (supabase as any).from('conversations').insert({ participant_a: a, participant_b: b }).select('id').single();
         existing = created;
       }
       initialConversationId = existing?.id || null;
@@ -42,7 +42,7 @@ export default async function MessagesPage({
   });
 
   // Fetch all needed profiles in one query
-  const { data: profiles } = await supabase
+  const { data: profiles } = await (supabase as any)
     .from('profiles')
     .select('id, full_name, avatar_url, headline')
     .in('id', Array.from(profileIds));
@@ -52,7 +52,7 @@ export default async function MessagesPage({
   // BUG FIX: use maybeSingle() instead of single() to avoid errors when no messages
   const enriched = await Promise.all(
     conversations.map(async (conv) => {
-      const { data: lastMsg } = await supabase
+      const { data: lastMsg } = await (supabase as any)
         .from('messages')
         .select('content, created_at, sender_id')
         .eq('conversation_id', conv.id)
@@ -78,7 +78,7 @@ export default async function MessagesPage({
     );
 
     if (!existing) {
-      const { data: created } = await supabase
+      const { data: created } = await (supabase as any)
         .from('conversations')
         .insert({ participant_a: a, participant_b: b })
         .select('id')
