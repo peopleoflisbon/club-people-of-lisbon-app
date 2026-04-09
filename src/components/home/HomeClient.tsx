@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Avatar from '@/components/ui/Avatar';
 import BrandLogo from '@/components/ui/BrandLogo';
+import LisbonWeather from '@/components/home/LisbonWeather';
 import { formatDate, formatDateTime, cn } from '@/lib/utils';
 import ScrollPage from '@/components/ui/ScrollPage';
 
@@ -52,7 +53,8 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
 
       <div className="px-4 lg:px-8 py-5 space-y-8">
 
-        {/* FROM STEPHEN — always first */}
+        {/* Lisbon weather */}
+        <LisbonWeather />
         {latestUpdate && (
           <section>
             <div className="flex items-center justify-between mb-4">
