@@ -71,9 +71,9 @@ export default function LoginPage() {
           className={cn('absolute inset-0 w-full h-full object-cover transition-opacity duration-1000', bgLoaded ? 'opacity-100' : 'opacity-0')}
           onLoad={() => setBgLoaded(true)}
         />
-        {/* Lighter overlay so photo shows through more */}
-        <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/60 to-ink/20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand/10 via-transparent to-transparent" />
+        {/* Lighter overlay — photo should shine through */}
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/40 to-ink/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
       </div>
 
       {/* Left branding panel (desktop only) */}

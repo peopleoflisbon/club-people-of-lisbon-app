@@ -69,6 +69,8 @@ export default async function MessagesPage({
 
   // Open or create conversation from ?with= param
   let initialConversationId: string | null = null;
+  let finalConversations = enriched as any[];
+
   if (searchParams.with && searchParams.with !== userId) {
     const targetId = searchParams.with;
     const [a, b] = [userId, targetId].sort();
@@ -78,12 +80,35 @@ export default async function MessagesPage({
     );
 
     if (!existing) {
+      // Create conversation
       const { data: created } = await (supabase as any)
         .from('conversations')
         .insert({ participant_a: a, participant_b: b })
         .select('id')
         .single();
-      initialConversationId = created?.id || null;
+
+      if (created) {
+        initialConversationId = created.id;
+        // Fetch the other person's profile to add to list
+        const { data: otherProfile } = await (supabase as any)
+          .from('profiles')
+          .select('id, full_name, avatar_url, headline')
+          .eq('id', targetId)
+          .single();
+
+        // Add new conversation to list so MessagesClient can find it
+        finalConversations = [
+          {
+            id: created.id,
+            participant_a: a,
+            participant_b: b,
+            last_message_at: new Date().toISOString(),
+            other_profile: otherProfile || null,
+            last_message: null,
+          },
+          ...enriched,
+        ];
+      }
     } else {
       initialConversationId = existing.id;
     }
@@ -91,7 +116,7 @@ export default async function MessagesPage({
 
   return (
     <MessagesClient
-      conversations={enriched as any}
+      conversations={finalConversations}
       userId={userId}
       initialConversationId={initialConversationId}
     />

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Avatar from '@/components/ui/Avatar';
 import BrandLogo from '@/components/ui/BrandLogo';
 import LisbonWeather from '@/components/home/LisbonWeather';
+import PortuguesePhrase from '@/components/home/PortuguesePhrase';
 import { formatDate, formatDateTime, cn } from '@/lib/utils';
 import ScrollPage from '@/components/ui/ScrollPage';
 
@@ -55,6 +56,9 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
 
         {/* Lisbon weather */}
         <LisbonWeather />
+
+        {/* Portuguese phrase of the day */}
+        <PortuguesePhrase />
         {latestUpdate && (
           <section>
             <div className="flex items-center justify-between mb-4">
