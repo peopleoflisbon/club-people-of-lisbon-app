@@ -80,12 +80,12 @@ function MemberCard({ member, index }: { member: MemberRow; index: number }) {
   return (
     <Link
       href={`/members/${member.id}`}
-      className="flex items-center gap-5 bg-white border border-stone-100 p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 animate-fade-up"
+      className="flex items-center gap-4 bg-white border border-stone-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 animate-fade-up"
       style={{ animationDelay: `${index * 0.04}s`, opacity: 0 }}
     >
       <Avatar src={member.avatar_url} name={member.full_name} size="xl" className="flex-shrink-0" />
 
-      <div className="flex-1" style={{ minWidth: 0 }}>
+      <div className="flex-1 min-w-0">
         <h3 className="font-display text-xl text-ink leading-tight">
           {member.full_name}
         </h3>
@@ -93,24 +93,12 @@ function MemberCard({ member, index }: { member: MemberRow; index: number }) {
           <p className="text-brand text-sm font-semibold mt-0.5">{member.job_title}</p>
         )}
         {member.headline && (
-          <p className="text-stone-600 text-sm mt-0.5 leading-snug">{member.headline}</p>
+          <p className="text-stone-500 text-sm mt-0.5 leading-snug line-clamp-1">{member.headline}</p>
         )}
         {member.neighborhood && (
-          <div className="flex items-center gap-1 text-sm text-stone-400 mt-1.5">
-            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-            </svg>
-            {member.neighborhood}
-          </div>
+          <p className="text-stone-400 text-sm mt-1">{member.neighborhood}</p>
         )}
       </div>
-
-      {member.short_bio && (
-        <p className="hidden lg:block text-stone-500 text-sm leading-relaxed max-w-sm line-clamp-2 flex-shrink-0">
-          {member.short_bio}
-        </p>
-      )}
 
       <svg className="w-5 h-5 text-stone-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />

@@ -36,7 +36,6 @@ interface Props {
 export default function HomeClient({ profile, recentMembers, upcomingEvents, latestPhoto, latestUpdate, goodNews, brandLogoUrl }: Props) {
   const firstName = profile?.full_name?.split(' ')[0] || 'Welcome';
   const newestMember = recentMembers[0] || null;
-  const otherMembers = recentMembers.slice(1);
 
   return (
     <ScrollPage>
@@ -122,11 +121,11 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
         {newestMember && (
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-display text-2xl text-ink">New Members</h2>
+              <h2 className="font-display text-2xl text-ink">New Member</h2>
               <Link href="/members" className="text-sm font-semibold text-brand hover:underline">All members →</Link>
             </div>
             <Link href={`/members/${newestMember.id}`} className="flex items-center gap-4 bg-white border border-stone-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-              <Avatar src={newestMember.avatar_url} name={newestMember.full_name} size="xl" />
+              <Avatar src={newestMember.avatar_url} name={newestMember.full_name} size="xl" className="flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-display text-xl text-ink leading-tight">{newestMember.full_name}</p>
                 {newestMember.headline && <p className="text-stone-500 text-sm mt-0.5 line-clamp-1">{newestMember.headline}</p>}
@@ -134,17 +133,6 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
               </div>
               <span className="flex-shrink-0 inline-block bg-brand text-white text-xs font-semibold px-3 py-1">New</span>
             </Link>
-
-            {otherMembers.length > 0 && (
-              <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar mt-3">
-                {otherMembers.map((m) => (
-                  <Link key={m.id} href={`/members/${m.id}`} className="flex-shrink-0 flex flex-col items-center gap-2 p-3 bg-white border border-stone-100 hover:shadow-md transition-all duration-200 w-[90px]">
-                    <Avatar src={m.avatar_url} name={m.full_name} size="md" />
-                    <p className="text-xs font-semibold text-ink text-center line-clamp-2 leading-tight">{m.full_name}</p>
-                  </Link>
-                ))}
-              </div>
-            )}
           </section>
         )}
 

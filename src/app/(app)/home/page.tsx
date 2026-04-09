@@ -19,11 +19,15 @@ export default async function HomePage() {
   ] = await Promise.all([
     supabase.from('profiles').select('full_name, avatar_url, neighborhood').eq('id', userId).single(),
     supabase.from('profiles')
-      .select('id, full_name, avatar_url, headline, neighborhood')
+      .select('id, full_name, avatar_url, headline, neighborhood, joined_at')
       .eq('is_active', true)
       .neq('id', userId)
+      .not('avatar_url', 'is', null)
+      .neq('avatar_url', '')
+      .not('full_name', 'is', null)
+      .neq('full_name', '')
       .order('joined_at', { ascending: false })
-      .limit(8),
+      .limit(1),
     supabase.from('events')
       .select('id, title, starts_at, location_name, status')
       .eq('status', 'upcoming')
