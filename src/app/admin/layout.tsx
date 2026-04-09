@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase-server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import BrandLogo from '@/components/ui/BrandLogo';
+
 
 const ADMIN_NAV = [
   { href: '/admin', label: 'Dashboard', emoji: '▦' },
@@ -34,7 +34,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* Header */}
       <header className="bg-ink border-b border-stone-800 px-4 lg:px-8 py-3 flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center gap-3">
-          <BrandLogo src={brandLogoUrl} size={32} className="shadow-md shadow-brand/30" />
+          <img src={brandLogoUrl || '/pol-logo.png'} width={32} height={32} alt="POL" className="rounded shadow-md" />
           <div>
             <p className="text-white font-display text-sm">People Of Lisbon</p>
             <p className="text-stone-500 text-xs">Admin Panel</p>
