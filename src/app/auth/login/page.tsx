@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [bgImage, setBgImage] = useState(FALLBACK_BG);
-  const [brandLogo, setBrandLogo] = useState('/pol-logo.png');
+  const [brandLogo, setBrandLogo] = useState('/pol-logo.png'); // show immediately, update if custom
   const [bgLoaded, setBgLoaded] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
@@ -91,14 +91,16 @@ export default function LoginPage() {
       </div>
 
       {/* Right form panel */}
-      <div className="flex-1 flex items-center justify-center relative z-10 p-6">
-        <div className="w-full max-w-sm">
+      <div className="flex-1 flex items-center justify-center relative z-10 p-6 pt-safe">
+        <div className="w-full max-w-sm py-8 lg:py-0">
 
-          {/* Mobile logo + title */}
-          <div className="flex flex-col items-center mb-10 lg:hidden">
-            <BrandLogo src={brandLogo} size={72} radius={18} className="shadow-xl shadow-brand/30 mb-4" />
+          {/* Mobile logo + title — always visible on mobile */}
+          <div className="flex flex-col items-center mb-8 lg:hidden">
+            <div className="mb-4">
+              <BrandLogo src={brandLogo} size={80} radius={20} className="shadow-xl shadow-brand/30" />
+            </div>
             <h1 className="font-display text-white text-3xl leading-none tracking-tight">People Of Lisbon</h1>
-            <p className="text-stone-500 text-xs mt-2 tracking-widest uppercase">Private Network</p>
+            <p className="text-stone-400 text-xs mt-2 tracking-widest uppercase">Private Members Club</p>
           </div>
 
           {/* Glass form card */}

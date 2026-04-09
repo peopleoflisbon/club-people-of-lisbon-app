@@ -22,17 +22,34 @@ export default async function MessagesPage({
 
   if (!conversations?.length) {
     let initialConversationId: string | null = null;
+    let newConvList: any[] = [];
+
     if (searchParams.with && searchParams.with !== userId) {
       const targetId = searchParams.with;
       const [a, b] = [userId, targetId].sort();
-      let { data: existing } = await supabase.from('conversations').select('id').eq('participant_a', a).eq('participant_b', b).single();
+      let { data: existing } = await (supabase as any).from('conversations').select('id').eq('participant_a', a).eq('participant_b', b).maybeSingle();
       if (!existing) {
         const { data: created } = await (supabase as any).from('conversations').insert({ participant_a: a, participant_b: b }).select('id').single();
         existing = created;
       }
-      initialConversationId = existing?.id || null;
+      if (existing) {
+        initialConversationId = existing.id;
+        const { data: otherProfile } = await (supabase as any)
+          .from('profiles')
+          .select('id, full_name, avatar_url, headline')
+          .eq('id', targetId)
+          .single();
+        newConvList = [{
+          id: existing.id,
+          participant_a: a,
+          participant_b: b,
+          last_message_at: new Date().toISOString(),
+          other_profile: otherProfile || null,
+          last_message: null,
+        }];
+      }
     }
-    return <MessagesClient conversations={[]} userId={userId} initialConversationId={initialConversationId} />;
+    return <MessagesClient conversations={newConvList} userId={userId} initialConversationId={initialConversationId} />;
   }
 
   // Collect all unique profile IDs we need (the "other" person in each convo)
