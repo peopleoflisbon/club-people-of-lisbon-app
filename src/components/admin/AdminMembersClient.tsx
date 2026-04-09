@@ -38,15 +38,13 @@ export default function AdminMembersClient({ members, invitations }: Props) {
   const [inviteMsg, setInviteMsg] = useState('');
   const [localInvites, setLocalInvites] = useState(invitations);
   const [localMembers, setLocalMembers] = useState(members);
+  const [resending, setResending] = useState<string | null>(null);
   const supabase = createClient();
-
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || '';
 
   async function sendInvite() {
     if (!inviteEmail.trim()) return;
     setInviting(true);
     setInviteMsg('');
-
     try {
       const res = await fetch('/api/invite', {
         method: 'POST',
@@ -57,13 +55,33 @@ export default function AdminMembersClient({ members, invitations }: Props) {
       if (!res.ok) {
         setInviteMsg(`Error: ${data.error}`);
       } else {
-        setInviteMsg(`✓ Invitation email sent to ${inviteEmail.trim()}`);
+        setInviteMsg(`✓ Invitation sent to ${inviteEmail.trim()}`);
         setInviteEmail('');
       }
-    } catch (err) {
+    } catch {
       setInviteMsg('Failed to send. Please try again.');
     }
     setInviting(false);
+  }
+
+  async function resendInvite(email: string) {
+    setResending(email);
+    try {
+      const res = await fetch('/api/invite', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(`Error: ${data.error}`);
+      } else {
+        alert(`✓ New invite link sent to ${email}`);
+      }
+    } catch {
+      alert('Failed to resend. Please try again.');
+    }
+    setResending(null);
   }
 
   async function revokeInvite(id: string) {
@@ -181,45 +199,36 @@ export default function AdminMembersClient({ members, invitations }: Props) {
           </div>
 
           {/* Invite list */}
-          {localInvites.map((invite) => (
-            <div key={invite.id} className="pol-card p-4 flex items-center gap-4">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm text-ink">{invite.email}</p>
-                <p className="text-xs text-stone-400">Created {formatDate(invite.created_at)} · Expires {formatDate(invite.expires_at)}</p>
-                {invite.status === 'pending' && (
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <code className="text-xs bg-stone-100 px-2 py-0.5 rounded text-stone-600 truncate max-w-xs">
-                      {appUrl}/auth/invite?token={invite.token}
-                    </code>
-                    <button
-                      onClick={() => navigator.clipboard.writeText(`${appUrl}/auth/invite?token=${invite.token}`)}
-                      className="text-xs text-brand hover:underline"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center gap-3 flex-shrink-0">
-                <span className={cn(
-                  'text-2xs px-2 py-1 rounded-full font-semibold capitalize',
-                  invite.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                  invite.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' :
-                  'bg-stone-100 text-stone-500'
-                )}>
-                  {invite.status}
-                </span>
-                {invite.status === 'pending' && (
+          <div className="space-y-2">
+            {localInvites.length === 0 && (
+              <p className="text-stone-400 text-sm text-center py-8">No invites sent yet.</p>
+            )}
+            {localInvites.map((invite) => (
+              <div key={invite.id} className="pol-card p-4 flex items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm text-ink">{invite.email}</p>
+                  <p className="text-xs text-stone-400 mt-0.5">Invited {formatDate(invite.created_at)}</p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className={cn(
+                    'text-xs px-2 py-1 font-semibold capitalize',
+                    invite.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                    invite.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' :
+                    'bg-stone-100 text-stone-500'
+                  )}>
+                    {invite.status === 'pending' ? 'Invited' : invite.status}
+                  </span>
                   <button
-                    onClick={() => revokeInvite(invite.id)}
-                    className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                    onClick={() => resendInvite(invite.email)}
+                    disabled={resending === invite.email}
+                    className="text-xs px-3 py-1.5 border border-brand text-brand hover:bg-brand hover:text-white transition-colors disabled:opacity-40"
                   >
-                    Revoke
+                    {resending === invite.email ? '…' : 'Resend'}
                   </button>
-                )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>
