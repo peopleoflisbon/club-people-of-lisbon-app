@@ -35,11 +35,16 @@ export async function POST(request: Request) {
     const existing = users.find((u: any) => u.email === cleanEmail);
 
     if (!existing) {
-      await admin.auth.admin.createUser({
+      const { error: createError } = await admin.auth.admin.createUser({
         email: cleanEmail,
         email_confirm: true,
         password: Math.random().toString(36).slice(-12) + 'Aa1!',
       });
+      if (createError && !createError.message.includes('already')) {
+        return NextResponse.json({ error: createError.message }, { status: 400 });
+      }
+      // Wait for user to be fully created before generating link
+      await new Promise(resolve => setTimeout(resolve, 1500));
     }
 
     // Generate the link — this is what we give to the admin to send manually
