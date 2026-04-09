@@ -21,8 +21,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!session) redirect('/auth/login');
 
   const [{ data: profile }, { data: settings }] = await Promise.all([
-    supabase.from('profiles').select('role').eq('id', session.user.id).single(),
-    supabase.from('app_settings').select('key, value').eq('key', 'brand_square_image_url').single(),
+    (supabase as any).from('profiles').select('role').eq('id', session.user.id).maybeSingle(),
+    (supabase as any).from('app_settings').select('key, value').eq('key', 'brand_square_image_url').maybeSingle(),
   ]);
 
   if (profile?.role !== 'admin') redirect('/home');
