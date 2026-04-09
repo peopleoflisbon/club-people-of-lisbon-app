@@ -68,25 +68,12 @@ export default function RitaPhotosClient({ photos }: Props) {
           }
         />
       ) : (
-        <>
-          {/* Mobile: single column scroll */}
-          <div className="lg:hidden px-4 pb-6 space-y-4">
-            {photos.map((photo, i) => (
-              <PhotoCard key={photo.id} photo={photo} index={i} onClick={() => openPhoto(photo, i)} />
-            ))}
-          </div>
-
-          {/* Desktop: masonry-style grid */}
-          <div className="hidden lg:block px-8 pb-8">
-            <div className="columns-2 xl:columns-3 gap-4 space-y-4">
-              {photos.map((photo, i) => (
-                <div key={photo.id} className="break-inside-avoid">
-                  <PhotoCard photo={photo} index={i} onClick={() => openPhoto(photo, i)} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
+        /* Instagram-style vertical feed — single column, full width */
+        <div className="max-w-xl mx-auto px-4 lg:px-0 pb-8 space-y-1">
+          {photos.map((photo, i) => (
+            <PhotoCard key={photo.id} photo={photo} index={i} onClick={() => openPhoto(photo, i)} />
+          ))}
+        </div>
       )}
 
       {/* Lightbox */}

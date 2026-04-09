@@ -77,12 +77,6 @@ export default function GoodNewsClient({ posts: initialPosts, userId }: Props) {
               Wins, deals, and opportunities from the People Of Lisbon community.
             </p>
           </div>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="pol-btn-primary flex-shrink-0 text-sm"
-          >
-            + Share
-          </button>
         </div>
         <div className="mt-4 h-0.5 bg-gradient-to-r from-brand via-stone-200 to-transparent" />
       </div>
@@ -199,6 +193,16 @@ export default function GoodNewsClient({ posts: initialPosts, userId }: Props) {
               ))}
             </div>
           )}
+
+          {/* Share button at bottom */}
+          <div className="pt-2">
+            <button
+              onClick={() => setShowForm(!showForm)}
+              className="w-full py-3 rounded-2xl border-2 border-dashed border-stone-200 text-stone-400 text-sm font-semibold hover:border-brand hover:text-brand transition-colors"
+            >
+              + Share your good news
+            </button>
+          </div>
         </div>
       )}
     </div>

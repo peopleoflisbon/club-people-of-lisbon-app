@@ -86,36 +86,35 @@ function MemberCard({ member, index }: { member: MemberRow; index: number }) {
   return (
     <Link
       href={`/members/${member.id}`}
-      className="pol-card p-5 flex flex-col items-start gap-3 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 animate-fade-up"
+      className="pol-card p-5 flex flex-col gap-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 animate-fade-up"
       style={{ animationDelay: `${index * 0.04}s`, opacity: 0 }}
     >
-      <div className="flex items-start gap-3 w-full">
-        <Avatar src={member.avatar_url} name={member.full_name} size="lg" />
+      <div className="flex items-center gap-4">
+        <Avatar src={member.avatar_url} name={member.full_name} size="xl" className="flex-shrink-0" />
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-ink text-sm leading-tight truncate">
+          <h3 className="font-display text-lg text-ink leading-tight truncate">
             {member.full_name}
           </h3>
           {member.headline && (
-            <p className="text-stone-500 text-xs mt-0.5 line-clamp-2 leading-snug">
+            <p className="text-stone-500 text-sm mt-0.5 line-clamp-2 leading-snug">
               {member.headline}
             </p>
+          )}
+          {member.neighborhood && (
+            <div className="flex items-center gap-1 text-xs text-brand font-medium mt-1.5">
+              <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
+              {member.neighborhood}
+            </div>
           )}
         </div>
       </div>
 
-      {member.neighborhood && (
-        <div className="flex items-center gap-1.5 text-xs text-stone-400">
-          <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-          </svg>
-          {member.neighborhood}
-        </div>
-      )}
-
       {member.short_bio && (
-        <p className="text-stone-500 text-xs leading-relaxed line-clamp-3">
-          {truncate(member.short_bio, 120)}
+        <p className="text-stone-500 text-xs leading-relaxed line-clamp-2 border-t border-stone-50 pt-3">
+          {member.short_bio}
         </p>
       )}
     </Link>

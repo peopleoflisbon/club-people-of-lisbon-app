@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { MapPin } from '@/types';
-import { getYouTubeThumbnail } from '@/lib/utils';
+import { getYouTubeThumbnail, getYouTubeVideoId } from '@/lib/utils';
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 const LISBON_CENTER: [number, number] = [-9.1393, 38.7223];
@@ -17,6 +17,7 @@ export default function LisbonMap({ pins }: Props) {
   const markersRef = useRef<any[]>([]);
   const [selectedPin, setSelectedPin] = useState<MapPin | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [playingVideo, setPlayingVideo] = useState(false);
 
   // Initialize map once
   useEffect(() => {
@@ -158,19 +159,17 @@ export default function LisbonMap({ pins }: Props) {
                 )}
 
                 <div className="flex gap-3 mt-5">
-                  <a
-                    href={selectedPin.youtube_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => setPlayingVideo(true)}
                     className="flex-1 pol-btn-primary justify-center"
                   >
                     <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M8 5v14l11-7z" />
                     </svg>
                     Watch Video
-                  </a>
+                  </button>
                   <button
-                    onClick={() => setSelectedPin(null)}
+                    onClick={() => { setSelectedPin(null); setPlayingVideo(false); }}
                     className="pol-btn-secondary px-4"
                     aria-label="Close"
                   >
@@ -179,6 +178,18 @@ export default function LisbonMap({ pins }: Props) {
                     </svg>
                   </button>
                 </div>
+
+                {/* In-app video player */}
+                {playingVideo && selectedPin?.youtube_url && (
+                  <div className="mt-4 rounded-xl overflow-hidden bg-black aspect-video">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${getYouTubeVideoId(selectedPin.youtube_url)}?autoplay=1&rel=0`}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

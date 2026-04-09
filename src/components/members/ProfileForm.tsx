@@ -69,6 +69,9 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
       setError(saveError.message);
     } else {
       setSaved(true);
+      setTimeout(() => {
+        window.location.href = `/members/${profile.id}`;
+      }, 800);
     }
   }
 
