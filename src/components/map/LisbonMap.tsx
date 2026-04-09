@@ -73,7 +73,7 @@ export default function LisbonMap({ pins }: Props) {
           </svg>
         </div>
       `;
-      el.addEventListener('click', () => setSelectedPin(pin));
+      el.addEventListener('click', () => { setSelectedPin(pin); setPlayingVideo(false); });
 
       const marker = new mapboxgl.Marker(el)
         .setLngLat([pin.longitude, pin.latitude])
@@ -130,17 +130,39 @@ export default function LisbonMap({ pins }: Props) {
                 <div className="w-10 h-1 rounded-full bg-stone-200" />
               </div>
 
-              {/* Thumbnail */}
+              {/* Thumbnail / Video player */}
               {thumbnail && (
                 <div className="relative h-48 bg-stone-100">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={thumbnail}
-                    alt={selectedPin.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  {playingVideo && selectedPin?.youtube_url ? (
+                    <iframe
+                      src={`https://www.youtube.com/embed/${getYouTubeVideoId(selectedPin.youtube_url)}?autoplay=1&rel=0`}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={thumbnail}
+                        alt={selectedPin.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                      {/* Play button overlay */}
+                      <button
+                        onClick={() => setPlayingVideo(true)}
+                        className="absolute inset-0 flex items-center justify-center group"
+                      >
+                        <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/30 transition-all">
+                          <svg className="w-6 h-6 text-white ml-1" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </div>
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -159,37 +181,29 @@ export default function LisbonMap({ pins }: Props) {
                 )}
 
                 <div className="flex gap-3 mt-5">
-                  <button
-                    onClick={() => setPlayingVideo(true)}
-                    className="flex-1 pol-btn-primary justify-center"
-                  >
-                    <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                    Watch Video
-                  </button>
+                  {!playingVideo && (
+                    <button
+                      onClick={() => setPlayingVideo(true)}
+                      className="flex-1 pol-btn-primary justify-center"
+                    >
+                      <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                      Watch Video
+                    </button>
+                  )}
                   <button
                     onClick={() => { setSelectedPin(null); setPlayingVideo(false); }}
-                    className="pol-btn-secondary px-4"
+                    className={playingVideo ? 'flex-1 pol-btn-secondary justify-center' : 'pol-btn-secondary px-4'}
                     aria-label="Close"
                   >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    {playingVideo ? '← Close' : (
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    )}
                   </button>
                 </div>
-
-                {/* In-app video player */}
-                {playingVideo && selectedPin?.youtube_url && (
-                  <div className="mt-4 rounded-xl overflow-hidden bg-black aspect-video">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${getYouTubeVideoId(selectedPin.youtube_url)}?autoplay=1&rel=0`}
-                      className="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                )}
               </div>
             </div>
           </div>
