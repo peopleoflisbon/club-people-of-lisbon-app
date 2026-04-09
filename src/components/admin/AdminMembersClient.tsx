@@ -47,18 +47,21 @@ export default function AdminMembersClient({ members, invitations }: Props) {
     setInviting(true);
     setInviteMsg('');
 
-    const { data, error } = await supabase
-      .from('invitations')
-      .insert({ email: inviteEmail.trim() })
-      .select()
-      .single();
-
-    if (error) {
-      setInviteMsg('Error: ' + error.message);
-    } else {
-      setLocalInvites((prev) => [data, ...prev]);
-      setInviteEmail('');
-      setInviteMsg(`Invite created for ${data.email}`);
+    try {
+      const res = await fetch('/api/invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: inviteEmail.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setInviteMsg(`Error: ${data.error}`);
+      } else {
+        setInviteMsg(`✓ Invitation email sent to ${inviteEmail.trim()}`);
+        setInviteEmail('');
+      }
+    } catch (err) {
+      setInviteMsg('Failed to send. Please try again.');
     }
     setInviting(false);
   }
