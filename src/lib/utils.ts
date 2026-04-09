@@ -55,7 +55,7 @@ export function getYouTubeVideoId(url: string): string | null {
   return getYouTubeId(url);
 }
 
-
+export function getYouTubeThumbnail(url: string): string {
   const id = getYouTubeId(url);
   if (!id) return '';
   return `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
