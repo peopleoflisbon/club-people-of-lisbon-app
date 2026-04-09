@@ -30,33 +30,30 @@ export async function POST(request: Request) {
     const cleanEmail = email.trim().toLowerCase();
     const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL}/auth/confirm`;
 
-    // Ensure user exists
+    // Check if user already exists
     const { data: { users } } = await admin.auth.admin.listUsers();
     const existing = users.find((u: any) => u.email === cleanEmail);
 
+    let link: string | null = null;
+
     if (!existing) {
-      const { error: createError } = await admin.auth.admin.createUser({
-        email: cleanEmail,
-        email_confirm: true,
-        password: Math.random().toString(36).slice(-12) + 'Aa1!',
+      // New user — use inviteUserByEmail which atomically creates user + generates link
+      const { data, error } = await admin.auth.admin.inviteUserByEmail(cleanEmail, {
+        redirectTo,
       });
-      if (createError && !createError.message.includes('already')) {
-        return NextResponse.json({ error: createError.message }, { status: 400 });
-      }
-      // Wait for user to be fully created before generating link
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+      link = (data as any)?.properties?.action_link || null;
+    } else {
+      // Existing user — generate a recovery link
+      const { data, error } = await admin.auth.admin.generateLink({
+        type: 'recovery',
+        email: cleanEmail,
+        options: { redirectTo },
+      });
+      if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+      link = (data as any)?.properties?.action_link || null;
     }
 
-    // Generate the link — this is what we give to the admin to send manually
-    const { data, error } = await admin.auth.admin.generateLink({
-      type: 'recovery',
-      email: cleanEmail,
-      options: { redirectTo },
-    });
-
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-
-    const link = (data as any)?.properties?.action_link;
     if (!link) return NextResponse.json({ error: 'Could not generate link' }, { status: 500 });
 
     return NextResponse.json({ success: true, link });
