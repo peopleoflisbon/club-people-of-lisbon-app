@@ -60,17 +60,13 @@ body {
 
 .mapboxgl-popup-content {
   padding: 0 !important;
-  border-radius: 1rem !important;
+  border-radius: 0 !important;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.25) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4) !important;
   border: none !important;
 }
 
-.mapboxgl-popup-close-button {
-  display: none !important;
-}
-
-.mapboxgl-popup-tip {
+.pol-hover-popup .mapboxgl-popup-tip {
   display: none !important;
 }
 

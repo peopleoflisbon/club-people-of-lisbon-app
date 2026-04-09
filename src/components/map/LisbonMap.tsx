@@ -74,15 +74,26 @@ export default function LisbonMap({ pins }: Props) {
         </div>
       `;
 
-      // Hover tooltip
-      const tooltip = document.createElement('div');
-      tooltip.style.cssText = 'position:absolute;bottom:52px;left:50%;transform:translateX(-50%);background:#0A0A0A;color:#fff;font-size:11px;font-weight:600;white-space:nowrap;padding:4px 10px;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:10;';
-      tooltip.textContent = pin.title;
-      el.style.position = 'relative';
-      el.appendChild(tooltip);
-      el.addEventListener('mouseenter', () => { tooltip.style.opacity = '1'; });
-      el.addEventListener('mouseleave', () => { tooltip.style.opacity = '0'; });
-      el.addEventListener('click', () => { setSelectedPin(pin); setPlayingVideo(false); });
+      // Hover popup with thumbnail + name
+      const thumbnail = pin.thumbnail_url || (pin.youtube_url ? `https://img.youtube.com/vi/${pin.youtube_url.match(/[?&]v=([^&]+)/)?.[1] || pin.youtube_url.split('/').pop()}/mqdefault.jpg` : '');
+      const popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        offset: 28,
+        className: 'pol-hover-popup',
+      }).setHTML(`
+        <div style="width:180px;background:#0A0A0A;overflow:hidden;">
+          ${thumbnail ? `<img src="${thumbnail}" style="width:100%;height:100px;object-fit:cover;display:block;" onerror="this.style.display='none'" />` : ''}
+          <div style="padding:8px 10px;">
+            <p style="color:#fff;font-size:12px;font-weight:600;margin:0 0 2px;">${pin.title}</p>
+            ${pin.neighborhood ? `<p style="color:#F4141E;font-size:10px;font-weight:600;margin:0;">${pin.neighborhood}</p>` : ''}
+          </div>
+        </div>
+      `);
+
+      el.addEventListener('mouseenter', () => popup.addTo(map));
+      el.addEventListener('mouseleave', () => popup.remove());
+      el.addEventListener('click', () => { setSelectedPin(pin); setPlayingVideo(false); popup.remove(); });
 
       const marker = new mapboxgl.Marker(el)
         .setLngLat([pin.longitude, pin.latitude])

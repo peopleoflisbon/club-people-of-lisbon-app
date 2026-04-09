@@ -58,7 +58,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
         {/* 1. WEATHER */}
         <LisbonWeather />
 
-        {/* 2. NEWS */}
+        {/* 2. LISBON NEWS */}
         <LisbonNews />
 
         {/* 3. LATEST FROM STEPHEN */}
@@ -66,7 +66,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           <section>
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-display text-2xl text-ink">Latest from Stephen</h2>
-              <Link href="/updates" className="text-xs font-semibold text-brand hover:underline">See all →</Link>
+              <Link href="/updates" className="text-sm font-semibold text-brand hover:underline">See all →</Link>
             </div>
             <Link href="/updates" className="block bg-ink p-5 group hover:-translate-y-0.5 transition-transform duration-200">
               <div className="flex items-start gap-3 mb-3">
@@ -74,14 +74,46 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                   <span className="text-white font-display text-sm leading-none">S</span>
                 </div>
                 <div>
-                  <p className="text-white text-sm font-semibold">Stephen O'Regan</p>
-                  <p className="text-stone-500 text-xs">{formatDate(latestUpdate.published_at)}</p>
+                  <p className="text-white text-base font-semibold">Stephen O'Regan</p>
+                  <p className="text-stone-500 text-sm">{formatDate(latestUpdate.published_at)}</p>
                 </div>
               </div>
               <p className="font-display text-white text-xl leading-tight mb-2">{latestUpdate.title}</p>
               <p className="text-stone-400 text-sm leading-relaxed line-clamp-3">{latestUpdate.content}</p>
-              <p className="text-brand text-xs font-semibold mt-3 group-hover:underline">Read more →</p>
+              <p className="text-brand text-sm font-semibold mt-3 group-hover:underline">Read more →</p>
             </Link>
+          </section>
+        )}
+
+        {/* 3. EVENTS */}
+        {upcomingEvents.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-display text-2xl text-ink">Upcoming Events</h2>
+              <Link href="/events" className="text-sm font-semibold text-brand hover:underline">See all →</Link>
+            </div>
+            <div className="space-y-3">
+              {upcomingEvents.map((event) => (
+                <Link key={event.id} href={`/events/${event.id}`} className="block bg-white border border-stone-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-12 text-center">
+                      <div className="bg-brand py-2">
+                        <p className="text-white text-xs font-bold uppercase leading-none">{new Date(event.starts_at).toLocaleDateString('en', { month: 'short' })}</p>
+                        <p className="text-white font-display text-xl leading-none mt-0.5">{new Date(event.starts_at).getDate()}</p>
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-base text-ink leading-tight">{event.title}</p>
+                      {event.location_name && <p className="text-sm text-stone-400 mt-1">{event.location_name}</p>}
+                      <p className="text-sm text-stone-400 mt-0.5">{formatDateTime(event.starts_at)}</p>
+                    </div>
+                    <svg className="w-4 h-4 text-stone-300 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </section>
         )}
 
@@ -90,16 +122,14 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           <section>
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-display text-2xl text-ink">New Members</h2>
-              <Link href="/members" className="text-xs font-semibold text-brand hover:underline">All members →</Link>
+              <Link href="/members" className="text-sm font-semibold text-brand hover:underline">All members →</Link>
             </div>
             <Link href={`/members/${newestMember.id}`} className="flex items-center gap-4 bg-white border border-stone-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
               <Avatar src={newestMember.avatar_url} name={newestMember.full_name} size="xl" />
               <div className="flex-1 min-w-0">
                 <p className="font-display text-xl text-ink leading-tight">{newestMember.full_name}</p>
                 {newestMember.headline && <p className="text-stone-500 text-sm mt-0.5 line-clamp-1">{newestMember.headline}</p>}
-                {newestMember.neighborhood && (
-                  <p className="text-xs text-brand font-medium mt-1">{newestMember.neighborhood}</p>
-                )}
+                {newestMember.neighborhood && <p className="text-sm text-brand font-medium mt-1">{newestMember.neighborhood}</p>}
               </div>
               <span className="flex-shrink-0 inline-block bg-brand text-white text-xs font-semibold px-3 py-1">New</span>
             </Link>
@@ -117,47 +147,15 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           </section>
         )}
 
-        {/* 5. EVENTS */}
-        {upcomingEvents.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-display text-2xl text-ink">Upcoming Events</h2>
-              <Link href="/events" className="text-xs font-semibold text-brand hover:underline">See all →</Link>
-            </div>
-            <div className="space-y-3">
-              {upcomingEvents.map((event) => (
-                <Link key={event.id} href={`/events/${event.id}`} className="block bg-white border border-stone-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-12 text-center">
-                      <div className="bg-brand py-2">
-                        <p className="text-white text-xs font-bold uppercase leading-none">{new Date(event.starts_at).toLocaleDateString('en', { month: 'short' })}</p>
-                        <p className="text-white font-display text-xl leading-none mt-0.5">{new Date(event.starts_at).getDate()}</p>
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-ink leading-tight">{event.title}</p>
-                      {event.location_name && <p className="text-xs text-stone-400 mt-1">{event.location_name}</p>}
-                      <p className="text-xs text-stone-400 mt-0.5">{formatDateTime(event.starts_at)}</p>
-                    </div>
-                    <svg className="w-4 h-4 text-stone-300 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                    </svg>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* 6. PORTUGUESE PHRASE */}
+        {/* 5. PORTUGUESE PHRASE */}
         <PortuguesePhrase />
 
-        {/* 7. GOOD NEWS */}
+        {/* 6. GOOD NEWS */}
         {goodNews.length > 0 && (
           <section>
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-display text-2xl text-ink">Good News</h2>
-              <Link href="/good-news" className="text-xs font-semibold text-brand hover:underline">See all →</Link>
+              <Link href="/good-news" className="text-sm font-semibold text-brand hover:underline">See all →</Link>
             </div>
             <div className="space-y-3">
               {goodNews.map((post) => (
@@ -166,13 +164,12 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                     <Avatar src={post.author?.avatar_url || ''} name={post.author?.full_name || '?'} size="sm" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <p className="text-xs font-semibold text-ink">{post.author?.full_name}</p>
-                        <span className={cn('text-2xs font-semibold px-2 py-0.5 border', CATEGORY_COLORS[post.category] || 'bg-stone-50 text-stone-500 border-stone-100')}>{post.category}</span>
-                        {post.is_featured && <span className="text-2xs font-semibold text-brand">★ Featured</span>}
+                        <p className="text-sm font-semibold text-ink">{post.author?.full_name}</p>
+                        <span className={cn('text-xs font-semibold px-2 py-0.5 border', CATEGORY_COLORS[post.category] || 'bg-stone-50 text-stone-500 border-stone-100')}>{post.category}</span>
+                        {post.is_featured && <span className="text-xs font-semibold text-brand">★ Featured</span>}
                       </div>
-                      <p className="font-semibold text-sm text-ink leading-tight">{post.title}</p>
-                      {post.body && <p className="text-xs text-stone-500 mt-1 leading-relaxed line-clamp-2">{post.body}</p>}
-                      <p className="text-2xs text-stone-300 mt-2">{formatDate(post.created_at)}</p>
+                      <p className="font-semibold text-base text-ink leading-tight">{post.title}</p>
+                      {post.body && <p className="text-sm text-stone-500 mt-1 leading-relaxed line-clamp-2">{post.body}</p>}
                     </div>
                   </div>
                 </Link>
@@ -181,12 +178,12 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           </section>
         )}
 
-        {/* 8. RITA'S PHOTOS */}
+        {/* 7. RITA'S PHOTOS */}
         {latestPhoto && (
           <section>
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-display text-2xl text-ink">Rita's Latest Photos</h2>
-              <Link href="/photos" className="text-xs font-semibold text-brand hover:underline">See all →</Link>
+              <Link href="/photos" className="text-sm font-semibold text-brand hover:underline">See all →</Link>
             </div>
             <Link href="/photos" className="block group">
               <div className="relative overflow-hidden aspect-[4/3] bg-stone-100">
@@ -194,8 +191,8 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
                 {latestPhoto.title && (
                   <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <p className="font-display text-white text-lg leading-tight">{latestPhoto.title}</p>
-                    {latestPhoto.caption && <p className="text-stone-300 text-xs mt-1 line-clamp-1">{latestPhoto.caption}</p>}
+                    <p className="font-display text-white text-xl leading-tight">{latestPhoto.title}</p>
+                    {latestPhoto.caption && <p className="text-stone-300 text-sm mt-1 line-clamp-1">{latestPhoto.caption}</p>}
                   </div>
                 )}
               </div>
