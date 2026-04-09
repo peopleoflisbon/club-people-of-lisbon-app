@@ -24,7 +24,7 @@ export default async function EventsPage() {
 
   const rsvpMap = new Map((userRsvps || []).map((r: any) => [r.event_id, r.status]));
 
-  const enriched = (events || []).map((e) => ({
+  const enriched = (events || []).map((e: any) => ({
     ...e,
     user_rsvp: rsvpMap.get(e.id) || null,
     rsvp_count: countMap.get(e.id) || 0,

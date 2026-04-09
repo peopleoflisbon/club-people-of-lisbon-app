@@ -37,7 +37,7 @@ export default async function MessagesPage({
 
   // Collect all unique profile IDs we need (the "other" person in each convo)
   const profileIds = new Set<string>();
-  conversations.forEach((c) => {
+  conversations.forEach((c: any) => {
     profileIds.add(c.participant_a === userId ? c.participant_b : c.participant_a);
   });
 
@@ -47,7 +47,7 @@ export default async function MessagesPage({
     .select('id, full_name, avatar_url, headline')
     .in('id', Array.from(profileIds));
 
-  const profileMap = new Map((profiles || []).map((p) => [p.id, p]));
+  const profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
 
   // BUG FIX: use maybeSingle() instead of single() to avoid errors when no messages
   const enriched = await Promise.all(
