@@ -21,7 +21,8 @@ export default function SetPasswordPage() {
       if (session) {
         setReady(true);
       } else {
-        router.push('/auth/login');
+        // No session - send back to login
+        router.replace('/auth/login');
       }
     });
     supabase.from('app_settings').select('key, value').then(({ data }) => {
