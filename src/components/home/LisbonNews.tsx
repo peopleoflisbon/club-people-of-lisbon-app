@@ -7,45 +7,23 @@ interface NewsItem {
   link: string;
   description: string;
   source: string;
+  pubDate: string;
 }
-
-const RSS_SOURCES = [
-  { url: 'https://www.theportugalnews.com/rss', name: 'The Portugal News' },
-  { url: 'https://feeds.bbci.co.uk/news/world/europe/rss.xml', name: 'BBC News' },
-];
 
 export default function LisbonNews() {
   const [news, setNews] = useState<NewsItem | null>(null);
   const [showReader, setShowReader] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchNews() {
-      for (const source of RSS_SOURCES) {
-        try {
-          const res = await fetch(
-            `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(source.url)}&count=5`
-          );
-          const d = await res.json();
-          const items = d.items || [];
-          if (items.length > 0) {
-            const item = items[0];
-            setNews({
-              title: item.title,
-              link: item.link,
-              description: (item.description || item.content || '')
-                .replace(/<[^>]*>/g, '')
-                .slice(0, 400),
-              source: source.name,
-            });
-            return;
-          }
-        } catch {}
-      }
-    }
-    fetchNews();
+    fetch('/api/news')
+      .then(r => r.json())
+      .then(d => { if (!d.error) setNews(d); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  if (!news) return null;
+  if (loading || !news) return null;
 
   return (
     <>
