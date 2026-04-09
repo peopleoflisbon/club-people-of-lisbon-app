@@ -123,7 +123,22 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
             </div>
             <div className="space-y-3">
               {upcomingEvents.map((event) => (
-                <Link key={event.id} href="/events" className="block bg-white rounded-2xl border border-stone-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                <Link
+                  key={event.id}
+                  href="/events"
+                  className="block bg-white rounded-2xl border border-stone-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  {(event.cover_image_url || event.image_url) && (
+                    <div className="relative h-32 bg-stone-100">
+                      <img
+                        src={event.cover_image_url || event.image_url}
+                        alt={event.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    </div>
+                  )}
+                  <div className="p-4">
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0 w-12 text-center">
                       <div className="bg-brand rounded-xl py-2">
@@ -147,6 +162,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                     <svg className="w-4 h-4 text-stone-300 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                     </svg>
+                  </div>
                   </div>
                 </Link>
               ))}

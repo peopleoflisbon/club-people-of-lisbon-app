@@ -39,6 +39,7 @@ export default function GoodNewsClient({ posts: initialPosts, userId }: Props) {
   const [form, setForm] = useState<GoodNewsFormData>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [submitted, setSubmitted] = useState(false);
   const supabase = createClient();
 
   async function submitPost() {
@@ -46,18 +47,17 @@ export default function GoodNewsClient({ posts: initialPosts, userId }: Props) {
     setSaving(true);
     setError('');
 
-    const { data, error: err } = await supabase
+    // Posts go to pending (is_published: false) for admin approval
+    const { error: err } = await supabase
       .from('good_news_posts')
-      .insert({ ...form, author_profile_id: userId })
-      .select('*, author:profiles(id, full_name, avatar_url, headline)')
-      .single();
+      .insert({ ...form, author_profile_id: userId, is_published: false, is_featured: false });
 
     if (err) {
       setError('Failed to post. Please try again.');
-    } else if (data) {
-      setPosts((prev) => [data as Post, ...prev]);
+    } else {
       setForm(EMPTY_FORM);
       setShowForm(false);
+      setSubmitted(true);
     }
     setSaving(false);
   }
@@ -196,12 +196,20 @@ export default function GoodNewsClient({ posts: initialPosts, userId }: Props) {
 
           {/* Share button at bottom */}
           <div className="pt-2">
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="w-full py-3 rounded-2xl border-2 border-dashed border-stone-200 text-stone-400 text-sm font-semibold hover:border-brand hover:text-brand transition-colors"
-            >
-              + Share your good news
-            </button>
+            {submitted ? (
+              <div className="w-full py-4 rounded-2xl border border-emerald-200 bg-emerald-50 text-center">
+                <p className="text-emerald-700 text-sm font-semibold">✓ Submitted for review</p>
+                <p className="text-emerald-600 text-xs mt-1">Your post will appear once approved by the team.</p>
+                <button onClick={() => setSubmitted(false)} className="text-xs text-emerald-600 underline mt-2">Share another</button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowForm(!showForm)}
+                className="w-full py-3 rounded-2xl border-2 border-dashed border-stone-200 text-stone-400 text-sm font-semibold hover:border-brand hover:text-brand transition-colors"
+              >
+                + Share your good news
+              </button>
+            )}
           </div>
         </div>
       )}

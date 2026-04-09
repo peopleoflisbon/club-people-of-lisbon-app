@@ -56,50 +56,97 @@ export default function AdminGoodNewsClient({ posts: initial }: { posts: Post[] 
       {posts.length === 0 ? (
         <p className="text-stone-400 text-sm">No posts yet.</p>
       ) : (
-        <div className="space-y-3">
-          {posts.map((post) => (
-            <div key={post.id} className={cn('pol-card p-4', !post.is_published && 'opacity-55')}>
-              <div className="flex items-start gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    {post.author && (
-                      <span className="text-xs font-semibold text-stone-500">{post.author.full_name}</span>
-                    )}
-                    <span className={cn('text-2xs px-2 py-0.5 rounded-full font-semibold', CATEGORY_STYLES[post.category] || 'bg-stone-100 text-stone-500')}>
-                      {post.category}
-                    </span>
-                    {post.is_featured && <span className="text-2xs font-bold text-brand">★ Featured</span>}
-                    {!post.is_published && <span className="text-2xs bg-stone-100 text-stone-400 px-2 py-0.5 rounded-full font-semibold">Hidden</span>}
+        <div className="space-y-6">
+          {/* Pending approval */}
+          {posts.filter(p => !p.is_published).length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
+                  Pending Approval ({posts.filter(p => !p.is_published).length})
+                </p>
+              </div>
+              <div className="space-y-3">
+                {posts.filter(p => !p.is_published).map((post) => (
+                  <div key={post.id} className="pol-card p-4 border-l-4 border-amber-400">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          {post.author && <span className="text-xs font-semibold text-stone-500">{post.author.full_name}</span>}
+                          <span className={cn('text-2xs px-2 py-0.5 rounded-full font-semibold', CATEGORY_STYLES[post.category] || 'bg-stone-100 text-stone-500')}>{post.category}</span>
+                          <span className="text-2xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">Awaiting approval</span>
+                        </div>
+                        <p className="font-semibold text-sm text-ink">{post.title}</p>
+                        {post.body && <p className="text-xs text-stone-400 mt-1">{post.body}</p>}
+                        <p className="text-xs text-stone-300 mt-2">{formatDate(post.created_at)}</p>
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <button
+                          onClick={() => togglePublish(post.id, false)}
+                          className="text-xs px-3 py-1.5 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors font-semibold"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => deletePost(post.id)}
+                          className="text-xs px-3 py-1.5 rounded-lg border border-red-200 text-red-400 hover:bg-red-50 transition-colors"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <p className="font-semibold text-sm text-ink">{post.title}</p>
-                  {post.body && <p className="text-xs text-stone-400 mt-1 line-clamp-2">{post.body}</p>}
-                  <p className="text-xs text-stone-300 mt-2">{formatDate(post.created_at)}</p>
-                </div>
-                <div className="flex gap-2 flex-shrink-0 flex-wrap justify-end">
-                  <button
-                    onClick={() => toggleFeature(post.id, post.is_featured)}
-                    className={cn('text-xs px-3 py-1.5 rounded-lg border transition-colors',
-                      post.is_featured ? 'border-brand/30 text-brand bg-brand/5' : 'border-stone-200 text-stone-500 hover:border-brand hover:text-brand'
-                    )}
-                  >
-                    {post.is_featured ? '★ Featured' : 'Feature'}
-                  </button>
-                  <button
-                    onClick={() => togglePublish(post.id, post.is_published)}
-                    className="text-xs px-3 py-1.5 rounded-lg border border-stone-200 hover:border-stone-400 transition-colors"
-                  >
-                    {post.is_published ? 'Hide' : 'Publish'}
-                  </button>
-                  <button
-                    onClick={() => deletePost(post.id)}
-                    className="text-xs px-3 py-1.5 rounded-lg border border-red-200 text-red-400 hover:bg-red-50 transition-colors"
-                  >
-                    Remove
-                  </button>
-                </div>
+                ))}
               </div>
             </div>
-          ))}
+          )}
+
+          {/* Published posts */}
+          {posts.filter(p => p.is_published).length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Published</p>
+              <div className="space-y-3">
+                {posts.filter(p => p.is_published).map((post) => (
+                  <div key={post.id} className="pol-card p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          {post.author && <span className="text-xs font-semibold text-stone-500">{post.author.full_name}</span>}
+                          <span className={cn('text-2xs px-2 py-0.5 rounded-full font-semibold', CATEGORY_STYLES[post.category] || 'bg-stone-100 text-stone-500')}>{post.category}</span>
+                          {post.is_featured && <span className="text-2xs font-bold text-brand">★ Featured</span>}
+                        </div>
+                        <p className="font-semibold text-sm text-ink">{post.title}</p>
+                        {post.body && <p className="text-xs text-stone-400 mt-1 line-clamp-2">{post.body}</p>}
+                        <p className="text-xs text-stone-300 mt-2">{formatDate(post.created_at)}</p>
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0 flex-wrap justify-end">
+                        <button
+                          onClick={() => toggleFeature(post.id, post.is_featured)}
+                          className={cn('text-xs px-3 py-1.5 rounded-lg border transition-colors',
+                            post.is_featured ? 'border-brand/30 text-brand bg-brand/5' : 'border-stone-200 text-stone-500 hover:border-brand hover:text-brand'
+                          )}
+                        >
+                          {post.is_featured ? '★ Featured' : 'Feature'}
+                        </button>
+                        <button
+                          onClick={() => togglePublish(post.id, true)}
+                          className="text-xs px-3 py-1.5 rounded-lg border border-stone-200 hover:border-stone-400 transition-colors"
+                        >
+                          Hide
+                        </button>
+                        <button
+                          onClick={() => deletePost(post.id)}
+                          className="text-xs px-3 py-1.5 rounded-lg border border-red-200 text-red-400 hover:bg-red-50 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

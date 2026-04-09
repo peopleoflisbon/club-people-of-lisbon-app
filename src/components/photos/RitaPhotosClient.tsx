@@ -69,7 +69,7 @@ export default function RitaPhotosClient({ photos }: Props) {
         />
       ) : (
         /* Instagram-style vertical feed — single column, full width */
-        <div className="max-w-xl mx-auto px-4 lg:px-0 pb-8 space-y-1">
+        <div className="max-w-2xl mx-auto pb-8 space-y-0">
           {photos.map((photo, i) => (
             <PhotoCard key={photo.id} photo={photo} index={i} onClick={() => openPhoto(photo, i)} />
           ))}
@@ -178,46 +178,31 @@ function PhotoCard({
       className="w-full text-left group animate-fade-up"
       style={{ animationDelay: `${Math.min(index * 0.06, 0.4)}s`, opacity: 0 }}
     >
-      <div className="relative overflow-hidden rounded-2xl bg-stone-100">
+      <div className="relative overflow-hidden bg-stone-100">
         {/* Skeleton */}
         {!loaded && (
-          <div className="absolute inset-0 bg-stone-200 animate-pulse" style={{ minHeight: 240 }} />
+          <div className="absolute inset-0 bg-stone-200 animate-pulse" style={{ minHeight: 300 }} />
         )}
         <img
           src={photo.image_url}
           alt={photo.title || 'Photo by Rita Ansone'}
           className={cn(
             'w-full object-cover transition-all duration-500',
-            'group-hover:scale-[1.02]',
             loaded ? 'opacity-100' : 'opacity-0'
           )}
           onLoad={() => setLoaded(true)}
-          style={{ minHeight: loaded ? 0 : 240 }}
+          style={{ minHeight: loaded ? 0 : 300 }}
         />
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
-          <div>
-            {photo.title && (
-              <p className="font-display text-white text-lg leading-tight">{photo.title}</p>
-            )}
-            {photo.caption && (
-              <p className="text-stone-300 text-xs mt-1 line-clamp-2">{photo.caption}</p>
-            )}
-          </div>
-        </div>
       </div>
 
-      {/* Caption below on mobile */}
+      {/* Caption below */}
       {(photo.title || photo.caption) && (
-        <div className="mt-3 px-1 lg:hidden">
+        <div className="px-4 py-3 bg-white border-b border-stone-100">
           {photo.title && (
             <p className="font-semibold text-sm text-ink leading-tight">{photo.title}</p>
           )}
           {photo.caption && (
             <p className="text-stone-400 text-xs mt-1 leading-relaxed">{photo.caption}</p>
-          )}
-          {photo.date_taken && (
-            <p className="text-stone-300 text-xs mt-1">{formatDate(photo.date_taken)}</p>
           )}
         </div>
       )}

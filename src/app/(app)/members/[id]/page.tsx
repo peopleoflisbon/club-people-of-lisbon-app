@@ -45,8 +45,11 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
             <Avatar src={profile.avatar_url} name={profile.full_name} size="xl" className="flex-shrink-0 ring-2 ring-white/10" />
             <div className="flex-1 min-w-0">
               <h1 className="font-display text-2xl lg:text-3xl text-white leading-tight">{profile.full_name}</h1>
+              {profile.job_title && (
+                <p className="text-brand text-sm font-semibold mt-1">{profile.job_title}</p>
+              )}
               {profile.headline && (
-                <p className="text-stone-400 text-sm mt-1 leading-snug">{profile.headline}</p>
+                <p className="text-stone-400 text-sm mt-0.5 leading-snug">{profile.headline}</p>
               )}
               {profile.neighborhood && (
                 <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-2">
