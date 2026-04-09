@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import { formatDate, cn } from '@/lib/utils';
 import type { RitaPhoto, RitaPhotoFormData } from '@/types';
+import ImageUpload from '@/components/ui/ImageUpload';
 
 const EMPTY: RitaPhotoFormData = {
   image_url: '',
@@ -20,13 +21,12 @@ export default function AdminPhotosClient({ photos: initial }: { photos: RitaPho
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<RitaPhotoFormData>(EMPTY);
   const [saving, setSaving] = useState(false);
-  const [preview, setPreview] = useState('');
+  const [batchUploading, setBatchUploading] = useState(false);
   const supabase = createClient();
 
   function startCreate() {
     setForm(EMPTY);
     setEditingId(null);
-    setPreview('');
     setShowForm(true);
   }
 
@@ -40,8 +40,22 @@ export default function AdminPhotosClient({ photos: initial }: { photos: RitaPho
       sort_order: p.sort_order,
     });
     setEditingId(p.id);
-    setPreview(p.image_url);
     setShowForm(true);
+  }
+
+  async function handleBatchUpload(urls: string[]) {
+    setBatchUploading(true);
+    const maxOrder = photos.reduce((m, p) => Math.max(m, p.sort_order), 0);
+    const inserts = urls.map((url, i) => ({
+      image_url: url,
+      title: '',
+      caption: '',
+      is_published: true,
+      sort_order: maxOrder + i + 1,
+    }));
+    const { data } = await (supabase as any).from('rita_photos').insert(inserts).select();
+    if (data) setPhotos((p) => [...data, ...p]);
+    setBatchUploading(false);
   }
 
   async function save() {
@@ -50,15 +64,10 @@ export default function AdminPhotosClient({ photos: initial }: { photos: RitaPho
     const payload = { ...form, sort_order: Number(form.sort_order) };
 
     if (editingId) {
-      const { data } = await supabase
-        .from('rita_photos')
-        .update(payload)
-        .eq('id', editingId)
-        .select()
-        .single();
+      const { data } = await (supabase as any).from('rita_photos').update(payload).eq('id', editingId).select().single();
       if (data) setPhotos((p) => p.map((ph) => ph.id === editingId ? data : ph));
     } else {
-      const { data } = await supabase.from('rita_photos').insert(payload).select().single();
+      const { data } = await (supabase as any).from('rita_photos').insert(payload).select().single();
       if (data) setPhotos((p) => [data, ...p]);
     }
 
@@ -77,31 +86,28 @@ export default function AdminPhotosClient({ photos: initial }: { photos: RitaPho
     setPhotos((p) => p.filter((ph) => ph.id !== id));
   }
 
-  async function moveOrder(id: string, direction: 'up' | 'down') {
-    const idx = photos.findIndex((p) => p.id === id);
-    if (direction === 'up' && idx === 0) return;
-    if (direction === 'down' && idx === photos.length - 1) return;
-
-    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
-    const newPhotos = [...photos];
-    const aOrder = newPhotos[idx].sort_order;
-    const bOrder = newPhotos[swapIdx].sort_order;
-
-    [newPhotos[idx], newPhotos[swapIdx]] = [newPhotos[swapIdx], newPhotos[idx]];
-    newPhotos[idx].sort_order = aOrder;
-    newPhotos[swapIdx].sort_order = bOrder;
-    setPhotos(newPhotos);
-
-    await supabase.from('rita_photos').update({ sort_order: aOrder }).eq('id', newPhotos[idx].id);
-    await supabase.from('rita_photos').update({ sort_order: bOrder }).eq('id', newPhotos[swapIdx].id);
-  }
-
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-display text-3xl text-ink">Rita's Photos</h1>
-        <button onClick={startCreate} className="pol-btn-primary">+ Add Photo</button>
+        <div className="flex items-center gap-3">
+          <ImageUpload
+            value=""
+            onChange={() => {}}
+            label=""
+            folder="rita-photos"
+            multiple={true}
+            onMultiple={handleBatchUpload}
+            preview="none"
+          />
+          <button onClick={startCreate} className="pol-btn-secondary text-sm">+ Add Single</button>
+        </div>
       </div>
+      {batchUploading && (
+        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-700">
+          Uploading photos… please wait.
+        </div>
+      )}
 
       {/* Form modal */}
       {showForm && (
@@ -112,23 +118,13 @@ export default function AdminPhotosClient({ photos: initial }: { photos: RitaPho
               <button onClick={() => setShowForm(false)} className="text-stone-400 hover:text-ink text-lg leading-none">✕</button>
             </div>
 
-            <div>
-              <label className="pol-label">Image URL *</label>
-              <input
-                className="pol-input"
-                type="url"
-                value={form.image_url}
-                onChange={(e) => { setForm({ ...form, image_url: e.target.value }); setPreview(e.target.value); }}
-                placeholder="https://…"
-              />
-              <p className="text-xs text-stone-400 mt-1">Upload to Supabase Storage and paste the public URL here.</p>
-            </div>
-
-            {preview && (
-              <div className="rounded-xl overflow-hidden bg-stone-100 h-48">
-                <img src={preview} alt="Preview" className="w-full h-full object-cover" onError={() => setPreview('')} />
-              </div>
-            )}
+            <ImageUpload
+              value={form.image_url}
+              onChange={(url) => setForm({ ...form, image_url: url })}
+              label="Photo *"
+              folder="rita-photos"
+              preview="wide"
+            />
 
             <div>
               <label className="pol-label">Title</label>
@@ -138,17 +134,6 @@ export default function AdminPhotosClient({ photos: initial }: { photos: RitaPho
             <div>
               <label className="pol-label">Caption</label>
               <textarea className="pol-textarea" rows={3} value={form.caption} onChange={(e) => setForm({ ...form, caption: e.target.value })} placeholder="The streets quiet before the city wakes…" />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="pol-label">Date Taken</label>
-                <input className="pol-input" type="date" value={form.date_taken || ''} onChange={(e) => setForm({ ...form, date_taken: e.target.value })} />
-              </div>
-              <div>
-                <label className="pol-label">Sort Order</label>
-                <input className="pol-input" type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} />
-              </div>
             </div>
 
             <label className="flex items-center gap-2 cursor-pointer">

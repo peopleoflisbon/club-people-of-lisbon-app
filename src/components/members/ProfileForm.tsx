@@ -13,10 +13,12 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
   const [form, setForm] = useState({
     full_name: profile?.full_name || '',
     headline: profile?.headline || '',
+    job_title: profile?.job_title || '',
     short_bio: profile?.short_bio || '',
     neighborhood: profile?.neighborhood || '',
     linkedin_url: profile?.linkedin_url || '',
     instagram_handle: profile?.instagram_handle || '',
+    twitter_handle: profile?.twitter_handle || '',
     website_url: profile?.website_url || '',
     favorite_spots: profile?.favorite_spots || '',
     personal_story: profile?.personal_story || '',
@@ -126,6 +128,11 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         <div>
           <label className="pol-label">Headline</label>
           <input className="pol-input" value={form.headline} onChange={(e) => set('headline', e.target.value)} placeholder="Filmmaker & Lisbon enthusiast" />
+        </div>
+
+        <div>
+          <label className="pol-label">Job Title</label>
+          <input className="pol-input" value={form.job_title} onChange={(e) => set('job_title', e.target.value)} placeholder="Filmmaker, Founder, Writer…" />
         </div>
 
         <div>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import { formatDate, cn } from '@/lib/utils';
 import type { Update, UpdateFormData } from '@/types';
+import ImageUpload from '@/components/ui/ImageUpload';
 
 const EMPTY: UpdateFormData = { title: '', content: '', image_url: '', is_published: true };
 
@@ -77,10 +78,13 @@ export default function AdminUpdatesClient({ updates: initial }: { updates: Upda
               />
               <p className="text-xs text-stone-400 mt-1">Blank lines = paragraph breaks</p>
             </div>
-            <div>
-              <label className="pol-label">Image URL (optional)</label>
-              <input className="pol-input" type="url" value={form.image_url || ''} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="https://…" />
-            </div>
+            <ImageUpload
+              value={form.image_url || ''}
+              onChange={(url) => setForm({ ...form, image_url: url })}
+              label="Image (optional — e.g. a photo of Stephen)"
+              folder="updates"
+              preview="wide"
+            />
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"

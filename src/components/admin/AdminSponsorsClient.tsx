@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import type { Sponsor, SponsorFormData } from '@/types';
+import ImageUpload from '@/components/ui/ImageUpload';
 
 const EMPTY: SponsorFormData = { name: '', description: '', logo_url: '', website_url: '', display_order: 0 };
 
@@ -25,10 +26,10 @@ export default function AdminSponsorsClient({ sponsors: initial }: { sponsors: S
   async function save() {
     setSaving(true);
     if (editingId) {
-      const { data } = await supabase.from('sponsors').update(form).eq('id', editingId).select().single();
+      const { data } = await (supabase as any).from('sponsors').update(form).eq('id', editingId).select().single();
       if (data) setSponsors((p) => p.map((s) => s.id === editingId ? data : s));
     } else {
-      const { data } = await supabase.from('sponsors').insert(form).select().single();
+      const { data } = await (supabase as any).from('sponsors').insert(form).select().single();
       if (data) setSponsors((p) => [...p, data]);
     }
     setSaving(false);
@@ -62,17 +63,16 @@ export default function AdminSponsorsClient({ sponsors: initial }: { sponsors: S
               <label className="pol-label">Description</label>
               <textarea className="pol-textarea" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
             </div>
-            <div>
-              <label className="pol-label">Logo URL</label>
-              <input className="pol-input" type="url" value={form.logo_url} onChange={(e) => setForm({ ...form, logo_url: e.target.value })} placeholder="https://…" />
-            </div>
+            <ImageUpload
+              value={form.logo_url}
+              onChange={(url) => setForm({ ...form, logo_url: url })}
+              label="Logo"
+              folder="sponsors"
+              preview="square"
+            />
             <div>
               <label className="pol-label">Website URL</label>
               <input className="pol-input" type="url" value={form.website_url} onChange={(e) => setForm({ ...form, website_url: e.target.value })} placeholder="https://…" />
-            </div>
-            <div>
-              <label className="pol-label">Display Order</label>
-              <input className="pol-input" type="number" value={form.display_order} onChange={(e) => setForm({ ...form, display_order: Number(e.target.value) })} />
             </div>
             <div className="flex gap-3 pt-2">
               <button onClick={save} disabled={saving || !form.name} className="pol-btn-primary flex-1">
@@ -87,6 +87,9 @@ export default function AdminSponsorsClient({ sponsors: initial }: { sponsors: S
       <div className="space-y-3">
         {sponsors.map((s) => (
           <div key={s.id} className={cn('pol-card p-4 flex items-center gap-4', !s.is_active && 'opacity-50')}>
+            {s.logo_url && (
+              <img src={s.logo_url} alt={s.name} className="w-10 h-10 rounded-lg object-contain bg-stone-50 border border-stone-100 flex-shrink-0" />
+            )}
             <div className="flex-1">
               <p className="font-semibold text-sm text-ink">{s.name}</p>
               <p className="text-xs text-stone-400 truncate">{s.website_url}</p>

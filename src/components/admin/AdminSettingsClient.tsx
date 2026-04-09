@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import BrandLogo from '@/components/ui/BrandLogo';
+import ImageUpload from '@/components/ui/ImageUpload';
 
 interface Props {
   settings: Record<string, string>;
@@ -57,20 +58,13 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
         </div>
 
         <div className="space-y-3">
-          <div>
-            <label className="pol-label">Logo Image URL</label>
-            <input
-              type="url"
-              value={brandLogo}
-              onChange={(e) => { setBrandLogo(e.target.value); setSavedLogo(false); }}
-              className="pol-input"
-              placeholder="/pol-logo.png or https://your-storage-url/logo.png"
-            />
-            <p className="text-xs text-stone-400 mt-1.5">
-              Leave as <code className="bg-stone-100 px-1 py-0.5 rounded text-stone-600">/pol-logo.png</code> to use the uploaded asset.
-              To customise, upload a square PNG to Supabase Storage → media bucket → paste the public URL.
-            </p>
-          </div>
+          <ImageUpload
+            value={brandLogo === '/pol-logo.png' ? '' : brandLogo}
+            onChange={(url) => { setBrandLogo(url || '/pol-logo.png'); setSavedLogo(false); }}
+            label="Logo Image"
+            folder="brand"
+            preview="square"
+          />
           <div className="flex items-center gap-3">
             <button
               onClick={() => save('brand_square_image_url', brandLogo, setSavingLogo, setSavedLogo)}
@@ -125,16 +119,13 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
         </div>
 
         <div className="space-y-3">
-          <div>
-            <label className="pol-label">Background Image URL</label>
-            <input
-              type="url"
-              value={loginBg}
-              onChange={(e) => { setLoginBg(e.target.value); setBgImgError(false); setSavedBg(false); }}
-              className="pol-input"
-              placeholder="https://… (leave blank for default)"
-            />
-          </div>
+          <ImageUpload
+            value={loginBg}
+            onChange={(url) => { setLoginBg(url); setBgImgError(false); setSavedBg(false); }}
+            label="Background Photo"
+            folder="backgrounds"
+            preview="wide"
+          />
           <div className="flex items-center gap-3">
             <button
               onClick={() => save('login_background_image_url', loginBg, setSavingBg, setSavedBg)}

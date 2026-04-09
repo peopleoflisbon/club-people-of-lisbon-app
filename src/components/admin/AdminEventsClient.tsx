@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import { formatDateTime, cn } from '@/lib/utils';
 import type { Event, EventFormData } from '@/types';
+import ImageUpload from '@/components/ui/ImageUpload';
 
 interface Props {
   events: Event[];
@@ -16,6 +17,7 @@ const EMPTY_FORM: EventFormData = {
   location_address: '',
   starts_at: '',
   status: 'upcoming',
+  cover_image_url: '',
 };
 
 export default function AdminEventsClient({ events: initialEvents }: Props) {
@@ -44,6 +46,7 @@ export default function AdminEventsClient({ events: initialEvents }: Props) {
       ends_at: event.ends_at?.slice(0, 16),
       capacity: event.capacity || undefined,
       status: event.status,
+      cover_image_url: event.cover_image_url || '',
     });
     setEditingId(event.id);
     setShowForm(true);
@@ -117,41 +120,21 @@ export default function AdminEventsClient({ events: initialEvents }: Props) {
               <label className="pol-label">Description</label>
               <textarea className="pol-textarea" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="pol-label">Location Name</label>
-                <input className="pol-input" value={form.location_name} onChange={(e) => setForm({ ...form, location_name: e.target.value })} placeholder="LX Factory" />
-              </div>
-              <div>
-                <label className="pol-label">Address</label>
-                <input className="pol-input" value={form.location_address} onChange={(e) => setForm({ ...form, location_address: e.target.value })} />
-              </div>
+            <div>
+              <label className="pol-label">Location</label>
+              <input className="pol-input" value={form.location_name} onChange={(e) => setForm({ ...form, location_name: e.target.value })} placeholder="LX Factory, Lisbon" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="pol-label">Start Date & Time</label>
-                <input className="pol-input" type="datetime-local" value={form.starts_at} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} />
-              </div>
-              <div>
-                <label className="pol-label">End Date & Time</label>
-                <input className="pol-input" type="datetime-local" value={form.ends_at || ''} onChange={(e) => setForm({ ...form, ends_at: e.target.value })} />
-              </div>
+            <div>
+              <label className="pol-label">Date & Start Time</label>
+              <input className="pol-input" type="datetime-local" value={form.starts_at} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="pol-label">Capacity (optional)</label>
-                <input className="pol-input" type="number" value={form.capacity || ''} onChange={(e) => setForm({ ...form, capacity: e.target.value ? Number(e.target.value) : undefined })} placeholder="Unlimited" />
-              </div>
-              <div>
-                <label className="pol-label">Status</label>
-                <select className="pol-input" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as Event['status'] })}>
-                  <option value="upcoming">Upcoming</option>
-                  <option value="live">Live</option>
-                  <option value="past">Past</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-            </div>
+            <ImageUpload
+              value={form.cover_image_url || ''}
+              onChange={(url) => setForm({ ...form, cover_image_url: url })}
+              label="Cover Image (optional)"
+              folder="events"
+              preview="wide"
+            />
 
             <div className="flex gap-3 pt-2">
               <button onClick={saveEvent} disabled={saving || !form.title || !form.starts_at} className="pol-btn-primary flex-1">

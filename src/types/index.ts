@@ -13,11 +13,13 @@ export interface Profile {
   email: string;
   full_name: string;
   headline: string;
+  job_title: string;
   short_bio: string;
   neighborhood: string;
   avatar_url: string;
   linkedin_url: string;
   instagram_handle: string;
+  twitter_handle: string;
   website_url: string;
   favorite_spots: string;
   personal_story: string;
@@ -157,6 +159,7 @@ export interface EventFormData {
   ends_at?: string;
   capacity?: number;
   status: EventStatus;
+  cover_image_url?: string;
 }
 
 export interface MapPinFormData {
