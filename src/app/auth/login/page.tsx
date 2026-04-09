@@ -112,17 +112,12 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center relative z-10 p-6">
         <div className="w-full max-w-sm">
 
-          {/* Mobile logo + title */}
+          {/* Mobile logo only - no text */}
           <div className="flex flex-col items-center mb-8 lg:hidden">
             {logoUrl
-              ? <img src={logoUrl} alt="People Of Lisbon" className="w-20 h-20 object-contain mb-4" />
-              : <div className="w-20 h-20 bg-brand flex items-center justify-center mb-4"><span className="font-display text-white text-3xl">P</span></div>
+              ? <img src={logoUrl} alt="People Of Lisbon" className="w-24 h-24 object-contain mb-4" />
+              : <div className="w-24 h-24 bg-brand flex items-center justify-center mb-4"><span className="font-display text-white text-4xl">P</span></div>
             }
-            <h1 className="font-display text-white leading-none tracking-tight text-center mb-3" style={{ fontSize: '2.8rem', lineHeight: 0.95 }}>
-              People<br />Of<br />Lisbon
-            </h1>
-            <p className="text-white/80 text-sm font-semibold text-center leading-snug mb-1">{TAGLINE}</p>
-            <p className="text-stone-500 text-xs italic text-center">{TAGLINE_PT}</p>
           </div>
 
           {/* Form card */}

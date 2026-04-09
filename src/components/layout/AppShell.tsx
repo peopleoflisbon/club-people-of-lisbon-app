@@ -100,9 +100,101 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
     <div className="flex h-screen bg-parchment overflow-hidden">
 
       {/* ── Desktop Sidebar ── */}
-      <aside className="hidden lg:flex flex-col w-64 xl:w-72 h-full flex-shrink-0" style={{ backgroundImage: 'url(/tile-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        {/* Dark overlay for readability */}
-        <div className="flex flex-col h-full" style={{ background: 'rgba(80,0,0,0.55)' }}>
+      <aside className="hidden lg:flex flex-col w-64 xl:w-72 bg-ink h-full flex-shrink-0">
+        <div className="flex flex-col h-full">
+        {/* Logo */}
+        <div className="px-5 pt-6 pb-5 border-b border-stone-800">
+          <div className="flex items-center gap-3">
+            <BrandLogo src={brandLogoUrl} size={40} className="shadow-md shadow-brand/30" />
+            <div>
+              <p className="font-display text-white text-base leading-tight font-black">People Of Lisbon</p>
+              <p className="text-stone-500 text-xs mt-0.5 font-semibold leading-tight">Lisbon's most interesting people,<br />all in one place.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Primary nav */}
+        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+          <div className="space-y-0.5">
+            {NAV_ITEMS.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2.5 text-sm font-bold transition-all duration-200',
+                    active
+                      ? 'bg-brand text-white shadow-sm shadow-brand/20'
+                      : 'text-stone-400 hover:text-white hover:bg-stone-800'
+                  )}
+                >
+                  <span className="w-5 h-5 flex-shrink-0">{item.icon(active)}</span>
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Secondary nav */}
+          <div className="mt-4 pt-4 border-t border-stone-800 space-y-0.5">
+            {SECONDARY_NAV.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2 text-sm font-semibold transition-all duration-200',
+                    active ? 'text-white bg-stone-800' : 'text-stone-500 hover:text-stone-300 hover:bg-stone-800/50'
+                  )}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Admin link */}
+          {profile.role === 'admin' && (
+            <div className="mt-4 pt-4 border-t border-stone-800">
+              <Link
+                href="/admin"
+                className={cn(
+                  'flex items-center gap-3 px-3 py-2.5 text-sm font-bold transition-all duration-200',
+                  pathname.startsWith('/admin')
+                    ? 'bg-brand text-white'
+                    : 'text-stone-500 hover:text-white hover:bg-stone-800'
+                )}
+              >
+                <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Admin
+              </Link>
+            </div>
+          )}
+        </nav>
+
+        {/* Profile footer */}
+        <div className="p-3 border-t border-stone-800">
+          <Link href="/profile" className="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800 transition-colors">
+            <Avatar src={profile.avatar_url} name={profile.full_name} size="sm" />
+            <div className="flex-1 min-w-0">
+              <p className="text-white text-sm font-black truncate">{profile.full_name || 'My Profile'}</p>
+              <p className="text-stone-500 text-xs truncate">{profile.neighborhood || 'Edit profile'}</p>
+            </div>
+          </Link>
+          <button
+            onClick={handleSignOut}
+            className="w-full mt-1 px-3 py-2 text-stone-500 hover:text-stone-300 hover:bg-stone-800/50 text-xs font-semibold text-left transition-colors"
+          >
+            Sign out
+          </button>
+        </div>
+        </div>
+      </aside>
         {/* Logo */}
         <div className="px-5 pt-6 pb-5 border-b border-white/10">
           <div className="flex items-center gap-3">
@@ -200,13 +292,9 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
       {/* ── Main content ── */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile header */}
-        <header className="lg:hidden flex items-center justify-between px-4 pt-safe-top pb-3 border-b border-white/10" style={{ backgroundImage: 'url(/tile-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-          <div className="absolute inset-0 lg:hidden" style={{ background: 'rgba(80,0,0,0.55)', pointerEvents: 'none' }} />
-          <div className="relative flex items-center gap-2.5">
-            <BrandLogo src={brandLogoUrl} size={30} className="shadow-md shadow-brand/30" />
-            <span className="font-display text-white text-sm font-black" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>People Of Lisbon</span>
-          </div>
-          <Link href="/profile" className="relative">
+        <header className="lg:hidden flex items-center justify-between px-4 pt-safe-top pb-3 bg-ink border-b border-stone-900">
+          <BrandLogo src={brandLogoUrl} size={36} className="shadow-md shadow-brand/30" />
+          <Link href="/profile">
             <Avatar src={profile.avatar_url} name={profile.full_name} size="sm" />
           </Link>
         </header>
