@@ -24,7 +24,7 @@ export default async function MessagesPage({
     let initialConversationId: string | null = null;
     let newConvList: any[] = [];
 
-    if (searchParams.with && searchParams.with !== userId) {
+    if (searchParams.with) {
       const targetId = searchParams.with;
       const [a, b] = [userId, targetId].sort();
       let { data: existing } = await (supabase as any).from('conversations').select('id').eq('participant_a', a).eq('participant_b', b).maybeSingle();
@@ -88,7 +88,7 @@ export default async function MessagesPage({
   let initialConversationId: string | null = null;
   let finalConversations = enriched as any[];
 
-  if (searchParams.with && searchParams.with !== userId) {
+  if (searchParams.with) {
     const targetId = searchParams.with;
     const [a, b] = [userId, targetId].sort();
 
