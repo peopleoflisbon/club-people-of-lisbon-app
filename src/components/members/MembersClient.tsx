@@ -91,17 +91,20 @@ function MemberCard({ member, index }: { member: MemberRow; index: number }) {
     >
       <div className="flex items-center gap-4">
         <Avatar src={member.avatar_url} name={member.full_name} size="xl" className="flex-shrink-0" />
-        <div className="flex-1 min-w-0">
-          <h3 className="font-display text-lg text-ink leading-tight truncate">
+        <div className="flex-1" style={{ minWidth: 0 }}>
+          <h3 className="font-display text-lg text-ink leading-tight" style={{ wordBreak: 'break-word' }}>
             {member.full_name}
           </h3>
+          {(member as any).job_title && (
+            <p className="text-brand text-xs font-semibold mt-0.5">{(member as any).job_title}</p>
+          )}
           {member.headline && (
-            <p className="text-stone-500 text-sm mt-0.5 line-clamp-2 leading-snug">
+            <p className="text-stone-600 text-sm mt-0.5 leading-snug">
               {member.headline}
             </p>
           )}
           {member.neighborhood && (
-            <div className="flex items-center gap-1 text-xs text-brand font-medium mt-1.5">
+            <div className="flex items-center gap-1 text-xs text-stone-400 font-medium mt-1.5">
               <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
@@ -113,7 +116,7 @@ function MemberCard({ member, index }: { member: MemberRow; index: number }) {
       </div>
 
       {member.short_bio && (
-        <p className="text-stone-500 text-xs leading-relaxed line-clamp-2 border-t border-stone-50 pt-3">
+        <p className="text-stone-600 text-sm leading-relaxed border-t border-stone-100 pt-3">
           {member.short_bio}
         </p>
       )}

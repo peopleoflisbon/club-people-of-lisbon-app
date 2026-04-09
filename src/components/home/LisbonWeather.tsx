@@ -46,10 +46,10 @@ export default function LisbonWeather() {
   const condition = WMO_CODES[weather.code] || { label: 'Lisbon', icon: '🌡️' };
 
   return (
-    <div className="flex items-center gap-3 bg-white rounded-2xl border border-stone-100 px-4 py-3">
+    <div className="flex items-center gap-3 bg-white border border-stone-100 px-4 py-3">
       <span className="text-2xl leading-none">{condition.icon}</span>
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-stone-400 font-medium">Lisbon today</p>
+        <p className="text-xs text-stone-400 font-medium">The current weather in Lisbon is</p>
         <p className="text-sm font-semibold text-ink leading-tight">{condition.label}</p>
       </div>
       <div className="text-right flex-shrink-0">

@@ -73,6 +73,15 @@ export default function LisbonMap({ pins }: Props) {
           </svg>
         </div>
       `;
+
+      // Hover tooltip
+      const tooltip = document.createElement('div');
+      tooltip.style.cssText = 'position:absolute;bottom:52px;left:50%;transform:translateX(-50%);background:#0A0A0A;color:#fff;font-size:11px;font-weight:600;white-space:nowrap;padding:4px 10px;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:10;';
+      tooltip.textContent = pin.title;
+      el.style.position = 'relative';
+      el.appendChild(tooltip);
+      el.addEventListener('mouseenter', () => { tooltip.style.opacity = '1'; });
+      el.addEventListener('mouseleave', () => { tooltip.style.opacity = '0'; });
       el.addEventListener('click', () => { setSelectedPin(pin); setPlayingVideo(false); });
 
       const marker = new mapboxgl.Marker(el)
