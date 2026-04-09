@@ -8,13 +8,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!session) redirect('/auth/login');
 
-  const [{ data: profile }, { data: settings }] = await Promise.all([
+  const [{ data: profileRaw }, { data: settings }] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', session.user.id).single(),
     supabase.from('app_settings').select('key, value').in('key', [
       'brand_square_image_url',
       'login_background_image_url',
     ]),
   ]);
+
+  const profile = profileRaw as any;
 
   if (!profile?.is_active) redirect('/auth/login');
 
