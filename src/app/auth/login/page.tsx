@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
-import BrandLogo from '@/components/ui/BrandLogo';
 
-const FALLBACK_BG = 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=85';
 const TAGLINE = "Lisbon's most interesting people, all in one place.";
 const TAGLINE_PT = "(As pessoas mais interessantes de Lisboa, todas num só lugar.)";
+const FALLBACK_BG = 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=85';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,7 +17,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [bgImage, setBgImage] = useState(FALLBACK_BG);
-  const [brandLogo, setBrandLogo] = useState('/pol-logo.png');
+  const [logoUrl, setLogoUrl] = useState('');
   const [bgLoaded, setBgLoaded] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
@@ -28,9 +27,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     supabase.from('app_settings').select('key, value').then(({ data }) => {
-      (data || []).forEach((row: { key: string; value: string }) => {
+      (data || []).forEach((row: any) => {
         if (row.key === 'login_background_image_url' && row.value) setBgImage(row.value);
-        if ((row.key === 'brand_square_image_url' || row.key === 'logo_url') && row.value && row.value !== '/pol-logo.png') setBrandLogo(row.value);
+        if ((row.key === 'brand_square_image_url' || row.key === 'logo_url') && row.value) setLogoUrl(row.value);
       });
     });
   }, []); // eslint-disable-line
@@ -45,11 +44,10 @@ export default function LoginPage() {
       setError('Incorrect email or password.');
       setLoading(false);
     } else {
-      // Fetch name for welcome message
       const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', data.user.id).single();
       const firstName = (profile as any)?.full_name?.split(' ')[0] || '';
       setWelcomeName(firstName);
-      setTimeout(() => { router.push('/home'); router.refresh(); }, 1200);
+      setTimeout(() => { router.push('/home'); router.refresh(); }, 1400);
     }
   }
 
@@ -58,23 +56,21 @@ export default function LoginPage() {
     if (!forgotEmail.trim()) return;
     setForgotLoading(true);
     await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
-      redirectTo: `${window.location.origin}/auth/callback?type=recovery`,
+      redirectTo: `${window.location.origin}/auth/confirm`,
     });
     setForgotSent(true);
     setForgotLoading(false);
   }
 
-  // Welcome screen after login
+  // Welcome screen
   if (welcomeName) {
     return (
-      <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0 bg-ink">
-          <img src={bgImage} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" />
-          <div className="absolute inset-0 bg-ink/60" />
-        </div>
-        <div className="relative z-10 text-center">
-          <BrandLogo src={brandLogo} size={72} radius={0} className="mx-auto mb-6" />
-          <p className="text-stone-400 text-sm uppercase tracking-widest mb-2">Welcome back</p>
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-ink">
+        <img src={bgImage} alt="" className="absolute inset-0 w-full h-full object-cover opacity-25" />
+        <div className="absolute inset-0 bg-ink/60" />
+        <div className="relative z-10 text-center px-6">
+          {logoUrl && <img src={logoUrl} alt="Logo" className="w-16 h-16 object-contain mx-auto mb-6" />}
+          <p className="text-stone-400 text-sm uppercase tracking-widest mb-2 font-semibold">Welcome back</p>
           <h1 className="font-display text-white text-5xl">{welcomeName}</h1>
         </div>
       </div>
@@ -83,6 +79,7 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen w-full flex items-stretch overflow-hidden">
+      {/* Background */}
       <div className="absolute inset-0 z-0 bg-ink">
         <img
           src={bgImage}
@@ -90,82 +87,84 @@ export default function LoginPage() {
           className={cn('absolute inset-0 w-full h-full object-cover transition-opacity duration-1000', bgLoaded ? 'opacity-100' : 'opacity-0')}
           onLoad={() => setBgLoaded(true)}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/40 to-ink/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/50 to-ink/20" />
       </div>
 
-      {/* Left branding panel (desktop only) */}
+      {/* Left branding panel — desktop only */}
       <div className="hidden lg:flex flex-col justify-between w-1/2 relative z-10 p-12">
         <div>
-          <BrandLogo src={brandLogo} size={72} radius={0} className="shadow-2xl shadow-brand/30" />
+          {logoUrl
+            ? <img src={logoUrl} alt="People Of Lisbon" className="w-16 h-16 object-contain" />
+            : <div className="w-16 h-16 bg-brand flex items-center justify-center"><span className="font-display text-white text-2xl">P</span></div>
+          }
         </div>
         <div>
-          <h1 className="font-display text-white text-6xl xl:text-7xl leading-none tracking-tight mb-6">
-            People Of<br />Lisbon
+          <h1 className="font-display text-white leading-none tracking-tight mb-6" style={{ fontSize: 'clamp(3.5rem, 6vw, 5rem)', lineHeight: 0.95 }}>
+            People<br />Of<br />Lisbon
           </h1>
-          <p className="text-white text-xl font-medium leading-snug mb-2">{TAGLINE}</p>
+          <p className="text-white text-lg font-semibold leading-snug mb-1">{TAGLINE}</p>
           <p className="text-stone-400 text-sm italic">{TAGLINE_PT}</p>
         </div>
-        <div className="h-px bg-gradient-to-r from-brand via-stone-700 to-transparent" />
+        <div className="h-px bg-stone-700" />
       </div>
 
       {/* Right form panel */}
       <div className="flex-1 flex items-center justify-center relative z-10 p-6">
-        <div className="w-full max-w-sm py-8 lg:py-0">
+        <div className="w-full max-w-sm">
 
           {/* Mobile logo + title */}
           <div className="flex flex-col items-center mb-8 lg:hidden">
-            <div className="mb-5">
-              <BrandLogo src={brandLogo} size={80} radius={0} className="shadow-xl shadow-brand/30" />
-            </div>
-            <h1 className="font-display text-white text-3xl leading-none tracking-tight text-center mb-3">People Of Lisbon</h1>
-            <p className="text-white text-sm font-medium text-center leading-snug mb-1">{TAGLINE}</p>
-            <p className="text-stone-400 text-xs italic text-center">{TAGLINE_PT}</p>
+            {logoUrl
+              ? <img src={logoUrl} alt="People Of Lisbon" className="w-20 h-20 object-contain mb-4" />
+              : <div className="w-20 h-20 bg-brand flex items-center justify-center mb-4"><span className="font-display text-white text-3xl">P</span></div>
+            }
+            <h1 className="font-display text-white leading-none tracking-tight text-center mb-3" style={{ fontSize: '2.8rem', lineHeight: 0.95 }}>
+              People<br />Of<br />Lisbon
+            </h1>
+            <p className="text-white/80 text-sm font-semibold text-center leading-snug mb-1">{TAGLINE}</p>
+            <p className="text-stone-500 text-xs italic text-center">{TAGLINE_PT}</p>
           </div>
 
           {/* Form card */}
           <div className="bg-white/[0.06] backdrop-blur-md border border-white/10 p-8 shadow-2xl">
-
             {!showForgot ? (
               <>
                 <h2 className="font-display text-white text-2xl mb-6 hidden lg:block">Sign In</h2>
                 <form onSubmit={handleLogin} className="space-y-4" noValidate>
                   <div>
-                    <label className="block text-xs font-semibold text-stone-300 uppercase tracking-widest mb-2">Email</label>
+                    <label className="block text-xs font-bold text-stone-300 uppercase tracking-widest mb-2">Email</label>
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => { setEmail(e.target.value); setError(''); }}
                       autoComplete="email"
                       autoCapitalize="none"
-                      className="w-full px-4 py-3.5 text-sm text-white placeholder-stone-500 bg-white/[0.06] border border-white/15 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand/50 transition-all duration-200"
+                      className="w-full px-4 py-3.5 text-sm text-white placeholder-stone-500 bg-white/[0.06] border border-white/15 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand/50 transition-all"
                       placeholder="your@email.com"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-stone-300 uppercase tracking-widest mb-2">Password</label>
+                    <label className="block text-xs font-bold text-stone-300 uppercase tracking-widest mb-2">Password</label>
                     <input
                       type="password"
                       value={password}
                       onChange={(e) => { setPassword(e.target.value); setError(''); }}
                       autoComplete="current-password"
-                      className="w-full px-4 py-3.5 text-sm text-white placeholder-stone-500 bg-white/[0.06] border border-white/15 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand/50 transition-all duration-200"
+                      className="w-full px-4 py-3.5 text-sm text-white placeholder-stone-500 bg-white/[0.06] border border-white/15 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand/50 transition-all"
                       placeholder="••••••••"
                       required
                     />
                   </div>
 
                   {error && (
-                    <div className="flex items-center gap-2 text-brand text-sm bg-brand/10 border border-brand/20 px-4 py-3">
-                      {error}
-                    </div>
+                    <div className="text-brand text-sm bg-brand/10 border border-brand/20 px-4 py-3">{error}</div>
                   )}
 
                   <button
                     type="submit"
                     disabled={loading || !email || !password}
-                    className="w-full py-4 font-semibold text-sm text-white mt-2 bg-brand hover:bg-brand-dark shadow-lg shadow-brand/25 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full py-4 font-bold text-sm text-white mt-2 bg-brand hover:bg-brand-dark shadow-lg shadow-brand/25 active:scale-[0.98] transition-all disabled:opacity-40"
                   >
                     {loading ? 'Signing in…' : 'Sign In'}
                   </button>
@@ -173,7 +172,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => { setShowForgot(true); setForgotEmail(email); }}
-                    className="w-full text-center text-white/70 text-sm font-medium hover:text-white transition-colors mt-2 py-1"
+                    className="w-full text-center text-white font-semibold text-sm hover:text-white/80 transition-colors mt-1 py-1"
                   >
                     Forgot your password?
                   </button>
@@ -181,12 +180,11 @@ export default function LoginPage() {
               </>
             ) : (
               <>
-                <button onClick={() => { setShowForgot(false); setForgotSent(false); }} className="text-stone-300 text-sm hover:text-white transition-colors mb-5 flex items-center gap-1">
+                <button onClick={() => { setShowForgot(false); setForgotSent(false); }} className="text-stone-300 text-sm font-semibold hover:text-white transition-colors mb-5 flex items-center gap-1">
                   ← Back to sign in
                 </button>
                 <h2 className="font-display text-white text-2xl mb-2">Reset Password</h2>
-                <p className="text-stone-300 text-sm mb-6">Enter your email and we'll send you a reset link.</p>
-
+                <p className="text-stone-300 text-sm mb-6">Enter your email and we'll send a reset link.</p>
                 {forgotSent ? (
                   <div className="text-center py-6">
                     <div className="w-12 h-12 bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
@@ -194,18 +192,17 @@ export default function LoginPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
-                    <p className="text-white text-sm font-semibold mb-1">Check your email</p>
+                    <p className="text-white text-sm font-bold mb-1">Check your email</p>
                     <p className="text-stone-400 text-xs">Reset link sent to {forgotEmail}</p>
                   </div>
                 ) : (
                   <form onSubmit={handleForgot} className="space-y-4" noValidate>
                     <div>
-                      <label className="block text-xs font-semibold text-stone-300 uppercase tracking-widest mb-2">Email</label>
+                      <label className="block text-xs font-bold text-stone-300 uppercase tracking-widest mb-2">Email</label>
                       <input
                         type="email"
                         value={forgotEmail}
                         onChange={(e) => setForgotEmail(e.target.value)}
-                        autoComplete="email"
                         className="w-full px-4 py-3.5 text-sm text-white placeholder-stone-500 bg-white/[0.06] border border-white/15 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand/50 transition-all"
                         placeholder="your@email.com"
                         required
@@ -214,7 +211,7 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={forgotLoading || !forgotEmail}
-                      className="w-full py-4 font-semibold text-sm text-white bg-brand hover:bg-brand-dark active:scale-[0.98] transition-all disabled:opacity-40"
+                      className="w-full py-4 font-bold text-sm text-white bg-brand hover:bg-brand-dark active:scale-[0.98] transition-all disabled:opacity-40"
                     >
                       {forgotLoading ? 'Sending…' : 'Send Reset Link'}
                     </button>
@@ -224,13 +221,9 @@ export default function LoginPage() {
             )}
           </div>
 
-          <p className="text-center text-stone-500 text-xs mt-6">
-            By invitation only · People Of Lisbon
-          </p>
+          <p className="text-center text-stone-600 text-xs mt-6">By invitation only · People Of Lisbon</p>
         </div>
       </div>
-
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand to-transparent z-10" />
     </div>
   );
 }

@@ -100,14 +100,16 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
     <div className="flex h-screen bg-parchment overflow-hidden">
 
       {/* ── Desktop Sidebar ── */}
-      <aside className="hidden lg:flex flex-col w-64 xl:w-72 bg-ink h-full flex-shrink-0">
+      <aside className="hidden lg:flex flex-col w-64 xl:w-72 h-full flex-shrink-0" style={{ backgroundImage: 'url(/tile-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        {/* Dark overlay for readability */}
+        <div className="flex flex-col h-full" style={{ background: 'rgba(80,0,0,0.55)' }}>
         {/* Logo */}
-        <div className="px-5 pt-6 pb-5 border-b border-stone-800">
+        <div className="px-5 pt-6 pb-5 border-b border-white/10">
           <div className="flex items-center gap-3">
             <BrandLogo src={brandLogoUrl} size={40} className="shadow-md shadow-brand/30" />
             <div>
-              <p className="font-display text-white text-base leading-tight">People Of Lisbon</p>
-              <p className="text-stone-600 text-xs mt-0.5">Private Network</p>
+              <p className="font-display text-white text-base leading-tight" style={{ fontWeight: 900, textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>People Of Lisbon</p>
+              <p className="text-white/60 text-xs mt-0.5 font-semibold">Lisbon's most interesting people,<br />all in one place.</p>
             </div>
           </div>
         </div>
@@ -122,10 +124,10 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200',
+                    'flex items-center gap-3 px-3 py-2.5 text-sm transition-all duration-200',
                     active
-                      ? 'bg-brand text-white shadow-sm shadow-brand/20'
-                      : 'text-stone-500 hover:text-white hover:bg-stone-800'
+                      ? 'bg-brand text-white font-black shadow-sm shadow-brand/20'
+                      : 'text-white/80 hover:text-white hover:bg-white/10 font-bold'
                   )}
                 >
                   <span className="w-5 h-5 flex-shrink-0">{item.icon(active)}</span>
@@ -136,7 +138,7 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
           </div>
 
           {/* Secondary nav */}
-          <div className="mt-4 pt-4 border-t border-stone-800 space-y-0.5">
+          <div className="mt-4 pt-4 border-t border-white/10 space-y-0.5">
             {SECONDARY_NAV.map((item) => {
               const active = isActive(item.href);
               return (
@@ -144,8 +146,8 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200',
-                    active ? 'text-white bg-stone-800' : 'text-stone-600 hover:text-stone-300 hover:bg-stone-800/50'
+                    'flex items-center gap-3 px-3 py-2 text-sm transition-all duration-200',
+                    active ? 'text-white font-bold bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/10 font-semibold'
                   )}
                 >
                   {item.label}
@@ -156,14 +158,14 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
 
           {/* Admin link */}
           {profile.role === 'admin' && (
-            <div className="mt-4 pt-4 border-t border-stone-800">
+            <div className="mt-4 pt-4 border-t border-white/10">
               <Link
                 href="/admin"
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200',
+                  'flex items-center gap-3 px-3 py-2.5 text-sm font-bold transition-all duration-200',
                   pathname.startsWith('/admin')
                     ? 'bg-brand text-white'
-                    : 'text-stone-600 hover:text-white hover:bg-stone-800'
+                    : 'text-white/60 hover:text-white hover:bg-white/10'
                 )}
               >
                 <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75}>
@@ -177,32 +179,34 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
         </nav>
 
         {/* Profile footer */}
-        <div className="p-3 border-t border-stone-800">
-          <Link href="/profile" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-stone-800 transition-colors">
+        <div className="p-3 border-t border-white/10">
+          <Link href="/profile" className="flex items-center gap-3 px-3 py-2.5 hover:bg-white/10 transition-colors">
             <Avatar src={profile.avatar_url} name={profile.full_name} size="sm" />
             <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-semibold truncate">{profile.full_name || 'My Profile'}</p>
-              <p className="text-stone-600 text-xs truncate">{profile.neighborhood || 'Edit profile'}</p>
+              <p className="text-white text-sm font-black truncate">{profile.full_name || 'My Profile'}</p>
+              <p className="text-white/50 text-xs truncate">{profile.neighborhood || 'Edit profile'}</p>
             </div>
           </Link>
           <button
             onClick={handleSignOut}
-            className="w-full mt-1 px-3 py-2 rounded-xl text-stone-600 hover:text-stone-400 hover:bg-stone-800/50 text-xs font-semibold text-left transition-colors"
+            className="w-full mt-1 px-3 py-2 text-white/40 hover:text-white/70 hover:bg-white/10 text-xs font-semibold text-left transition-colors"
           >
             Sign out
           </button>
+        </div>
         </div>
       </aside>
 
       {/* ── Main content ── */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile header */}
-        <header className="lg:hidden flex items-center justify-between px-4 pt-safe-top pb-3 bg-ink border-b border-stone-900">
-          <div className="flex items-center gap-2.5">
+        <header className="lg:hidden flex items-center justify-between px-4 pt-safe-top pb-3 border-b border-white/10" style={{ backgroundImage: 'url(/tile-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+          <div className="absolute inset-0 lg:hidden" style={{ background: 'rgba(80,0,0,0.55)', pointerEvents: 'none' }} />
+          <div className="relative flex items-center gap-2.5">
             <BrandLogo src={brandLogoUrl} size={30} className="shadow-md shadow-brand/30" />
-            <span className="font-display text-white text-sm">People Of Lisbon</span>
+            <span className="font-display text-white text-sm font-black" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>People Of Lisbon</span>
           </div>
-          <Link href="/profile">
+          <Link href="/profile" className="relative">
             <Avatar src={profile.avatar_url} name={profile.full_name} size="sm" />
           </Link>
         </header>
