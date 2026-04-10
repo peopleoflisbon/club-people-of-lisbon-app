@@ -100,7 +100,7 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 
   return (
-    <div className="flex h-screen bg-parchment overflow-hidden">
+    <div className="flex bg-parchment overflow-hidden" style={{ height: '100dvh' }}>
 
       {/* ── Desktop Sidebar ── */}
       <aside className="hidden lg:flex flex-col w-64 xl:w-72 h-full flex-shrink-0" style={{ backgroundImage: 'url(/sidebar-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
@@ -198,9 +198,9 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
         </div>
         </div>
       </aside>
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden" style={{ height: '100%' }}>
         {/* Mobile header */}
-        <header className="lg:hidden flex items-center justify-between px-4 pt-safe-top pb-3 border-b border-white/10" style={{ backgroundImage: 'url(/sidebar-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center top', position: 'relative' }}>
+        <header className="lg:hidden flex items-center justify-between px-4 border-b border-white/10 flex-shrink-0" style={{ paddingTop: 'max(env(safe-area-inset-top), 12px)', paddingBottom: '12px', backgroundImage: 'url(/sidebar-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center top', position: 'relative' }}>
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
             <Link href="/home">
@@ -217,12 +217,12 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
         </div>
 
         {/* Mobile bottom tab bar */}
-        <nav className="lg:hidden flex items-stretch bg-white border-t border-stone-100" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}>
+        <nav className="lg:hidden flex items-stretch bg-white border-t border-stone-200 flex-shrink-0" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 8px)' }}>
           {NAV_ITEMS.map((item) => {
             const active = isActive(item.href);
             return (
-              <Link key={item.href} href={item.href} className={cn('bottom-nav-item', active && 'active')} style={{ paddingTop: '10px', paddingBottom: '6px' }}>
-                <span className="w-5 h-5">{item.icon(active)}</span>
+              <Link key={item.href} href={item.href} className={cn('bottom-nav-item', active && 'active')} style={{ paddingTop: '8px', paddingBottom: '4px', minHeight: '52px' }}>
+                <span className="w-6 h-6">{item.icon(active)}</span>
                 <span className="text-2xs font-semibold">{item.mobileLabel}</span>
               </Link>
             );

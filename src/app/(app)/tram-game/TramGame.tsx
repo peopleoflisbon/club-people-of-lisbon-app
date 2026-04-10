@@ -2,316 +2,375 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-const CANVAS_W = 400;
-const CANVAS_H = 300;
-const TRAM_W = 70;
-const TRAM_H = 36;
-const LANE_Y = [80, 150, 220]; // 3 lanes
-const OBSTACLE_W = 32;
-const OBSTACLE_H = 32;
+const GROUND_Y = 0.75; // fraction of canvas height
+const TRAM_X = 80;
+const SPEED_INIT = 5;
+const GRAVITY = 0.6;
+const JUMP_FORCE = -13;
 
-type Obstacle = {
-  x: number;
-  lane: number;
-  type: 'person' | 'car' | 'bike';
-  scored: boolean;
+type Obstacle = { x: number; type: 'person' | 'car' | 'bike'; w: number; h: number; scored: boolean };
+
+const OBS_CONFIG = {
+  person: { w: 18, h: 40, color: '#333', label: '🧑' },
+  car:    { w: 50, h: 28, color: '#555', label: '🚗' },
+  bike:   { w: 30, h: 30, color: '#444', label: '🚲' },
 };
-
-const OBSTACLE_TYPES = ['person', 'car', 'bike'] as const;
-const EMOJIS = { person: '🧑', car: '🚗', bike: '🚲' };
-const POINTS = { person: 10, car: 20, bike: 15 };
 
 export default function TramGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const stateRef = useRef({
-    lane: 1,
-    targetLane: 1,
-    tramY: LANE_Y[1],
+  const containerRef = useRef<HTMLDivElement>(null);
+  const state = useRef({
+    vy: 0,
+    tramY: 0,
+    grounded: true,
     obstacles: [] as Obstacle[],
     score: 0,
-    speed: 4,
-    frameCount: 0,
+    speed: SPEED_INIT,
+    frame: 0,
     running: false,
     dead: false,
-    bgOffset: 0,
+    groundX: 0,
+    clouds: [{ x: 200, y: 60, s: 1 }, { x: 400, y: 40, s: 0.7 }, { x: 600, y: 70, s: 0.9 }],
   });
-  const animRef = useRef<number>(0);
+  const animRef = useRef(0);
   const [score, setScore] = useState(0);
-  const [dead, setDead] = useState(false);
-  const [started, setStarted] = useState(false);
-  const [bestScore, setBestScore] = useState(0);
+  const [best, setBest] = useState(0);
+  const [phase, setPhase] = useState<'idle' | 'playing' | 'dead'>('idle');
+
+  const getSize = () => {
+    const c = containerRef.current;
+    return c ? { w: c.clientWidth, h: Math.min(c.clientWidth * 0.45, 280) } : { w: 400, h: 180 };
+  };
+
+  const jump = useCallback(() => {
+    const s = state.current;
+    if (s.dead || !s.running) return;
+    if (s.grounded) {
+      s.vy = JUMP_FORCE;
+      s.grounded = false;
+    }
+  }, []);
+
+  const startGame = useCallback(() => {
+    const s = state.current;
+    const { h } = getSize();
+    const ground = h * GROUND_Y;
+    s.tramY = ground;
+    s.vy = 0;
+    s.grounded = true;
+    s.obstacles = [];
+    s.score = 0;
+    s.speed = SPEED_INIT;
+    s.frame = 0;
+    s.running = true;
+    s.dead = false;
+    s.groundX = 0;
+    setScore(0);
+    setPhase('playing');
+    cancelAnimationFrame(animRef.current);
+    loop();
+  }, []);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
-    const s = stateRef.current;
+    const { w, h } = getSize();
+    canvas.width = w;
+    canvas.height = h;
+    const ground = h * GROUND_Y;
+    const s = state.current;
+    const TRAM_W = w * 0.18;
+    const TRAM_H = h * 0.16;
 
-    // Sky background
-    ctx.fillStyle = '#87CEEB';
-    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+    // White background
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, w, h);
 
-    // Road
-    ctx.fillStyle = '#888';
-    ctx.fillRect(0, 50, CANVAS_W, CANVAS_H - 50);
-
-    // Road markings
-    ctx.strokeStyle = '#fff';
-    ctx.setLineDash([30, 20]);
-    ctx.lineWidth = 2;
-    for (let laneIdx = 0; laneIdx < 2; laneIdx++) {
+    // Clouds
+    ctx.fillStyle = '#e8e8e8';
+    for (const cl of s.clouds) {
       ctx.beginPath();
-      ctx.moveTo(0, LANE_Y[laneIdx] + 20);
-      ctx.lineTo(CANVAS_W, LANE_Y[laneIdx] + 20);
+      ctx.arc(cl.x, cl.y, 18 * cl.s, 0, Math.PI * 2);
+      ctx.arc(cl.x + 18 * cl.s, cl.y - 8 * cl.s, 14 * cl.s, 0, Math.PI * 2);
+      ctx.arc(cl.x + 36 * cl.s, cl.y, 18 * cl.s, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Ground line
+    ctx.strokeStyle = '#555';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, ground + 2);
+    ctx.lineTo(w, ground + 2);
+    ctx.stroke();
+
+    // Ground texture (dashes)
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 1;
+    const gx = (-(s.groundX % 40));
+    for (let x = gx; x < w; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, ground + 8);
+      ctx.lineTo(x + 20, ground + 8);
       ctx.stroke();
     }
-    ctx.setLineDash([]);
 
-    // Buildings (scrolling bg)
-    const buildingColors = ['#c94040', '#e8a020', '#4060c0', '#40a060'];
-    for (let i = 0; i < 8; i++) {
-      const bx = ((i * 80 - s.bgOffset % 80) + CANVAS_W) % CANVAS_W;
-      const bh = 30 + (i % 3) * 12;
-      ctx.fillStyle = buildingColors[i % 4];
-      ctx.fillRect(bx, 50 - bh, 50, bh);
-      // Windows
-      ctx.fillStyle = 'rgba(255,255,200,0.6)';
-      for (let w = 0; w < 3; w++) {
-        for (let h2 = 0; h2 < 2; h2++) {
-          ctx.fillRect(bx + 6 + w * 14, 50 - bh + 6 + h2 * 12, 8, 8);
-        }
-      }
-    }
-    s.bgOffset += s.speed * 0.5;
+    // TRAM — yellow with black outline, Lisbon style
+    const tx = TRAM_X;
+    const ty = s.tramY - TRAM_H;
+    const tw = TRAM_W;
+    const th = TRAM_H;
 
-    // Tram (smooth lane switch)
-    const targetY = LANE_Y[s.targetLane];
-    s.tramY += (targetY - s.tramY) * 0.18;
-
-    // Draw tram body
+    // Body
     ctx.fillStyle = '#F4D03F';
-    ctx.fillRect(60, s.tramY - TRAM_H / 2, TRAM_W, TRAM_H);
+    ctx.strokeStyle = '#111';
+    ctx.lineWidth = 2;
+    ctx.fillRect(tx, ty, tw, th);
+    ctx.strokeRect(tx, ty, tw, th);
 
-    // Tram details
-    ctx.fillStyle = '#E67E22';
-    ctx.fillRect(60, s.tramY - TRAM_H / 2, TRAM_W, 8); // roof stripe
-    ctx.fillStyle = '#85C1E9';
-    // Windows
-    for (let i = 0; i < 3; i++) {
-      ctx.fillRect(70 + i * 18, s.tramY - TRAM_H / 2 + 10, 14, 14);
-    }
-    // Wheels
-    ctx.fillStyle = '#333';
-    ctx.beginPath(); ctx.arc(78, s.tramY + TRAM_H / 2, 6, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(114, s.tramY + TRAM_H / 2, 6, 0, Math.PI * 2); ctx.fill();
-
-    // Tram number 28
+    // Roof stripe (red)
     ctx.fillStyle = '#c0392b';
-    ctx.font = 'bold 10px sans-serif';
+    ctx.fillRect(tx, ty, tw, th * 0.22);
+    ctx.strokeRect(tx, ty, tw, th * 0.22);
+
+    // Windows
+    ctx.fillStyle = '#87CEEB';
+    ctx.strokeStyle = '#111';
+    ctx.lineWidth = 1;
+    const winCount = 3;
+    const winW = tw * 0.2;
+    const winH = th * 0.28;
+    const winY = ty + th * 0.28;
+    for (let i = 0; i < winCount; i++) {
+      const wx = tx + tw * 0.08 + i * (tw * 0.3);
+      ctx.fillRect(wx, winY, winW, winH);
+      ctx.strokeRect(wx, winY, winW, winH);
+    }
+
+    // Wheels
+    ctx.fillStyle = '#111';
+    ctx.beginPath(); ctx.arc(tx + tw * 0.22, ground + 2, h * 0.04, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(tx + tw * 0.78, ground + 2, h * 0.04, 0, Math.PI * 2); ctx.fill();
+
+    // Number 28
+    ctx.fillStyle = '#c0392b';
+    ctx.font = `bold ${Math.round(th * 0.22)}px monospace`;
     ctx.textAlign = 'center';
-    ctx.fillText('28', 95, s.tramY + 2);
+    ctx.fillText('28', tx + tw * 0.5, ty + th * 0.78);
 
     // Obstacles
-    ctx.font = `${OBSTACLE_H}px serif`;
-    ctx.textAlign = 'center';
     for (const obs of s.obstacles) {
-      const oy = LANE_Y[obs.lane];
-      ctx.fillText(EMOJIS[obs.type], obs.x + OBSTACLE_W / 2, oy + OBSTACLE_H / 2 - 4);
+      const cfg = OBS_CONFIG[obs.type];
+      const oh = obs.h;
+      const ow = obs.w;
+      const oy = ground - oh;
+
+      if (obs.type === 'person') {
+        // Stick figure
+        ctx.strokeStyle = '#111';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(obs.x + ow/2, oy + 6, 5, 0, Math.PI*2); ctx.fill(); // head
+        ctx.beginPath(); ctx.moveTo(obs.x + ow/2, oy + 11); ctx.lineTo(obs.x + ow/2, oy + 28); ctx.stroke(); // body
+        ctx.beginPath(); ctx.moveTo(obs.x + ow/2, oy + 16); ctx.lineTo(obs.x + 4, oy + 22); ctx.stroke(); // arm L
+        ctx.beginPath(); ctx.moveTo(obs.x + ow/2, oy + 16); ctx.lineTo(obs.x + ow - 4, oy + 22); ctx.stroke(); // arm R
+        ctx.beginPath(); ctx.moveTo(obs.x + ow/2, oy + 28); ctx.lineTo(obs.x + 4, oy + oh); ctx.stroke(); // leg L
+        ctx.beginPath(); ctx.moveTo(obs.x + ow/2, oy + 28); ctx.lineTo(obs.x + ow - 4, oy + oh); ctx.stroke(); // leg R
+      } else if (obs.type === 'car') {
+        ctx.fillStyle = '#333';
+        ctx.strokeStyle = '#111';
+        ctx.lineWidth = 2;
+        ctx.fillRect(obs.x, oy + oh * 0.35, ow, oh * 0.65);
+        ctx.strokeRect(obs.x, oy + oh * 0.35, ow, oh * 0.65);
+        // Roof
+        ctx.beginPath();
+        ctx.moveTo(obs.x + ow * 0.15, oy + oh * 0.35);
+        ctx.lineTo(obs.x + ow * 0.3, oy);
+        ctx.lineTo(obs.x + ow * 0.7, oy);
+        ctx.lineTo(obs.x + ow * 0.85, oy + oh * 0.35);
+        ctx.closePath();
+        ctx.fill(); ctx.stroke();
+        // Wheels
+        ctx.fillStyle = '#111';
+        ctx.beginPath(); ctx.arc(obs.x + ow * 0.22, ground + 2, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(obs.x + ow * 0.78, ground + 2, 5, 0, Math.PI * 2); ctx.fill();
+      } else {
+        // Bike
+        ctx.strokeStyle = '#111';
+        ctx.lineWidth = 2;
+        // Wheels
+        ctx.beginPath(); ctx.arc(obs.x + 8, ground - 8, 8, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(obs.x + ow - 8, ground - 8, 8, 0, Math.PI * 2); ctx.stroke();
+        // Frame
+        ctx.beginPath();
+        ctx.moveTo(obs.x + 8, ground - 8);
+        ctx.lineTo(obs.x + ow/2, ground - oh * 0.7);
+        ctx.lineTo(obs.x + ow - 8, ground - 8);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(obs.x + ow/2, ground - oh * 0.7);
+        ctx.lineTo(obs.x + ow * 0.35, ground - 8);
+        ctx.stroke();
+        // Handlebar
+        ctx.beginPath();
+        ctx.moveTo(obs.x + ow - 12, ground - oh * 0.7);
+        ctx.lineTo(obs.x + ow - 4, ground - oh * 0.7);
+        ctx.stroke();
+      }
     }
 
     // Score
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(0, 0, CANVAS_W, 28);
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 14px sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(`Score: ${s.score}`, 10, 19);
+    ctx.fillStyle = '#555';
+    ctx.font = `bold ${Math.round(h * 0.07)}px monospace`;
     ctx.textAlign = 'right';
-    ctx.fillText(`Best: ${bestScore}`, CANVAS_W - 10, 19);
+    ctx.fillText(`HI ${String(best).padStart(5, '0')}  ${String(s.score).padStart(5, '0')}`, w - 12, h * 0.1);
+
+    if (phase === 'idle' || (!s.running && !s.dead)) {
+      ctx.fillStyle = '#111';
+      ctx.font = `bold ${Math.round(h * 0.12)}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText('TAP TO START', w / 2, h / 2);
+      ctx.font = `${Math.round(h * 0.07)}px monospace`;
+      ctx.fillStyle = '#888';
+      ctx.fillText('Tap / Space to jump', w / 2, h / 2 + h * 0.14);
+    }
 
     if (s.dead) {
-      ctx.fillStyle = 'rgba(0,0,0,0.6)';
-      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 28px sans-serif';
+      ctx.fillStyle = '#111';
+      ctx.font = `bold ${Math.round(h * 0.12)}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText('GAME OVER', CANVAS_W / 2, CANVAS_H / 2 - 20);
-      ctx.font = '16px sans-serif';
-      ctx.fillText(`Score: ${s.score}`, CANVAS_W / 2, CANVAS_H / 2 + 10);
-      ctx.font = '13px sans-serif';
-      ctx.fillStyle = '#F4D03F';
-      ctx.fillText('Tap to play again', CANVAS_W / 2, CANVAS_H / 2 + 38);
+      ctx.fillText('GAME OVER', w / 2, h * 0.42);
+      ctx.font = `${Math.round(h * 0.07)}px monospace`;
+      ctx.fillStyle = '#888';
+      ctx.fillText('Tap to restart', w / 2, h * 0.42 + h * 0.14);
     }
-  }, [bestScore]);
+  }, [best, phase]);
 
-  const gameLoop = useCallback(() => {
-    const s = stateRef.current;
+  function loop() {
+    const s = state.current;
     if (!s.running) return;
+    const { h, w } = getSize();
+    const ground = h * GROUND_Y;
+    const TRAM_W = w * 0.18;
+    const TRAM_H = h * 0.16;
 
-    s.frameCount++;
+    s.frame++;
+    s.speed = SPEED_INIT + Math.floor(s.score / 100) * 0.5;
 
-    // Speed up over time
-    s.speed = 4 + Math.floor(s.score / 50) * 0.5;
+    // Physics
+    if (!s.grounded) {
+      s.vy += GRAVITY;
+      s.tramY += s.vy;
+      if (s.tramY >= ground) {
+        s.tramY = ground;
+        s.vy = 0;
+        s.grounded = true;
+      }
+    }
+
+    // Ground scroll
+    s.groundX += s.speed;
+
+    // Clouds
+    for (const cl of s.clouds) {
+      cl.x -= s.speed * 0.3;
+      if (cl.x < -60) cl.x = w + 60;
+    }
 
     // Spawn obstacles
-    const spawnRate = Math.max(60, 100 - Math.floor(s.score / 30) * 5);
-    if (s.frameCount % spawnRate === 0) {
-      const lane = Math.floor(Math.random() * 3);
-      const type = OBSTACLE_TYPES[Math.floor(Math.random() * 3)];
-      s.obstacles.push({ x: CANVAS_W + 20, lane, type, scored: false });
+    const spawnRate = Math.max(55, 90 - Math.floor(s.score / 50) * 5);
+    if (s.frame % spawnRate === 0) {
+      const types: Array<'person' | 'car' | 'bike'> = ['person', 'car', 'bike'];
+      const type = types[Math.floor(Math.random() * 3)];
+      const cfg = OBS_CONFIG[type];
+      s.obstacles.push({ x: w + 20, type, w: cfg.w, h: cfg.h, scored: false });
     }
 
     // Move obstacles
-    s.obstacles = s.obstacles.filter(o => o.x > -OBSTACLE_W - 20);
+    s.obstacles = s.obstacles.filter(o => o.x > -60);
     for (const obs of s.obstacles) {
       obs.x -= s.speed;
 
-      // Score when passed
-      if (!obs.scored && obs.x < 50) {
+      // Score
+      if (!obs.scored && obs.x + obs.w < TRAM_X) {
         obs.scored = true;
-        s.score += POINTS[obs.type];
+        s.score += obs.type === 'car' ? 20 : obs.type === 'bike' ? 15 : 10;
         setScore(s.score);
       }
 
-      // Collision
+      // Collision — tram bounding box
+      const tx = TRAM_X + 4;
+      const ty = s.tramY - TRAM_H + 4;
+      const tw = TRAM_W - 8;
+      const th = TRAM_H - 4;
+      const oGround = ground - obs.h;
+
       if (
-        obs.lane === s.targetLane &&
-        obs.x < 60 + TRAM_W - 8 &&
-        obs.x + OBSTACLE_W > 60 + 8 &&
-        Math.abs(LANE_Y[obs.lane] - s.tramY) < TRAM_H - 4
+        obs.x < tx + tw &&
+        obs.x + obs.w > tx &&
+        oGround < ty + th &&
+        ground > ty
       ) {
         s.running = false;
         s.dead = true;
-        setDead(true);
-        setBestScore(prev => Math.max(prev, s.score));
+        setPhase('dead');
+        setBest(prev => Math.max(prev, s.score));
         draw();
         return;
       }
     }
 
     draw();
-    animRef.current = requestAnimationFrame(gameLoop);
-  }, [draw]);
-
-  function startGame() {
-    const s = stateRef.current;
-    s.lane = 1;
-    s.targetLane = 1;
-    s.tramY = LANE_Y[1];
-    s.obstacles = [];
-    s.score = 0;
-    s.speed = 4;
-    s.frameCount = 0;
-    s.running = true;
-    s.dead = false;
-    s.bgOffset = 0;
-    setScore(0);
-    setDead(false);
-    setStarted(true);
-    cancelAnimationFrame(animRef.current);
-    animRef.current = requestAnimationFrame(gameLoop);
+    animRef.current = requestAnimationFrame(loop);
   }
 
-  function handleInput() {
-    const s = stateRef.current;
-    if (s.dead || !s.running) {
+  const handleTap = useCallback(() => {
+    const s = state.current;
+    if (phase === 'idle' || phase === 'dead') {
       startGame();
-      return;
+    } else {
+      jump();
     }
-    // Cycle through lanes: up = decrease lane index, wrap around
-    s.targetLane = (s.targetLane + 1) % 3;
-    s.lane = s.targetLane;
-  }
-
-  function handleUp() {
-    const s = stateRef.current;
-    if (s.dead || !s.running) { startGame(); return; }
-    s.targetLane = Math.max(0, s.targetLane - 1);
-    s.lane = s.targetLane;
-  }
-
-  function handleDown() {
-    const s = stateRef.current;
-    if (s.dead || !s.running) { startGame(); return; }
-    s.targetLane = Math.min(2, s.targetLane + 1);
-    s.lane = s.targetLane;
-  }
+  }, [phase, startGame, jump]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowUp') { e.preventDefault(); handleUp(); }
-      if (e.key === 'ArrowDown') { e.preventDefault(); handleDown(); }
-      if (e.key === ' ') { e.preventDefault(); handleInput(); }
+      if (e.key === ' ' || e.key === 'ArrowUp') { e.preventDefault(); handleTap(); }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, []);
+  }, [handleTap]);
 
   useEffect(() => {
     draw();
   }, [draw]);
 
-  useEffect(() => {
-    return () => cancelAnimationFrame(animRef.current);
-  }, []);
+  useEffect(() => () => cancelAnimationFrame(animRef.current), []);
 
   return (
-    <div className="flex-1 overflow-y-auto overscroll-contain">
-      <div className="max-w-lg mx-auto px-4 py-6">
-        <h1 className="font-display text-3xl text-ink mb-1">🚋 Lisbon Tram 28</h1>
-        <p className="text-stone-500 text-sm mb-4">Swerve to avoid people, cars and bikes. How far can you go?</p>
+    <div className="flex-1 flex flex-col overflow-hidden bg-white">
+      {/* Title bar */}
+      <div className="px-4 py-3 border-b border-stone-100 flex-shrink-0">
+        <h1 className="font-display text-2xl text-ink">🚋 Tram 28</h1>
+        <p className="text-stone-400 text-xs">Jump to avoid people, cars & bikes</p>
+      </div>
 
-        <div className="relative">
-          <canvas
-            ref={canvasRef}
-            width={CANVAS_W}
-            height={CANVAS_H}
-            className="w-full border border-stone-200"
-            style={{ touchAction: 'none', borderRadius: 0 }}
-            onClick={handleInput}
-          />
-          {!started && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50">
-              <p className="text-5xl mb-4">🚋</p>
-              <p className="font-display text-white text-2xl mb-2">Tram 28</p>
-              <p className="text-stone-300 text-sm mb-6 text-center px-8">Avoid the people, cars and bikes on the streets of Lisbon</p>
-              <button onClick={startGame} className="bg-brand text-white font-bold px-8 py-3 text-sm">
-                Start Game
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Controls */}
-        <div className="mt-4 flex gap-3 justify-center">
-          <button
-            onTouchStart={(e) => { e.preventDefault(); handleUp(); }}
-            onClick={handleUp}
-            className="flex-1 py-5 bg-ink text-white font-display text-2xl active:bg-brand transition-colors select-none"
-            style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
-          >
-            ▲
-          </button>
-          <button
-            onTouchStart={(e) => { e.preventDefault(); handleDown(); }}
-            onClick={handleDown}
-            className="flex-1 py-5 bg-ink text-white font-display text-2xl active:bg-brand transition-colors select-none"
-            style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
-          >
-            ▼
-          </button>
-        </div>
-        <p className="text-center text-stone-400 text-xs mt-3">Tap ▲ ▼ to switch lanes · Keyboard: Arrow keys</p>
-
-        {dead && (
-          <div className="mt-4 bg-ink text-white p-5 text-center">
-            <p className="font-display text-2xl mb-1">Score: {score}</p>
-            <p className="text-stone-400 text-sm mb-4">Best: {bestScore}</p>
-            <button onClick={startGame} className="bg-brand text-white font-bold px-8 py-3 text-sm">
-              Play Again
-            </button>
-          </div>
-        )}
+      {/* Game canvas — takes remaining space */}
+      <div
+        ref={containerRef}
+        className="flex-1 flex flex-col items-center justify-center bg-white cursor-pointer select-none"
+        onClick={handleTap}
+        onTouchStart={(e) => { e.preventDefault(); handleTap(); }}
+        style={{ touchAction: 'none' }}
+      >
+        <canvas
+          ref={canvasRef}
+          className="w-full"
+          style={{ maxHeight: '100%', display: 'block' }}
+        />
+        <p className="text-stone-300 text-xs mt-2 pb-2">
+          {phase === 'idle' ? 'Tap to start' : phase === 'playing' ? 'Tap to jump' : 'Tap to restart'}
+        </p>
       </div>
     </div>
   );

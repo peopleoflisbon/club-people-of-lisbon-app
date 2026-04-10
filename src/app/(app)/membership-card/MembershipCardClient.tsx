@@ -137,8 +137,11 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear }
               aspectRatio: '1.586',
               position: 'relative',
               transformStyle: 'preserve-3d',
+              WebkitTransformStyle: 'preserve-3d',
               transition: 'transform 0.7s cubic-bezier(0.34, 1.26, 0.64, 1)',
+              WebkitTransition: '-webkit-transform 0.7s cubic-bezier(0.34, 1.26, 0.64, 1)',
               transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+              WebkitTransform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
             }}
           >
             {/* FRONT */}
@@ -235,10 +238,8 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear }
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ color: 'rgba(255,255,255,0.25)', fontSize: '8px', letterSpacing: '1px' }}>peopleoflisbon.com</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <div style={{ width: '28px', height: '28px', background: '#F4141E', borderRadius: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ color: '#fff', fontWeight: 900, fontSize: '14px', fontFamily: 'serif' }}>P</span>
-                    </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <img src="/pol-logo.png" alt="POL" style={{ width: '32px', height: '32px', objectFit: 'contain', borderRadius: '6px' }} />
                     <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '8px', fontWeight: 700, letterSpacing: '1px' }}>CLUB PEOPLE OF LISBON</div>
                   </div>
                 </div>

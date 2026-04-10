@@ -33,17 +33,11 @@ const PHRASES = [
   { pt: 'Boa tarde', en: 'Good afternoon', pronunciation: 'BOH-ah TAR-deh' },
 ];
 
-function getDayIndex() {
-  const start = new Date('2024-01-01').getTime();
-  const days = Math.floor((Date.now() - start) / (1000 * 60 * 60 * 24));
-  return days % PHRASES.length;
-}
-
 export default function PortuguesePhrase() {
-  const phrase = PHRASES[getDayIndex()];
+  const phrase = PHRASES[Math.floor(Math.random() * PHRASES.length)];
 
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #166534, #15803d)' }}>
+    <div className="overflow-hidden" style={{ background: 'linear-gradient(135deg, #166534, #15803d)' }}>
       <div className="px-5 py-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">

@@ -1,77 +1,73 @@
 import { NextResponse } from 'next/server';
 
+// Portuguese news RSS feeds
+const FEEDS = [
+  { url: 'https://www.rtp.pt/noticias/rss', name: 'RTP Notícias' },
+  { url: 'https://feeds.observador.pt/observador', name: 'Observador' },
+  { url: 'https://www.dn.pt/rss/feed.aspx', name: 'Diário de Notícias' },
+  { url: 'https://www.publico.pt/api/rss', name: 'Público' },
+  { url: 'https://www.theportugalnews.com/rss', name: 'The Portugal News' },
+];
+
+function extractText(str: string) {
+  return str
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+    .replace(/<[^>]*>/g, '')
+    .trim();
+}
+
+function getTagContent(xml: string, tag: string): string {
+  const match = xml.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i'));
+  return match ? extractText(match[1]) : '';
+}
+
+function getLinkContent(xml: string): string {
+  // Try plain link tag first
+  const plain = xml.match(/<link>([^<]+)<\/link>/i);
+  if (plain) return plain[1].trim();
+  // Try CDATA link
+  const cdata = xml.match(/<link><!\[CDATA\[(.*?)\]\]><\/link>/i);
+  if (cdata) return cdata[1].trim();
+  // Try atom link
+  const atom = xml.match(/<link[^>]+href="([^"]+)"/i);
+  if (atom) return atom[1].trim();
+  return '';
+}
+
 export async function GET() {
-  try {
-    // Fetch The Portugal News latest page
-    const res = await fetch('https://www.theportugalnews.com/latest', {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; POLApp/1.0)',
-        'Accept': 'text/html',
-      },
-      next: { revalidate: 1800 },
-    });
-
-    if (!res.ok) throw new Error('Failed to fetch');
-
-    const html = await res.text();
-
-    // Extract news articles - looking for h2/h3 tags with article links
-    const articlePattern = /href="(https:\/\/www\.theportugalnews\.com\/news\/[^"]+)"[^>]*>[\s\S]*?<\/a>[\s\S]*?##\s+([^\n]+)/g;
-
-    // Simpler approach: extract ## headings which are article titles on this page
-    const headings = html.match(/##\s+([^\n]+)/g) || [];
-    const links = html.match(/href="(https:\/\/www\.theportugalnews\.com\/news\/[^"]+)"/g) || [];
-
-    // Get first real news headline (skip "Latest News" section header)
-    const newsHeadings = headings
-      .map(h => h.replace(/^##\s+/, '').trim())
-      .filter(h =>
-        h.length > 10 &&
-        !h.includes('Support The Portugal') &&
-        !h.includes('Check out the video') &&
-        !h.toLowerCase().includes('subscribe') &&
-        !h.includes('Load more')
-      );
-
-    const newsLinks = links
-      .map(l => l.replace(/^href="/, '').replace(/"$/, ''))
-      .filter(l => l.includes('/news/') && !l.endsWith('/news/'));
-
-    if (newsHeadings.length === 0) throw new Error('No headlines found');
-
-    const title = newsHeadings[0];
-    const link = newsLinks[0] || 'https://www.theportugalnews.com/latest';
-
-    return NextResponse.json({
-      title,
-      link,
-      description: newsHeadings.slice(1, 3).join(' · '),
-      source: 'The Portugal News',
-      pubDate: new Date().toISOString(),
-    });
-
-  } catch (err) {
-    // Fallback: try RSS
+  for (const feed of FEEDS) {
     try {
-      const rssRes = await fetch('https://feeds.bbci.co.uk/news/world/europe/rss.xml', {
-        headers: { 'User-Agent': 'Mozilla/5.0' },
+      const res = await fetch(feed.url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; POL-App/1.0)',
+          'Accept': 'application/rss+xml, application/xml, text/xml',
+        },
         next: { revalidate: 1800 },
       });
-      const xml = await rssRes.text();
-      const titleMatch = xml.match(/<item>[\s\S]*?<title><!\[CDATA\[(.*?)\]\]><\/title>/);
-      const linkMatch = xml.match(/<item>[\s\S]*?<link>(.*?)<\/link>/);
-      const descMatch = xml.match(/<item>[\s\S]*?<description><!\[CDATA\[(.*?)\]\]><\/description>/);
 
-      if (titleMatch) {
+      if (!res.ok) continue;
+
+      const xml = await res.text();
+      const itemMatch = xml.match(/<item[^>]*>([\s\S]*?)<\/item>/i);
+      if (!itemMatch) continue;
+
+      const item = itemMatch[1];
+      const title = getTagContent(item, 'title');
+      const link = getLinkContent(item);
+      const description = getTagContent(item, 'description') || getTagContent(item, 'summary');
+
+      if (title && title.length > 5) {
         return NextResponse.json({
-          title: titleMatch[1],
-          link: linkMatch?.[1] || 'https://www.bbc.com/news',
-          description: descMatch?.[1]?.replace(/<[^>]*>/g, '').slice(0, 300) || '',
-          source: 'BBC News Europe',
+          title,
+          link: link || `https://www.theportugalnews.com`,
+          description: description.slice(0, 300),
+          source: feed.name,
         });
       }
-    } catch {}
-
-    return NextResponse.json({ error: 'No news available' }, { status: 404 });
+    } catch {
+      continue;
+    }
   }
+
+  return NextResponse.json({ error: 'No news available' }, { status: 404 });
 }
