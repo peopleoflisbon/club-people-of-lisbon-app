@@ -42,15 +42,18 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
     <div className="max-w-4xl mx-auto">
 
       {/* Hero */}
-      <div className="bg-ink px-5 lg:px-8 py-8 lg:py-10">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-stone-500 text-sm mb-1">Good to see you,</p>
-            <h1 className="font-display text-white text-3xl lg:text-4xl leading-none">{firstName}</h1>
+      <div className="px-5 lg:px-8 py-8 lg:py-10" style={{ backgroundImage: 'url(/sidebar-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }} />
+        <div className="relative z-10">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-stone-400 text-sm mb-1">Good to see you,</p>
+              <h1 className="font-display text-white text-3xl lg:text-4xl leading-none">{firstName}</h1>
+            </div>
+            <BrandLogo src={brandLogoUrl} size={52} radius={0} className="shadow-lg shadow-brand/30 flex-shrink-0" />
           </div>
-          <BrandLogo src={brandLogoUrl} size={52} radius={0} className="shadow-lg shadow-brand/30 flex-shrink-0" />
+          <div className="mt-5 h-0.5 bg-gradient-to-r from-brand via-white/20 to-transparent" />
         </div>
-        <div className="mt-5 h-0.5 bg-gradient-to-r from-brand via-stone-700 to-transparent" />
       </div>
 
       <div className="px-4 lg:px-8 py-5 space-y-6">
