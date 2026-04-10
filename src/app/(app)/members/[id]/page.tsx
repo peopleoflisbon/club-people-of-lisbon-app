@@ -69,21 +69,19 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
         <div className="px-4 lg:px-8 py-8" style={{ backgroundImage: 'url(/sidebar-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <div className="flex items-start gap-5">
+
+            {/* Avatar + info row */}
+            <div className="flex items-start gap-4 mb-4">
               <Avatar src={profile.avatar_url} name={profile.full_name} size="xl" className="flex-shrink-0 ring-2 ring-white/10" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="font-display text-2xl lg:text-3xl text-white leading-tight">{profile.full_name}</h1>
                   {profile.nationality && <span className="text-2xl">{nationalityToFlag(profile.nationality)}</span>}
                 </div>
-                {profile.job_title && (
-                  <p className="text-brand text-sm font-semibold mt-1">{profile.job_title}</p>
-                )}
-                {profile.headline && (
-                  <p className="text-stone-400 text-sm mt-0.5 leading-snug">{profile.headline}</p>
-                )}
+                {profile.job_title && <p className="text-brand text-sm font-semibold mt-1">{profile.job_title}</p>}
+                {profile.headline && <p className="text-stone-400 text-sm mt-0.5 leading-snug">{profile.headline}</p>}
                 {profile.neighborhood && (
-                  <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-2">
+                  <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-1.5">
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
@@ -91,8 +89,11 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
                     {profile.neighborhood}
                   </div>
                 )}
-            {/* Kudos inline with buttons */}
-            <div className="mt-4 flex items-center justify-between gap-3">
+              </div>
+            </div>
+
+            {/* Actions + Kudos row */}
+            <div className="flex items-center justify-between gap-3 pt-4 border-t border-white/10">
               <div className="flex gap-2">
                 {isOwnProfile ? (
                   <>
@@ -109,20 +110,12 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
                   </Link>
                 )}
               </div>
-              <KudosButton
-                recipientId={params.id}
-                initialCount={kudosCount || 0}
-                isOwnProfile={isOwnProfile}
-                inline
-              />
+              <div className="flex flex-col items-end">
+                {!isOwnProfile && <p className="text-white/50 text-xs italic mb-1">Vote for {profile.full_name?.split(' ')[0]} (just for fun)</p>}
+                <KudosButton recipientId={params.id} initialCount={kudosCount || 0} isOwnProfile={isOwnProfile} inline />
+              </div>
             </div>
 
-            {!isOwnProfile && (
-              <div className="mt-2">
-                <p className="text-white/60 text-xs font-medium">Vote for {profile.full_name?.split(' ')[0]}</p>
-                <p className="text-stone-600 text-xs italic">(just for fun)</p>
-              </div>
-            )}
           </div>
         </div>
 
