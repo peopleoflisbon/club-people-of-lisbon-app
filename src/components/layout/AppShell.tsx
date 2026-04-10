@@ -75,6 +75,7 @@ const NAV_ITEMS = [
 const SECONDARY_NAV = [
   { href: '/leaderboard', label: '👍 Leaderboard' },
   { href: '/membership-card', label: '💳 Membership Card' },
+  { href: '/tram-game', label: '🚋 Tram Game' },
   { href: '/updates', label: 'Updates from Stephen' },
   { href: '/photos', label: "Rita's Photos" },
   { href: '/sponsors', label: 'Sponsors' },
@@ -106,13 +107,13 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
         <div className="flex flex-col h-full" style={{ background: 'rgba(0,0,0,0.45)' }}>
         {/* Logo */}
         <div className="px-5 pt-6 pb-5 border-b border-white/15">
-          <div className="flex items-center gap-3">
+          <Link href="/home" className="flex items-center gap-3">
             <BrandLogo src={brandLogoUrl} size={40} className="shadow-md shadow-brand/30" />
             <div>
               <p className="font-display text-white text-base leading-tight font-black">People Of Lisbon</p>
               <p className="text-stone-500 text-xs mt-0.5 font-semibold leading-tight">Lisbon's most interesting people,<br />all in one place.</p>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Primary nav */}
@@ -202,14 +203,16 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
         <header className="lg:hidden flex items-center justify-between px-4 pt-safe-top pb-3 border-b border-white/10" style={{ backgroundImage: 'url(/sidebar-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center top', position: 'relative' }}>
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <BrandLogo src={brandLogoUrl} size={36} className="shadow-md shadow-brand/30" />
+            <Link href="/home">
+              <BrandLogo src={brandLogoUrl} size={36} className="shadow-md shadow-brand/30" />
+            </Link>
           </div>
           <Link href="/profile" style={{ position: 'relative', zIndex: 1 }}>
             <Avatar src={profile.avatar_url} name={profile.full_name} size="sm" />
           </Link>
         </header>
 
-        <div className="flex-1 overflow-hidden flex flex-col">
+        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
           {children}
         </div>
 
