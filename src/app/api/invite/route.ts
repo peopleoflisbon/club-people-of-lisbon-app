@@ -50,7 +50,7 @@ async function generateInviteLink(email: string): Promise<{ link?: string; error
 
   if (error) return { error: error.message };
 
-  const link = (data as any)?.properties?.action_link;
+  let link = (data as any)?.properties?.action_link;
   if (!link) return { error: 'Could not generate link' };
 
   // Convert the Supabase verify URL to a direct app URL
