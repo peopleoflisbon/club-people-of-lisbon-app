@@ -39,20 +39,32 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
 
   async function uploadAvatar(file: File) {
     setUploading(true);
+    setError('');
     try {
-      const ext = file.name.split('.').pop();
-      const path = `avatars/${profile.id}.${ext}`;
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      // Add timestamp to bust CDN cache
+      const path = `avatars/${profile.id}-${Date.now()}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
         .from('media')
-        .upload(path, file, { upsert: true });
+        .upload(path, file, { upsert: false, contentType: file.type });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        // Try upsert if upload fails (bucket may require it)
+        const { error: upsertError } = await supabase.storage
+          .from('media')
+          .upload(`avatars/${profile.id}.${ext}`, file, { upsert: true, contentType: file.type });
+        if (upsertError) throw upsertError;
+        const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(`avatars/${profile.id}.${ext}`);
+        setAvatarUrl(publicUrl + '?t=' + Date.now());
+        return;
+      }
 
       const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(path);
       setAvatarUrl(publicUrl);
-    } catch (err) {
-      setError('Failed to upload photo.');
+    } catch (err: any) {
+      console.error('Upload error:', err);
+      setError(`Photo upload failed: ${err?.message || 'Please try again'}`);
     } finally {
       setUploading(false);
     }
@@ -84,28 +96,47 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
       <div className="pol-card p-6">
         <h2 className="font-semibold text-sm text-stone-500 uppercase tracking-wider mb-4">Photo</h2>
         <div className="flex items-center gap-4">
-          <Avatar src={avatarUrl} name={form.full_name} size="xl" />
+          <div className="relative flex-shrink-0 cursor-pointer group" onClick={() => fileRef.current?.click()}>
+            <Avatar src={avatarUrl} name={form.full_name} size="xl" />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span className="text-white text-xs font-bold">Change</span>
+            </div>
+          </div>
           <div>
             <button
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
-              className="pol-btn-secondary text-sm"
+              className="pol-btn-primary text-sm"
             >
-              {uploading ? 'Uploading…' : 'Change Photo'}
+              {uploading ? 'Uploading…' : avatarUrl ? 'Change Photo' : 'Add Photo'}
             </button>
-            <p className="text-xs text-stone-400 mt-1">JPG, PNG. Max 5MB.</p>
+            <p className="text-xs text-stone-400 mt-1">JPG or PNG · max 5MB</p>
+            <p className="text-xs text-stone-400">Tap photo or button to upload</p>
           </div>
           <input
             ref={fileRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/*"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) uploadAvatar(file);
+              if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                  setError('Photo must be under 5MB');
+                  return;
+                }
+                uploadAvatar(file);
+              }
+              // Reset input so same file can be selected again
+              e.target.value = '';
             }}
           />
         </div>
+        {uploading && (
+          <div className="mt-3 h-1 bg-stone-100 overflow-hidden">
+            <div className="h-full bg-brand animate-pulse" style={{ width: '60%' }} />
+          </div>
+        )}
       </div>
 
       {/* Basic info */}

@@ -2,206 +2,318 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 
-// Azulejo tile patterns — blue/white Portuguese style
-const TILE_COLORS = [
-  '#1a4a7a', '#1e5a96', '#2166ac', '#2471a3', '#1f618d',
-  '#154360', '#1a5276', '#0e4b7a', '#163d6e', '#1b4f8a',
-];
+const TILE_SIZE = 90;
 
-const TILE_PATTERNS = [
-  // Cross pattern
-  (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string) => {
-    ctx.fillStyle = '#f0e6d0';
-    ctx.fillRect(x, y, size, size);
-    ctx.strokeStyle = '#c8b89a';
-    ctx.lineWidth = 0.5;
-    ctx.strokeRect(x, y, size, size);
-    ctx.fillStyle = color;
-    const p = size * 0.15;
-    const c = size / 2;
-    // Center cross
-    ctx.fillRect(x + c - p/2, y + p, p, size - p*2);
-    ctx.fillRect(x + p, y + c - p/2, size - p*2, p);
-    // Corner dots
-    ctx.beginPath(); ctx.arc(x + p*1.2, y + p*1.2, p*0.5, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(x + size - p*1.2, y + p*1.2, p*0.5, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(x + p*1.2, y + size - p*1.2, p*0.5, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(x + size - p*1.2, y + size - p*1.2, p*0.5, 0, Math.PI*2); ctx.fill();
-  },
-  // Diamond pattern
-  (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string) => {
-    ctx.fillStyle = '#f0e6d0';
-    ctx.fillRect(x, y, size, size);
-    ctx.strokeStyle = '#c8b89a';
-    ctx.lineWidth = 0.5;
-    ctx.strokeRect(x, y, size, size);
-    ctx.fillStyle = color;
-    const c = size / 2;
-    ctx.beginPath();
-    ctx.moveTo(x + c, y + size*0.1);
-    ctx.lineTo(x + size*0.9, y + c);
-    ctx.lineTo(x + c, y + size*0.9);
-    ctx.lineTo(x + size*0.1, y + c);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = '#f0e6d0';
-    ctx.beginPath();
-    ctx.moveTo(x + c, y + size*0.28);
-    ctx.lineTo(x + size*0.72, y + c);
-    ctx.lineTo(x + c, y + size*0.72);
-    ctx.lineTo(x + size*0.28, y + c);
-    ctx.closePath();
-    ctx.fill();
-  },
-  // Circle pattern
-  (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string) => {
-    ctx.fillStyle = '#f0e6d0';
-    ctx.fillRect(x, y, size, size);
-    ctx.strokeStyle = '#c8b89a';
-    ctx.lineWidth = 0.5;
-    ctx.strokeRect(x, y, size, size);
-    ctx.fillStyle = color;
-    const c = size / 2;
-    ctx.beginPath(); ctx.arc(x + c, y + c, size*0.38, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#f0e6d0';
-    ctx.beginPath(); ctx.arc(x + c, y + c, size*0.24, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = color;
-    ctx.beginPath(); ctx.arc(x + c, y + c, size*0.1, 0, Math.PI*2); ctx.fill();
-    // Corner arcs
-    const r = size * 0.22;
-    for (const [cx, cy, start] of [[x, y, 0], [x+size, y, Math.PI/2], [x+size, y+size, Math.PI], [x, y+size, Math.PI*1.5]] as [number,number,number][]) {
-      ctx.beginPath(); ctx.arc(cx, cy, r, start, start + Math.PI/2); ctx.lineTo(cx, cy); ctx.closePath(); ctx.fill();
+// Realistic ceramic smash sound using Web Audio API
+function playCeramicSmash() {
+  try {
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+
+    // Layer 1: Initial high-frequency crack (ceramic fracture)
+    const crack = ctx.createOscillator();
+    const crackGain = ctx.createGain();
+    const crackFilter = ctx.createBiquadFilter();
+    crackFilter.type = 'highpass';
+    crackFilter.frequency.value = 3000;
+    crack.type = 'sawtooth';
+    crack.frequency.setValueAtTime(2400, now);
+    crack.frequency.exponentialRampToValueAtTime(200, now + 0.08);
+    crackGain.gain.setValueAtTime(0.5, now);
+    crackGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+    crack.connect(crackFilter);
+    crackFilter.connect(crackGain);
+    crackGain.connect(ctx.destination);
+    crack.start(now);
+    crack.stop(now + 0.1);
+
+    // Layer 2: Noise burst (rubble / debris)
+    const bufferSize = ctx.sampleRate * 0.3;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 1.5);
     }
-  },
-];
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.frequency.value = 800;
+    noiseFilter.Q.value = 0.5;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.6, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+    noise.start(now + 0.01);
+
+    // Layer 3: Low thud (heavy piece hitting floor)
+    const thud = ctx.createOscillator();
+    const thudGain = ctx.createGain();
+    thud.type = 'sine';
+    thud.frequency.setValueAtTime(120, now + 0.02);
+    thud.frequency.exponentialRampToValueAtTime(30, now + 0.18);
+    thudGain.gain.setValueAtTime(0.7, now + 0.02);
+    thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+    thud.connect(thudGain);
+    thudGain.connect(ctx.destination);
+    thud.start(now + 0.02);
+    thud.stop(now + 0.22);
+
+    // Layer 4: Tinkling high chips
+    for (let i = 0; i < 3; i++) {
+      const chip = ctx.createOscillator();
+      const chipGain = ctx.createGain();
+      const delay = now + 0.05 + i * 0.04 + Math.random() * 0.03;
+      chip.type = 'sine';
+      chip.frequency.value = 2000 + Math.random() * 2000;
+      chipGain.gain.setValueAtTime(0.15, delay);
+      chipGain.gain.exponentialRampToValueAtTime(0.001, delay + 0.12);
+      chip.connect(chipGain);
+      chipGain.connect(ctx.destination);
+      chip.start(delay);
+      chip.stop(delay + 0.15);
+    }
+  } catch (e) {
+    // Audio not available
+  }
+}
+
+// Draw authentic Portuguese azulejo tile
+function drawAzulejo(
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number, size: number,
+  pattern: number, crackProgress: number
+) {
+  const s = size;
+  const p = pattern % 4;
+
+  // Base — white/cream tile
+  ctx.fillStyle = '#f5f0e8';
+  ctx.fillRect(x, y, s, s);
+
+  // Border
+  ctx.strokeStyle = '#d4c9b0';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 0.5, y + 0.5, s - 1, s - 1);
+
+  // Inner border
+  const b = s * 0.07;
+  ctx.strokeStyle = '#1a4f7a';
+  ctx.lineWidth = s * 0.03;
+  ctx.strokeRect(x + b, y + b, s - b*2, s - b*2);
+
+  // Blue pigment colours
+  const blues = ['#1a4f7a', '#1e5f9a', '#2471b8', '#0d3d6b', '#2980b9'];
+  const blue = blues[pattern % blues.length];
+
+  ctx.fillStyle = blue;
+  ctx.strokeStyle = blue;
+
+  if (p === 0) {
+    // Classic 4-petal flower
+    const cx = x + s/2, cy = y + s/2;
+    const r = s * 0.25;
+    for (let i = 0; i < 4; i++) {
+      const angle = (Math.PI / 2) * i;
+      ctx.beginPath();
+      ctx.arc(cx + Math.cos(angle) * r * 0.7, cy + Math.sin(angle) * r * 0.7, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Centre
+    ctx.fillStyle = '#f5f0e8';
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.55, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = blue;
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.22, 0, Math.PI * 2); ctx.fill();
+    // Corner dots
+    const cd = s * 0.13;
+    for (const [dx, dy] of [[cd,cd],[s-cd,cd],[cd,s-cd],[s-cd,s-cd]]) {
+      ctx.beginPath(); ctx.arc(x+dx, y+dy, s*0.05, 0, Math.PI*2); ctx.fill();
+    }
+  } else if (p === 1) {
+    // Diamond + cross
+    const cx = x + s/2, cy = y + s/2;
+    const hw = s * 0.32;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - hw);
+    ctx.lineTo(cx + hw, cy);
+    ctx.lineTo(cx, cy + hw);
+    ctx.lineTo(cx - hw, cy);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#f5f0e8';
+    const iw = hw * 0.62;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - iw);
+    ctx.lineTo(cx + iw, cy);
+    ctx.lineTo(cx, cy + iw);
+    ctx.lineTo(cx - iw, cy);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = blue;
+    ctx.beginPath(); ctx.arc(cx, cy, s*0.08, 0, Math.PI*2); ctx.fill();
+    // Arms
+    const arm = s * 0.07;
+    ctx.lineWidth = arm;
+    ctx.beginPath(); ctx.moveTo(x+b+arm/2, cy); ctx.lineTo(cx-hw-arm/2, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+hw+arm/2, cy); ctx.lineTo(x+s-b-arm/2, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, y+b+arm/2); ctx.lineTo(cx, cy-hw-arm/2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, cy+hw+arm/2); ctx.lineTo(cx, y+s-b-arm/2); ctx.stroke();
+  } else if (p === 2) {
+    // Windmill / pinwheel
+    const cx = x + s/2, cy = y + s/2;
+    for (let i = 0; i < 4; i++) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate((Math.PI / 2) * i);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, s*0.38, -Math.PI*0.05, Math.PI*0.45);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.fillStyle = '#f5f0e8';
+    ctx.beginPath(); ctx.arc(cx, cy, s*0.13, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = blue;
+    ctx.beginPath(); ctx.arc(cx, cy, s*0.065, 0, Math.PI*2); ctx.fill();
+  } else {
+    // Geometric squares + circles
+    const cx = x + s/2, cy = y + s/2;
+    const sq = s * 0.28;
+    ctx.fillRect(cx - sq/2, cy - sq/2, sq, sq);
+    ctx.fillStyle = '#f5f0e8';
+    ctx.fillRect(cx - sq*0.55, cy - sq*0.55, sq*0.55, sq*0.55);
+    ctx.fillRect(cx, cy, sq*0.55, sq*0.55);
+    ctx.fillStyle = blue;
+    const cr = s * 0.12;
+    for (const [dx, dy] of [[b+cr, b+cr],[s-b-cr,b+cr],[b+cr,s-b-cr],[s-b-cr,s-b-cr]]) {
+      ctx.beginPath(); ctx.arc(x+dx, y+dy, cr, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#f5f0e8';
+      ctx.beginPath(); ctx.arc(x+dx, y+dy, cr*0.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = blue;
+    }
+  }
+
+  // Crack overlay
+  if (crackProgress > 0) {
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, crackProgress * 1.5);
+    ctx.strokeStyle = 'rgba(0,0,0,0.75)';
+    ctx.lineWidth = 1.2;
+    // Generate deterministic cracks based on pattern
+    const seed = pattern * 137;
+    const cx = x + s/2 + (seed % 10) - 5;
+    const cy = y + s/2 + ((seed * 7) % 10) - 5;
+    const numCracks = 5 + (seed % 4);
+    for (let i = 0; i < numCracks; i++) {
+      const angle = ((seed * (i+1) * 137) % 628) / 100;
+      const len = s * (0.25 + ((seed * i) % 30) / 100);
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      const midX = cx + Math.cos(angle) * len * 0.5 + ((seed*i)%8)-4;
+      const midY = cy + Math.sin(angle) * len * 0.5 + ((seed*i*3)%8)-4;
+      ctx.lineTo(midX, midY);
+      ctx.lineTo(cx + Math.cos(angle) * len, cy + Math.sin(angle) * len);
+      ctx.stroke();
+    }
+    // Dark shatter overlay
+    ctx.fillStyle = `rgba(0,0,0,${crackProgress * 0.4})`;
+    ctx.fillRect(x, y, s, s);
+    ctx.restore();
+  }
+}
 
 interface Tile {
   id: number;
-  x: number;
-  y: number;
-  size: number;
-  color: string;
+  col: number;
+  row: number;
   pattern: number;
   broken: boolean;
-  breakProgress: number; // 0-1, 1 = fully broken
-  cracks: {x1:number,y1:number,x2:number,y2:number}[];
+  crackProgress: number;
+  shards: { x: number; y: number; vx: number; vy: number; r: number; life: number }[];
 }
-
-const TILE_SIZE = 80;
 
 export default function BreakTiles() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tilesRef = useRef<Tile[]>([]);
   const animRef = useRef<number>(0);
+  const activeRef = useRef(false);
   const [score, setScore] = useState(0);
-  const [started, setStarted] = useState(false);
   const scoreRef = useRef(0);
+  const [cols, setCols] = useState(0);
+  const [rows, setRows] = useState(0);
 
-  const initTiles = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const cols = Math.ceil(canvas.width / TILE_SIZE);
-    const rows = Math.ceil(canvas.height / TILE_SIZE);
+  const initTiles = useCallback((w: number, h: number) => {
+    const c = Math.ceil(w / TILE_SIZE);
+    const r = Math.ceil(h / TILE_SIZE);
+    setCols(c); setRows(r);
     const tiles: Tile[] = [];
-    let id = 0;
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
+    for (let row = 0; row < r; row++) {
+      for (let col = 0; col < c; col++) {
         tiles.push({
-          id: id++,
-          x: c * TILE_SIZE,
-          y: r * TILE_SIZE,
-          size: TILE_SIZE,
-          color: TILE_COLORS[Math.floor(Math.random() * TILE_COLORS.length)],
-          pattern: Math.floor(Math.random() * TILE_PATTERNS.length),
+          id: row * c + col,
+          col, row,
+          pattern: (row * c + col + row * 3) % 16,
           broken: false,
-          breakProgress: 0,
-          cracks: [],
+          crackProgress: 0,
+          shards: [],
         });
       }
     }
     tilesRef.current = tiles;
+    scoreRef.current = 0;
+    setScore(0);
   }, []);
 
-  const drawFrame = useCallback(() => {
+  const render = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    let needsAnim = false;
+
     for (const tile of tilesRef.current) {
-      if (tile.breakProgress >= 1) continue; // fully gone
+      const x = tile.col * TILE_SIZE;
+      const y = tile.row * TILE_SIZE;
 
+      if (tile.crackProgress >= 1) {
+        // Draw gap/shadow where tile was
+        ctx.fillStyle = '#1a1410';
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+        continue;
+      }
+
+      if (tile.crackProgress > 0) {
+        // Animate breaking
+        tile.crackProgress = Math.min(1, tile.crackProgress + 0.055);
+        needsAnim = true;
+      }
+
+      // Draw tile with cracks
       ctx.save();
-      if (tile.breakProgress > 0) {
-        ctx.globalAlpha = 1 - tile.breakProgress;
+      if (tile.crackProgress > 0.5) {
+        // Split apart animation
+        const split = (tile.crackProgress - 0.5) * 2;
+        ctx.globalAlpha = 1 - split * 0.8;
+        ctx.translate(x + TILE_SIZE/2, y + TILE_SIZE/2);
+        ctx.scale(1 - split * 0.15, 1 - split * 0.15);
+        ctx.translate(-x - TILE_SIZE/2, -y - TILE_SIZE/2);
       }
-
-      // Draw tile
-      TILE_PATTERNS[tile.pattern](ctx, tile.x, tile.y, tile.size, tile.color);
-
-      // Draw cracks
-      if (tile.cracks.length > 0) {
-        ctx.strokeStyle = 'rgba(0,0,0,0.6)';
-        ctx.lineWidth = 1.5;
-        for (const crack of tile.cracks) {
-          ctx.beginPath();
-          ctx.moveTo(crack.x1, crack.y1);
-          ctx.lineTo(crack.x2, crack.y2);
-          ctx.stroke();
-        }
-      }
-
+      drawAzulejo(ctx, x, y, TILE_SIZE, tile.pattern, tile.crackProgress);
       ctx.restore();
     }
 
-    // Animate breaking tiles
-    let needsFrame = false;
-    for (const tile of tilesRef.current) {
-      if (tile.broken && tile.breakProgress < 1) {
-        tile.breakProgress = Math.min(1, tile.breakProgress + 0.06);
-        needsFrame = true;
-      }
-    }
-
-    if (needsFrame) {
-      animRef.current = requestAnimationFrame(drawFrame);
+    if (needsAnim) {
+      animRef.current = requestAnimationFrame(render);
+    } else {
+      activeRef.current = false;
     }
   }, []);
-
-  function generateCracks(tile: Tile, cx: number, cy: number) {
-    const numCracks = 4 + Math.floor(Math.random() * 4);
-    const cracks = [];
-    for (let i = 0; i < numCracks; i++) {
-      const angle = (Math.PI * 2 * i / numCracks) + (Math.random() - 0.5) * 0.8;
-      const len = tile.size * (0.3 + Math.random() * 0.4);
-      cracks.push({
-        x1: cx, y1: cy,
-        x2: cx + Math.cos(angle) * len,
-        y2: cy + Math.sin(angle) * len,
-      });
-    }
-    return cracks;
-  }
-
-  // Sound effect using Web Audio API
-  function playBreakSound() {
-    try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(300 + Math.random() * 200, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.15);
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.2);
-    } catch {}
-  }
 
   const handleTap = useCallback((clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
@@ -212,32 +324,33 @@ export default function BreakTiles() {
     const x = (clientX - rect.left) * scaleX;
     const y = (clientY - rect.top) * scaleY;
 
-    let hit = false;
-    for (const tile of tilesRef.current) {
-      if (tile.broken) continue;
-      if (x >= tile.x && x < tile.x + tile.size && y >= tile.y && y < tile.y + tile.size) {
-        tile.broken = true;
-        tile.cracks = generateCracks(tile, x, y);
-        scoreRef.current += 1;
-        setScore(scoreRef.current);
-        playBreakSound();
-        hit = true;
-        break;
-      }
-    }
-    if (hit) {
+    const col = Math.floor(x / TILE_SIZE);
+    const row = Math.floor(y / TILE_SIZE);
+
+    const tile = tilesRef.current.find(t => t.col === col && t.row === row);
+    if (!tile || tile.broken || tile.crackProgress > 0) return;
+
+    tile.broken = true;
+    tile.crackProgress = 0.01;
+    scoreRef.current++;
+    setScore(scoreRef.current);
+    playCeramicSmash();
+
+    if (!activeRef.current) {
+      activeRef.current = true;
       cancelAnimationFrame(animRef.current);
-      animRef.current = requestAnimationFrame(drawFrame);
+      animRef.current = requestAnimationFrame(render);
     }
-  }, [drawFrame]);
+  }, [render]);
 
   const handleReset = useCallback(() => {
-    initTiles();
-    scoreRef.current = 0;
-    setScore(0);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    initTiles(canvas.width, canvas.height);
     cancelAnimationFrame(animRef.current);
-    animRef.current = requestAnimationFrame(drawFrame);
-  }, [initTiles, drawFrame]);
+    activeRef.current = false;
+    requestAnimationFrame(render);
+  }, [initTiles, render]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -245,47 +358,60 @@ export default function BreakTiles() {
     const setSize = () => {
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
-      initTiles();
+      initTiles(canvas.width, canvas.height);
       cancelAnimationFrame(animRef.current);
-      animRef.current = requestAnimationFrame(drawFrame);
+      requestAnimationFrame(render);
     };
     setSize();
     window.addEventListener('resize', setSize);
     return () => { window.removeEventListener('resize', setSize); cancelAnimationFrame(animRef.current); };
-  }, [initTiles, drawFrame]);
+  }, [initTiles, render]);
+
+  const allBroken = tilesRef.current.length > 0 && tilesRef.current.every(t => t.broken);
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden" style={{ touchAction: 'none' }}>
+    <div className="flex-1 flex flex-col overflow-hidden" style={{ touchAction: 'none', background: '#1a1410' }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-stone-100 flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-stone-800 flex-shrink-0" style={{ background: '#1a1410' }}>
         <div>
-          <h1 className="font-display text-2xl text-ink">🔨 Break the Tiles</h1>
-          <p className="text-stone-400 text-xs">Tap to smash · stress reliever</p>
+          <h1 className="font-display text-2xl text-white">🔨 Break the Tiles</h1>
+          <p className="text-stone-500 text-xs">Tap to smash Portuguese azulejos</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <p className="font-display text-2xl text-ink leading-none">{score}</p>
-            <p className="text-stone-400 text-xs">smashed</p>
+            <p className="font-display text-3xl text-white leading-none">{score}</p>
+            <p className="text-stone-500 text-xs">smashed</p>
           </div>
           <button onClick={handleReset}
-            className="px-3 py-1.5 bg-brand text-white text-xs font-bold hover:bg-red-700 transition-colors">
+            className="px-3 py-2 bg-brand text-white text-xs font-bold hover:bg-red-700 transition-colors">
             Reset
           </button>
         </div>
       </div>
 
-      {/* Canvas */}
-      <canvas
-        ref={canvasRef}
-        className="flex-1 w-full"
-        style={{ display: 'block', cursor: 'crosshair' }}
-        onClick={(e) => { setStarted(true); handleTap(e.clientX, e.clientY); }}
-        onTouchStart={(e) => {
-          e.preventDefault();
-          setStarted(true);
-          Array.from(e.changedTouches).forEach(t => handleTap(t.clientX, t.clientY));
-        }}
-      />
+      {/* Canvas fills remaining space */}
+      <div className="flex-1 relative">
+        <canvas
+          ref={canvasRef}
+          className="w-full h-full"
+          style={{ display: 'block', cursor: 'crosshair' }}
+          onClick={(e) => handleTap(e.clientX, e.clientY)}
+          onTouchStart={(e) => {
+            e.preventDefault();
+            Array.from(e.changedTouches).forEach(t => handleTap(t.clientX, t.clientY));
+          }}
+        />
+        {allBroken && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <p className="font-display text-white text-4xl mb-2">🏆</p>
+            <p className="font-display text-white text-2xl mb-1">All broken!</p>
+            <p className="text-stone-400 text-sm mb-6">{score} tiles smashed</p>
+            <button onClick={handleReset} className="bg-brand text-white font-bold px-8 py-3 text-sm">
+              Smash Again
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
