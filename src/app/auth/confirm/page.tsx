@@ -11,17 +11,16 @@ export default function ConfirmPage() {
 
   useEffect(() => {
     async function handleConfirm() {
-      const hash = window.location.hash;
-      const params = new URLSearchParams(hash.substring(1));
-      const accessToken = params.get('access_token');
-      const refreshToken = params.get('refresh_token');
-      const type = params.get('type');
+      // Method 1: token in query params (our direct link approach)
+      const searchParams = new URLSearchParams(window.location.search);
+      const token = searchParams.get('token');
+      const type = searchParams.get('type');
 
-      // Case 1: hash tokens present (Supabase implicit flow)
-      if (accessToken && refreshToken) {
-        const { error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
+      if (token && type) {
+        // Verify the token directly with Supabase
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash: token,
+          type: type as any,
         });
 
         if (error) {
@@ -29,18 +28,41 @@ export default function ConfirmPage() {
           return;
         }
 
-        // Always go to set-password for recovery/invite/signup links
-        if (type === 'recovery' || type === 'invite' || type === 'signup') {
-          router.replace('/auth/set-password');
-          return;
-        }
-
-        router.replace('/home');
+        // Successfully verified — go to set password
+        router.replace('/auth/set-password');
         return;
       }
 
-      // Case 2: no hash — Supabase already processed the token server-side
-      // Always send to set-password so they can't skip it
+      // Method 2: hash tokens (Supabase implicit flow fallback)
+      const hash = window.location.hash;
+      if (hash) {
+        const params = new URLSearchParams(hash.substring(1));
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+        const hashType = params.get('type');
+
+        if (accessToken && refreshToken) {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (error) {
+            setError('This link has expired. Please ask for a new one.');
+            return;
+          }
+
+          if (hashType === 'recovery' || hashType === 'invite' || hashType === 'signup') {
+            router.replace('/auth/set-password');
+            return;
+          }
+
+          router.replace('/home');
+          return;
+        }
+      }
+
+      // Method 3: already have a session
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         router.replace('/auth/set-password');

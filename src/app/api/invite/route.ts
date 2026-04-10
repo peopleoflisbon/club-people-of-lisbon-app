@@ -53,6 +53,18 @@ async function generateInviteLink(email: string): Promise<{ link?: string; error
   const link = (data as any)?.properties?.action_link;
   if (!link) return { error: 'Could not generate link' };
 
+  // Convert the Supabase verify URL to a direct app URL
+  // This prevents Chrome/Safari prefetching from consuming the token
+  // before the user actually clicks the link
+  try {
+    const supabaseUrl = new URL(link);
+    const token = supabaseUrl.searchParams.get('token');
+    const type = supabaseUrl.searchParams.get('type');
+    if (token && type) {
+      link = `${process.env.NEXT_PUBLIC_APP_URL}/auth/confirm?token=${token}&type=${type}`;
+    }
+  } catch {}
+
   return { link };
 }
 
