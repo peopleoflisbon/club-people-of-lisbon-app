@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Avatar from '@/components/ui/Avatar';
 import { getInitials } from '@/lib/utils';
+import KudosButton from '@/components/members/KudosButton';
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const supabase = createServerClient();
@@ -25,6 +26,11 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
 
   const { data: { session } } = await supabase.auth.getSession();
   const isOwnProfile = session?.user?.id === params.id;
+
+  const { count: kudosCount } = await (supabase as any)
+    .from('kudos')
+    .select('*', { count: 'exact', head: true })
+    .eq('recipient_id', params.id);
 
   return (
     <div className="flex-1 overflow-y-auto overscroll-contain">
@@ -89,6 +95,13 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
 
         {/* Content */}
         <div className="px-4 lg:px-8 py-6 space-y-6">
+
+          {/* Kudos */}
+          <KudosButton
+            recipientId={params.id}
+            initialCount={kudosCount || 0}
+            isOwnProfile={isOwnProfile}
+          />
 
           {profile.short_bio && (
             <div>

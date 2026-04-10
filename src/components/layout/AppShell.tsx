@@ -73,6 +73,7 @@ const NAV_ITEMS = [
 ];
 
 const SECONDARY_NAV = [
+  { href: '/leaderboard', label: '👍 Leaderboard' },
   { href: '/updates', label: 'Updates from Stephen' },
   { href: '/photos', label: "Rita's Photos" },
   { href: '/sponsors', label: 'Sponsors' },

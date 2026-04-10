@@ -336,3 +336,16 @@ insert into sponsors (name, description, logo_url, website_url, display_order) v
 ('Lisbon Creative', 'The premier creative agency in Lisbon, supporting local culture and art.', '', 'https://example.com', 1),
 ('NOS', 'Portugal''s leading telecommunications company, connecting communities.', '', 'https://example.com', 2),
 ('Turismo de Lisboa', 'Promoting the best of Lisbon to the world.', '', 'https://example.com', 3);
+
+-- Kudos / points system
+create table if not exists kudos (
+  id uuid default gen_random_uuid() primary key,
+  recipient_id uuid references profiles(id) on delete cascade not null,
+  giver_id uuid references profiles(id) on delete cascade not null,
+  created_at timestamptz default now()
+);
+
+alter table kudos enable row level security;
+
+create policy "Members can give kudos" on kudos for insert with check (auth.uid() = giver_id);
+create policy "Anyone can read kudos" on kudos for select using (true);

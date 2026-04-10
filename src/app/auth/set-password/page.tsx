@@ -144,7 +144,7 @@ export default function SetPasswordPage() {
               <p className="text-stone-300 text-sm leading-relaxed mb-2">You're now a member of People Of Lisbon.</p>
               <p className="text-stone-500 text-xs mb-8">Let's set up your profile so other members can find you.</p>
               <button
-                onClick={() => router.push('/home')}
+                onClick={() => router.push('/profile')}
                 className="w-full py-4 font-bold text-sm text-white bg-brand hover:bg-brand-dark active:scale-[0.98] transition-all"
               >
                 Set Up My Profile →
