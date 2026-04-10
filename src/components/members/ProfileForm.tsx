@@ -23,6 +23,7 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
     favorite_spots: profile?.favorite_spots || '',
     personal_story: profile?.personal_story || '',
     open_to_feature: profile?.open_to_feature || false,
+    nationality: (profile as any)?.nationality || '',
   });
 
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '');
@@ -133,6 +134,16 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         <div>
           <label className="pol-label">Job Title</label>
           <input className="pol-input" value={form.job_title} onChange={(e) => set('job_title', e.target.value)} placeholder="Filmmaker, Founder, Writer…" />
+        </div>
+
+        <div>
+          <label className="pol-label">Nationality 🌍</label>
+          <select className="pol-input" value={form.nationality} onChange={(e) => set('nationality', e.target.value)}>
+            <option value="">Select your nationality</option>
+            {['Irish','British','American','Portuguese','French','Spanish','Italian','German','Brazilian','Australian','Canadian','Dutch','Belgian','Swedish','Norwegian','Danish','Finnish','Polish','Russian','Ukrainian','Greek','Turkish','Israeli','South African','Indian','Chinese','Japanese','Korean','Mexican','Argentine','Colombian','Chilean','Venezuelan','Latvian','Lithuanian','Estonian','Romanian','Hungarian','Czech','Slovak','Croatian','Serbian','Swiss','Austrian','New Zealander','Singaporean','Malaysian','Nigerian','Ghanaian','Kenyan','Ethiopian','Egyptian','Moroccan','Pakistani','Bangladeshi'].map(n => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
         </div>
 
         <div>

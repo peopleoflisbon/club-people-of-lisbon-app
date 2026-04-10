@@ -39,7 +39,7 @@ export default async function LeaderboardPage() {
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
             <h1 className="font-display text-white text-3xl lg:text-4xl leading-none">Leaderboard</h1>
-            <p className="text-stone-400 text-sm mt-1">Most appreciated members of People Of Lisbon</p>
+            <p className="text-stone-400 text-sm mt-1">the totally pointless People Of Lisbon leaderboard thats just for fun</p>
           </div>
         </div>
 

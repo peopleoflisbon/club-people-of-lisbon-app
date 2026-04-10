@@ -12,6 +12,26 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   return { title: `${data?.full_name || 'Member'} · People Of Lisbon` };
 }
 
+function nationalityToFlag(nationality: string): string {
+  const map: Record<string, string> = {
+    'Irish': '🇮🇪', 'British': '🇬🇧', 'American': '🇺🇸', 'Portuguese': '🇵🇹',
+    'French': '🇫🇷', 'Spanish': '🇪🇸', 'Italian': '🇮🇹', 'German': '🇩🇪',
+    'Brazilian': '🇧🇷', 'Australian': '🇦🇺', 'Canadian': '🇨🇦', 'Dutch': '🇳🇱',
+    'Belgian': '🇧🇪', 'Swedish': '🇸🇪', 'Norwegian': '🇳🇴', 'Danish': '🇩🇰',
+    'Finnish': '🇫🇮', 'Polish': '🇵🇱', 'Russian': '🇷🇺', 'Ukrainian': '🇺🇦',
+    'Greek': '🇬🇷', 'Turkish': '🇹🇷', 'Israeli': '🇮🇱', 'South African': '🇿🇦',
+    'Indian': '🇮🇳', 'Chinese': '🇨🇳', 'Japanese': '🇯🇵', 'Korean': '🇰🇷',
+    'Mexican': '🇲🇽', 'Argentine': '🇦🇷', 'Colombian': '🇨🇴', 'Chilean': '🇨🇱',
+    'Venezuelan': '🇻🇪', 'Latvian': '🇱🇻', 'Lithuanian': '🇱🇹', 'Estonian': '🇪🇪',
+    'Romanian': '🇷🇴', 'Hungarian': '🇭🇺', 'Czech': '🇨🇿', 'Slovak': '🇸🇰',
+    'Croatian': '🇭🇷', 'Serbian': '🇷🇸', 'Swiss': '🇨🇭', 'Austrian': '🇦🇹',
+    'New Zealander': '🇳🇿', 'Singaporean': '🇸🇬', 'Malaysian': '🇲🇾',
+    'Nigerian': '🇳🇬', 'Ghanaian': '🇬🇭', 'Kenyan': '🇰🇪', 'Ethiopian': '🇪🇹',
+    'Egyptian': '🇪🇬', 'Moroccan': '🇲🇦', 'Pakistani': '🇵🇰', 'Bangladeshi': '🇧🇩',
+  };
+  return map[nationality] || '🌍';
+}
+
 export default async function MemberProfilePage({ params }: { params: { id: string } }) {
   const supabase = createServerClient();
 
@@ -46,62 +66,74 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
         </div>
 
         {/* Profile hero */}
-        <div className="bg-ink px-4 lg:px-8 py-8">
-          <div className="flex items-start gap-5">
-            <Avatar src={profile.avatar_url} name={profile.full_name} size="xl" className="flex-shrink-0 ring-2 ring-white/10" />
-            <div className="flex-1 min-w-0">
-              <h1 className="font-display text-2xl lg:text-3xl text-white leading-tight">{profile.full_name}</h1>
-              {profile.job_title && (
-                <p className="text-brand text-sm font-semibold mt-1">{profile.job_title}</p>
-              )}
-              {profile.headline && (
-                <p className="text-stone-400 text-sm mt-0.5 leading-snug">{profile.headline}</p>
-              )}
-              {profile.neighborhood && (
-                <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-2">
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                  </svg>
-                  {profile.neighborhood}
+        <div className="px-4 lg:px-8 py-8" style={{ backgroundImage: 'url(/sidebar-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }} />
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div className="flex items-start gap-5">
+              <Avatar src={profile.avatar_url} name={profile.full_name} size="xl" className="flex-shrink-0 ring-2 ring-white/10" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="font-display text-2xl lg:text-3xl text-white leading-tight">{profile.full_name}</h1>
+                  {profile.nationality && <span className="text-2xl">{nationalityToFlag(profile.nationality)}</span>}
                 </div>
-              )}
-              <div className="mt-4 flex gap-3">
-                {isOwnProfile ? (
-                  <>
-                    <Link href="/profile" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold hover:bg-white/20 transition-colors">
-                      Edit Profile
-                    </Link>
-                    <Link href={`/messages?with=${params.id}`} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand text-white text-sm font-semibold hover:bg-brand/90 transition-colors">
+                {profile.job_title && (
+                  <p className="text-brand text-sm font-semibold mt-1">{profile.job_title}</p>
+                )}
+                {profile.headline && (
+                  <p className="text-stone-400 text-sm mt-0.5 leading-snug">{profile.headline}</p>
+                )}
+                {profile.neighborhood && (
+                  <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-2">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                    </svg>
+                    {profile.neighborhood}
+                  </div>
+                )}
+                <div className="mt-4 flex gap-3">
+                  {isOwnProfile ? (
+                    <>
+                      <Link href="/profile" className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-xs font-semibold hover:bg-white/20 transition-colors">
+                        Edit Profile
+                      </Link>
+                      <Link href={`/messages?with=${params.id}`} className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white text-sm font-semibold hover:bg-brand/90 transition-colors">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                        </svg>
+                        Message
+                      </Link>
+                    </>
+                  ) : (
+                    <Link href={`/messages?with=${params.id}`} className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white text-sm font-semibold hover:bg-brand/90 transition-colors">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                       </svg>
-                      Message
+                      Send Message
                     </Link>
-                  </>
-                ) : (
-                  <Link href={`/messages?with=${params.id}`} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand text-white text-sm font-semibold hover:bg-brand/90 transition-colors">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
-                    </svg>
-                    Send Message
-                  </Link>
-                )}
+                  )}
+                </div>
               </div>
             </div>
+
+            {/* Kudos inside hero */}
+            <div className="mt-6 pt-5 border-t border-white/10 flex items-center justify-between">
+              <div>
+                <p className="text-white font-bold text-base">Vote for {profile.full_name?.split(' ')[0]}</p>
+                <p className="text-stone-500 text-xs mt-0.5 italic">(just for fun)</p>
+              </div>
+              <KudosButton
+                recipientId={params.id}
+                initialCount={kudosCount || 0}
+                isOwnProfile={isOwnProfile}
+                inline
+              />
+            </div>
           </div>
-          <div className="mt-6 h-px bg-gradient-to-r from-brand/50 via-stone-700 to-transparent" />
         </div>
 
         {/* Content */}
         <div className="px-4 lg:px-8 py-6 space-y-6">
-
-          {/* Kudos */}
-          <KudosButton
-            recipientId={params.id}
-            initialCount={kudosCount || 0}
-            isOwnProfile={isOwnProfile}
-          />
 
           {profile.short_bio && (
             <div>
