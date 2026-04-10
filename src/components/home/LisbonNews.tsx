@@ -22,7 +22,7 @@ export default function LisbonNews() {
 
   return (
     <div className="flex items-center gap-3 bg-stone-900 px-4 py-2.5 overflow-hidden">
-      <span className="text-brand text-xs font-bold uppercase tracking-wider flex-shrink-0">Portugal News</span>
+      <span className="text-brand text-xs font-bold uppercase tracking-wider flex-shrink-0">Lisbon News</span>
       <div className="w-px h-3 bg-stone-700 flex-shrink-0" />
       <a
         href={news.link}

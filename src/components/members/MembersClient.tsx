@@ -21,17 +21,22 @@ type MemberRow = {
 export default function MembersClient({ initialMembers }: { initialMembers: MemberRow[] }) {
   const [query, setQuery] = useState('');
 
+  // Shuffle once on mount, stable for session
+  const shuffled = useMemo(() => {
+    return [...initialMembers].sort(() => Math.random() - 0.5);
+  }, []); // eslint-disable-line
+
   const filtered = useMemo(() => {
-    if (!query.trim()) return initialMembers;
+    if (!query.trim()) return shuffled;
     const q = query.toLowerCase();
-    return initialMembers.filter(
+    return shuffled.filter(
       (m) =>
         m.full_name?.toLowerCase().includes(q) ||
         m.headline?.toLowerCase().includes(q) ||
         m.neighborhood?.toLowerCase().includes(q) ||
         m.job_title?.toLowerCase().includes(q)
     );
-  }, [query, initialMembers]);
+  }, [query, shuffled]);
 
   return (
     <ScrollPage>
@@ -86,7 +91,7 @@ function MemberCard({ member, index }: { member: MemberRow; index: number }) {
       <Avatar src={member.avatar_url} name={member.full_name} size="xl" className="flex-shrink-0" />
 
       <div className="flex-1 min-w-0">
-        <h3 className="font-display text-xl text-ink leading-tight">
+        <h3 style={{ fontFamily: '-apple-system, "SF Pro Display", "SF UI Display", BlinkMacSystemFont, sans-serif', fontWeight: 800, fontSize: '18px', lineHeight: 1.2, color: 'var(--ink)' }}>
           {member.full_name}
         </h3>
         {member.job_title && (

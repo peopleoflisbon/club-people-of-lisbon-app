@@ -120,7 +120,9 @@ export default function MessagesClient({ conversations, userId, initialConversat
               description="Visit a member profile and tap Message to start a conversation."
             />
           ) : (
-            conversations.map((conv) => (
+            conversations.map((conv) => {
+              const hasUnread = conv.last_message && conv.last_message.sender_id !== userId && selectedId !== conv.id;
+              return (
               <button
                 key={conv.id}
                 onClick={() => setSelectedId(conv.id)}
@@ -130,14 +132,19 @@ export default function MessagesClient({ conversations, userId, initialConversat
                   selectedId === conv.id && 'bg-stone-50'
                 )}
               >
-                <Avatar
-                  src={conv.other_profile?.avatar_url}
-                  name={conv.other_profile?.full_name || '?'}
-                  size="md"
-                />
+                <div className="relative flex-shrink-0">
+                  <Avatar
+                    src={conv.other_profile?.avatar_url}
+                    name={conv.other_profile?.full_name || '?'}
+                    size="md"
+                  />
+                  {hasUnread && (
+                    <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-brand rounded-full border-2 border-white" />
+                  )}
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="font-semibold text-sm text-ink truncate">
+                    <span className={cn('text-sm truncate', hasUnread ? 'font-bold text-ink' : 'font-semibold text-ink')}>
                       {conv.other_profile?.full_name}
                     </span>
                     {conv.last_message && (
@@ -147,14 +154,15 @@ export default function MessagesClient({ conversations, userId, initialConversat
                     )}
                   </div>
                   {conv.last_message && (
-                    <p className="text-xs text-stone-400 truncate mt-0.5">
+                    <p className={cn('text-xs truncate mt-0.5', hasUnread ? 'text-ink font-semibold' : 'text-stone-400')}>
                       {conv.last_message.sender_id === userId ? 'You: ' : ''}
                       {conv.last_message.content}
                     </p>
                   )}
                 </div>
               </button>
-            ))
+              );
+            })
           )}
         </div>
       </div>

@@ -14,7 +14,6 @@ export default async function HomePage() {
     { data: upcomingEvents },
     { data: latestPhotoArr },
     { data: latestUpdateArr },
-    { data: goodNews },
     { data: brandSetting },
   ] = await Promise.all([
     supabase.from('profiles').select('full_name, avatar_url, neighborhood').eq('id', userId).single(),
@@ -22,10 +21,8 @@ export default async function HomePage() {
       .select('id, full_name, avatar_url, headline, neighborhood, joined_at')
       .eq('is_active', true)
       .neq('id', userId)
-      .not('avatar_url', 'is', null)
-      .neq('avatar_url', '')
-      .not('full_name', 'is', null)
-      .neq('full_name', '')
+      .not('avatar_url', 'is', null).neq('avatar_url', '')
+      .not('full_name', 'is', null).neq('full_name', '')
       .order('joined_at', { ascending: false })
       .limit(1),
     supabase.from('events')
@@ -43,14 +40,16 @@ export default async function HomePage() {
       .eq('is_published', true)
       .order('published_at', { ascending: false })
       .limit(1),
-    supabase.from('good_news_posts')
-      .select('id, title, body, category, is_featured, created_at, author:profiles(full_name, avatar_url)')
-      .eq('is_published', true)
-      .order('is_featured', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(4),
     supabase.from('app_settings').select('value').eq('key', 'brand_square_image_url').single(),
   ]);
+
+  // Fetch Stephen's profile (admin) for the Latest from Stephen section
+  const { data: stephenProfile } = await (supabase as any)
+    .from('profiles')
+    .select('full_name, avatar_url')
+    .eq('role', 'admin')
+    .limit(1)
+    .single();
 
   const brandLogoUrl = (brandSetting as any)?.value || '/pol-logo.png';
 
@@ -61,7 +60,7 @@ export default async function HomePage() {
       upcomingEvents={upcomingEvents || []}
       latestPhoto={(latestPhotoArr && latestPhotoArr[0]) || null}
       latestUpdate={(latestUpdateArr && latestUpdateArr[0]) || null}
-      goodNews={goodNews || []}
+      stephenProfile={stephenProfile || null}
       brandLogoUrl={brandLogoUrl}
     />
   );

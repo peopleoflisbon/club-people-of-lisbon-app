@@ -70,83 +70,38 @@ export default function LatestPodcast() {
     <section>
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-display text-2xl text-ink">Latest Podcast</h2>
-        <a
-          href={episode.appleUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm font-semibold text-brand hover:underline"
-        >
+        <a href={episode.appleUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-brand hover:underline">
           Apple Podcasts →
         </a>
       </div>
 
-      <div className="bg-ink overflow-hidden">
-        {/* Episode artwork + info */}
-        <div className="flex items-start gap-4 p-5">
+      <div className="overflow-hidden relative" style={{ backgroundImage: "url('/sidebar-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
+        <div className="relative z-10 flex items-center gap-4 p-5">
           {episode.artwork && (
-            <img
-              src={episode.artwork}
-              alt="Podcast episode"
-              className="w-20 h-20 object-cover flex-shrink-0"
-            />
+            <img src={episode.artwork} alt="Podcast" className="w-16 h-16 object-cover flex-shrink-0 shadow-lg" />
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-brand text-xs font-semibold uppercase tracking-wider mb-1">People Of Lisbon</p>
-            <p className="text-white font-semibold text-base leading-snug mb-1 line-clamp-2">{episode.title}</p>
-            {episode.description && (
-              <p className="text-stone-500 text-xs leading-relaxed line-clamp-2">{episode.description}</p>
-            )}
+            <p className="text-brand text-xs font-semibold uppercase tracking-wider mb-1">People Of Lisbon Podcast</p>
+            <p className="text-white font-semibold text-base leading-snug">{episode.title}</p>
           </div>
+          {episode.audioUrl && (
+            <button onClick={togglePlay}
+              className="w-12 h-12 bg-brand flex items-center justify-center hover:bg-red-700 transition-colors flex-shrink-0">
+              {playing ? (
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+              ) : (
+                <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              )}
+            </button>
+          )}
         </div>
-
-        {/* Audio player */}
         {episode.audioUrl && (
-          <div className="px-5 pb-5">
-            <audio
-              ref={audioRef}
-              src={episode.audioUrl}
-              onTimeUpdate={handleTimeUpdate}
-              onLoadedMetadata={handleLoadedMetadata}
-              onEnded={() => setPlaying(false)}
-            />
-
-            {/* Progress bar */}
-            <div className="mb-3">
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={progress}
-                onChange={handleSeek}
-                className="w-full h-1 bg-stone-700 appearance-none cursor-pointer"
-                style={{ accentColor: '#F4141E' }}
-              />
-              <div className="flex justify-between mt-1">
-                <span className="text-stone-500 text-xs">{formatTime(currentTime)}</span>
-                <span className="text-stone-500 text-xs">{formatTime(duration)}</span>
-              </div>
-            </div>
-
-            {/* Controls */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={togglePlay}
-                className="w-10 h-10 bg-brand flex items-center justify-center hover:bg-brand-dark transition-colors flex-shrink-0"
-              >
-                {playing ? (
-                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                  </svg>
-                ) : (
-                  <svg className="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
-                )}
-              </button>
-              <p className="text-stone-400 text-xs flex-1 leading-snug">
-                {playing ? 'Now playing' : 'Tap to listen'}
-              </p>
-            </div>
+          <div className="relative z-10 px-5 pb-4">
+            <audio ref={audioRef} src={episode.audioUrl}
+              onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={() => setPlaying(false)} />
+            <input type="range" min="0" max="100" value={progress} onChange={handleSeek}
+              className="w-full h-0.5 bg-white/20 appearance-none cursor-pointer" style={{ accentColor: '#F4141E' }} />
           </div>
         )}
       </div>

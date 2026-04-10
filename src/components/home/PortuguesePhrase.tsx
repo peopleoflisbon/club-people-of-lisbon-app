@@ -47,7 +47,16 @@ export default function PortuguesePhrase() {
             </div>
             <span className="text-white/80 text-xs font-semibold uppercase tracking-wider">Frase do Dia</span>
           </div>
-          <span className="text-white/50 text-xs">Practice Portuguese</span>
+          <a
+            href="https://www.practiceportuguese.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 transition-colors px-2 py-1"
+            title="Practice Portuguese"
+          >
+            <span className="text-white text-xs font-bold">🇵🇹</span>
+            <span className="text-white/80 text-xs font-semibold">Practice Portuguese</span>
+          </a>
         </div>
 
         {/* Phrase */}

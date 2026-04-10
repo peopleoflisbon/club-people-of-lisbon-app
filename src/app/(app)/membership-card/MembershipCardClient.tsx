@@ -30,13 +30,12 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear }
   const flag = profile?.nationality ? (NATIONALITY_FLAGS[profile.nationality] || '🌍') : '';
 
   async function saveCard() {
-    // Open card in new tab for saving
     const canvas = document.createElement('canvas');
     canvas.width = 1012;
     canvas.height = 638;
     const ctx = canvas.getContext('2d')!;
 
-    // Background - dark red chevron feel
+    // Background gradient
     const grad = ctx.createLinearGradient(0, 0, 1012, 638);
     grad.addColorStop(0, '#1a0000');
     grad.addColorStop(0.4, '#4a0000');
@@ -48,60 +47,63 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear }
     // Chevron pattern
     ctx.strokeStyle = 'rgba(255,255,255,0.06)';
     ctx.lineWidth = 2;
-    for (let i = -20; i < 30; i++) {
-      const x = i * 40;
+    for (let i = -20; i < 35; i++) {
+      const x = i * 45;
       ctx.beginPath();
       ctx.moveTo(x, 0);
-      ctx.lineTo(x + 200, 319);
+      ctx.lineTo(x + 225, 319);
       ctx.lineTo(x, 638);
       ctx.stroke();
     }
 
-    // POL logo area
-    ctx.fillStyle = '#F4141E';
-    ctx.fillRect(60, 60, 80, 80);
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 42px serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('P', 100, 115);
+    // Try to load POL logo
+    const logoImg = new window.Image();
+    logoImg.crossOrigin = 'anonymous';
+    await new Promise<void>((resolve) => {
+      logoImg.onload = () => resolve();
+      logoImg.onerror = () => resolve();
+      logoImg.src = '/pol-logo.png';
+    });
 
-    // Club name
+    // POL logo top right
+    if (logoImg.complete && logoImg.naturalWidth > 0) {
+      ctx.drawImage(logoImg, 1012 - 100, 40, 60, 60);
+    }
+
+    // Club name top left
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 14px sans-serif';
+    ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'left';
-    ctx.letterSpacing = '3px';
-    ctx.fillText('CLUB PEOPLE OF LISBON', 160, 95);
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.font = '12px sans-serif';
-    ctx.fillText('Private Members Club · Lisbon', 160, 118);
+    ctx.fillText('Club People Of Lisbon', 50, 80);
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = 'italic 11px sans-serif';
+    ctx.fillText('Not a tourist. A person of Lisbon.', 50, 100);
 
     // Member name
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 36px sans-serif';
+    ctx.font = 'bold 38px sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(profile?.full_name?.toUpperCase() || 'MEMBER', 60, 420);
+    ctx.fillText((profile?.full_name || 'MEMBER').toUpperCase(), 50, 420);
 
     if (profile?.job_title) {
       ctx.fillStyle = '#F4141E';
       ctx.font = '16px sans-serif';
-      ctx.fillText(profile.job_title, 60, 448);
+      ctx.fillText(profile.job_title, 50, 448);
     }
 
     // Member number
     ctx.fillStyle = 'rgba(255,255,255,0.7)';
     ctx.font = '22px monospace';
-    ctx.fillText(memberNumber, 60, 510);
+    ctx.fillText(memberNumber, 50, 510);
 
-    // Member since
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.font = '12px sans-serif';
-    ctx.fillText(`MEMBER SINCE ${joinYear}`, 60, 560);
+    // Labels
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('MEMBER NO.', 50, 492);
+    ctx.fillText(`MEMBER SINCE ${joinYear}`, 50, 570);
 
-    // Valid
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.font = '12px sans-serif';
     ctx.textAlign = 'right';
-    ctx.fillText('VALID · LISBON', 952, 560);
+    ctx.fillText('VALID · LISBON', 962, 570);
 
     // Download
     const link = document.createElement('a');
@@ -126,7 +128,7 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear }
 
         {/* Card */}
         <div
-          style={{ perspective: '1200px', cursor: 'pointer' }}
+          style={{ perspective: '1200px', cursor: 'pointer', WebkitPerspective: '1200px' }}
           onClick={() => setFlipped(f => !f)}
           className="mb-6"
         >
@@ -138,8 +140,8 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear }
               position: 'relative',
               transformStyle: 'preserve-3d',
               WebkitTransformStyle: 'preserve-3d',
-              transition: 'transform 0.7s cubic-bezier(0.34, 1.26, 0.64, 1)',
-              WebkitTransition: '-webkit-transform 0.7s cubic-bezier(0.34, 1.26, 0.64, 1)',
+              transition: 'transform 0.6s ease',
+              WebkitTransition: '-webkit-transform 0.6s ease',
               transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
               WebkitTransform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
             }}
@@ -153,6 +155,7 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear }
               overflow: 'hidden',
               background: 'linear-gradient(135deg, #1a0000 0%, #5a0000 40%, #8B0000 70%, #1a0000 100%)',
               boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+              zIndex: flipped ? 0 : 1,
             }}>
               {/* Chevron SVG overlay */}
               <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 600 378" preserveAspectRatio="xMidYMid slice">
@@ -171,7 +174,7 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear }
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <img src="/pol-logo.png" alt="People Of Lisbon" style={{ width: '48px', height: '48px', objectFit: 'contain', borderRadius: '8px', flexShrink: 0 }} />
                     <div>
-                      <div style={{ color: '#fff', fontWeight: 800, fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase' }}>Club People Of Lisbon</div>
+                      <div style={{ color: '#fff', fontWeight: 800, fontSize: '11px', letterSpacing: '1.5px' }}>Club People Of Lisbon</div>
                       <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '9px', letterSpacing: '0.5px', marginTop: '2px', fontStyle: 'italic' }}>Not a tourist. A person of Lisbon.</div>
                     </div>
                   </div>
@@ -211,10 +214,12 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear }
               backfaceVisibility: 'hidden',
               WebkitBackfaceVisibility: 'hidden',
               transform: 'rotateY(180deg)',
+              WebkitTransform: 'rotateY(180deg)',
               borderRadius: '16px',
               overflow: 'hidden',
               background: 'linear-gradient(135deg, #1a0000 0%, #4a0000 50%, #1a0000 100%)',
               boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+              zIndex: flipped ? 1 : 0,
             }}>
               <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 600 378" preserveAspectRatio="xMidYMid slice">
                 {Array.from({ length: 20 }, (_, i) => (
@@ -240,7 +245,7 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear }
                   <div style={{ color: 'rgba(255,255,255,0.25)', fontSize: '8px', letterSpacing: '1px' }}>peopleoflisbon.com</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <img src="/pol-logo.png" alt="POL" style={{ width: '32px', height: '32px', objectFit: 'contain', borderRadius: '6px' }} />
-                    <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '8px', fontWeight: 700, letterSpacing: '1px' }}>CLUB PEOPLE OF LISBON</div>
+                    <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '8px', fontWeight: 700, letterSpacing: '0.5px' }}>Club People Of Lisbon</div>
                   </div>
                 </div>
               </div>

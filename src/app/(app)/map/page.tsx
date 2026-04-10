@@ -13,8 +13,10 @@ export default async function MapPage() {
     .order('created_at', { ascending: true });
 
   return (
-    // flex-1 fills the content area; map itself fills the rest
     <div className="flex-1 flex flex-col min-h-0">
+      <div className="px-4 py-2 bg-white border-b border-stone-100 flex-shrink-0">
+        <p className="text-stone-500 text-sm font-medium">🗺️ Have fun exploring People Of Lisbon locations</p>
+      </div>
       <LisbonMap pins={pins || []} />
     </div>
   );

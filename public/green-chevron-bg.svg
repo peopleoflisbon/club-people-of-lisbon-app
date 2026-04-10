@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#166534"/>
+      <stop offset="40%" stop-color="#15803d"/>
+      <stop offset="100%" stop-color="#052e16"/>
+    </radialGradient>
+  </defs>
+  <rect width="900" height="1200" fill="url(#g)"/>
+  <path d="M-225 0 L0 600 L-225 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M-180 0 L45 600 L-180 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M-135 0 L90 600 L-135 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M-90 0 L135 600 L-90 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M-45 0 L180 600 L-45 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M0 0 L225 600 L0 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M45 0 L270 600 L45 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M90 0 L315 600 L90 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M135 0 L360 600 L135 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M180 0 L405 600 L180 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M225 0 L450 600 L225 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M270 0 L495 600 L270 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M315 0 L540 600 L315 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M360 0 L585 600 L360 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M405 0 L630 600 L405 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M450 0 L675 600 L450 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M495 0 L720 600 L495 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M540 0 L765 600 L540 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M585 0 L810 600 L585 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M630 0 L855 600 L630 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M675 0 L900 600 L675 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M720 0 L945 600 L720 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M765 0 L990 600 L765 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M810 0 L1035 600 L810 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M855 0 L1080 600 L855 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M900 0 L1125 600 L900 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M945 0 L1170 600 L945 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M990 0 L1215 600 L990 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M1035 0 L1260 600 L1035 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M1080 0 L1305 600 L1080 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M1125 0 L1350 600 L1125 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M1170 0 L1395 600 L1170 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M1215 0 L1440 600 L1215 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M1260 0 L1485 600 L1260 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M1305 0 L1530 600 L1305 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M1350 0 L1575 600 L1350 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M1395 0 L1620 600 L1395 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M1440 0 L1665 600 L1440 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M1485 0 L1710 600 L1485 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+  <path d="M1530 0 L1755 600 L1530 1200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+</svg>

@@ -70,7 +70,7 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-ink/60" />
         <div className="relative z-10 text-center px-6">
           {logoUrl && <img src={logoUrl} alt="Logo" className="w-16 h-16 object-contain mx-auto mb-6" />}
-          <p className="text-stone-400 text-sm uppercase tracking-widest mb-2 font-semibold">Welcome back</p>
+          <p className="text-stone-400 text-sm uppercase tracking-widest mb-2 font-semibold">Welcome back <span className="normal-case text-stone-500">(Bem-vindo de volta)</span></p>
           <h1 className="font-display text-white text-5xl">{welcomeName}</h1>
         </div>
       </div>
