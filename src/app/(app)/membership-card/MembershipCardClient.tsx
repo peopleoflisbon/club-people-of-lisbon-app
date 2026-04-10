@@ -166,12 +166,10 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear }
                 {/* Top row */}
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '44px', height: '44px', background: '#F4141E', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', flexShrink: 0 }}>
-                      <span style={{ color: '#fff', fontWeight: 900, fontSize: '20px', fontFamily: 'serif' }}>P</span>
-                    </div>
+                    <img src="/pol-logo.png" alt="People Of Lisbon" style={{ width: '48px', height: '48px', objectFit: 'contain', borderRadius: '8px', flexShrink: 0 }} />
                     <div>
                       <div style={{ color: '#fff', fontWeight: 800, fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase' }}>Club People Of Lisbon</div>
-                      <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: '9px', letterSpacing: '1px', marginTop: '2px' }}>Private Members Club</div>
+                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '9px', letterSpacing: '0.5px', marginTop: '2px', fontStyle: 'italic' }}>Not a tourist. A person of Lisbon.</div>
                     </div>
                   </div>
                   {/* Chip */}

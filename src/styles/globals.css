@@ -37,7 +37,16 @@ body {
   background-color: var(--parchment);
   color: var(--ink);
   overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* Stronger default text throughout */
+p, span, div {
+  color: inherit;
+}
+
+.text-stone-500 { color: #57534e !important; }
+.text-stone-600 { color: #44403c !important; }
 
 /* ============================================================
    Typography

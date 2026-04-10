@@ -137,22 +137,22 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
 
           {profile.short_bio && (
             <div>
-              <h3 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">About</h3>
-              <p className="text-stone-600 text-sm leading-relaxed">{profile.short_bio}</p>
+              <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">About</h3>
+              <p className="text-ink text-base leading-relaxed font-medium">{profile.short_bio}</p>
             </div>
           )}
 
           {profile.personal_story && (
             <div>
-              <h3 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">Story</h3>
-              <p className="text-stone-600 text-sm leading-relaxed">{profile.personal_story}</p>
+              <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">Story</h3>
+              <p className="text-ink text-base leading-relaxed font-medium">{profile.personal_story}</p>
             </div>
           )}
 
           {profile.favorite_spots && (
             <div>
-              <h3 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">Favourite Lisbon Spots</h3>
-              <p className="text-stone-600 text-sm leading-relaxed">{profile.favorite_spots}</p>
+              <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">Favourite Lisbon Spots</h3>
+              <p className="text-ink text-base leading-relaxed font-medium">{profile.favorite_spots}</p>
             </div>
           )}
 
