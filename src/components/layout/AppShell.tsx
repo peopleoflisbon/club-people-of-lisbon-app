@@ -74,6 +74,7 @@ const NAV_ITEMS = [
 
 const SECONDARY_NAV = [
   { href: '/leaderboard', label: '👍 Leaderboard' },
+  { href: '/membership-card', label: '💳 Membership Card' },
   { href: '/updates', label: 'Updates from Stephen' },
   { href: '/photos', label: "Rita's Photos" },
   { href: '/sponsors', label: 'Sponsors' },
@@ -213,11 +214,11 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
         </div>
 
         {/* Mobile bottom tab bar */}
-        <nav className="lg:hidden flex items-stretch bg-white border-t border-stone-100 safe-bottom">
+        <nav className="lg:hidden flex items-stretch bg-white border-t border-stone-100" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}>
           {NAV_ITEMS.map((item) => {
             const active = isActive(item.href);
             return (
-              <Link key={item.href} href={item.href} className={cn('bottom-nav-item', active && 'active')}>
+              <Link key={item.href} href={item.href} className={cn('bottom-nav-item', active && 'active')} style={{ paddingTop: '10px', paddingBottom: '6px' }}>
                 <span className="w-5 h-5">{item.icon(active)}</span>
                 <span className="text-2xs font-semibold">{item.mobileLabel}</span>
               </Link>
