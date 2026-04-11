@@ -30,7 +30,7 @@ export default async function HomePage() {
       .limit(1),
     supabase.from('events')
       .select('id, title, starts_at, location_name, status, image_url')
-      .eq('status', 'upcoming')
+      .in('status', ['upcoming', 'live'])
       .order('starts_at', { ascending: true })
       .limit(3),
     supabase.from('rita_photos')

@@ -25,7 +25,7 @@ function getTimeGreeting() {
 interface Props {
   profile: { full_name: string; avatar_url: string; neighborhood: string } | null;
   recentMembers: { id: string; full_name: string; avatar_url: string; headline: string; neighborhood: string; joined_at: string }[];
-  upcomingEvents: { id: string; title: string; starts_at: string; location_name: string; status: string }[];
+  upcomingEvents: { id: string; title: string; starts_at: string; location_name: string; status: string; image_url?: string }[];
   latestPhoto: { id: string; image_url: string; title: string; caption: string } | null;
   latestUpdate: { id: string; title: string; published_at: string } | null;
   stephenProfile: { full_name: string; avatar_url: string } | null;
