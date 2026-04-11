@@ -7,6 +7,7 @@ import BrandLogo from '@/components/ui/BrandLogo';
 import LisbonWeather from '@/components/home/LisbonWeather';
 import PortuguesePhrase from '@/components/home/PortuguesePhrase';
 import LatestPodcast from '@/components/home/LatestPodcast';
+import TileLeaderboard from '@/components/home/TileLeaderboard';
 import { formatDate, formatDateTime } from '@/lib/utils';
 import ScrollPage from '@/components/ui/ScrollPage';
 
@@ -26,7 +27,7 @@ interface Props {
   recentMembers: { id: string; full_name: string; avatar_url: string; headline: string; neighborhood: string; joined_at: string }[];
   upcomingEvents: { id: string; title: string; starts_at: string; location_name: string; status: string }[];
   latestPhoto: { id: string; image_url: string; title: string; caption: string } | null;
-  latestUpdate: { id: string; title: string; content: string; published_at: string } | null;
+  latestUpdate: { id: string; title: string; published_at: string } | null;
   stephenProfile: { full_name: string; avatar_url: string } | null;
   brandLogoUrl?: string;
 }
@@ -73,16 +74,14 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
               style={{ backgroundImage: GREEN_CHEVRON, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }} />
               <div className="relative z-10 p-5">
-                <div className="flex items-start gap-3 mb-3">
+                <div className="flex items-center gap-3 mb-3">
                   <Avatar src={stephenProfile?.avatar_url || ''} name={stephenProfile?.full_name || 'Stephen'} size="md" className="flex-shrink-0 ring-2 ring-white/20" />
                   <div>
                     <p className="text-white text-base font-semibold">{stephenProfile?.full_name || "Stephen O'Regan"}</p>
                     <p className="text-stone-400 text-sm">{formatDate(latestUpdate.published_at)}</p>
                   </div>
                 </div>
-                <p className="font-display text-white text-xl leading-tight mb-2">{latestUpdate.title}</p>
-                <p className="text-stone-300 text-sm leading-relaxed line-clamp-3">{latestUpdate.content}</p>
-                <p className="text-brand text-sm font-semibold mt-3 group-hover:underline">Read more →</p>
+                <p className="font-display text-white text-xl leading-tight group-hover:underline">{latestUpdate.title}</p>
               </div>
             </Link>
           </section>
@@ -96,9 +95,14 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
               <Link href="/events" className="text-sm font-semibold text-brand hover:underline">See all →</Link>
             </div>
             <div className="space-y-3">
-              {upcomingEvents.map((event) => (
-                <Link key={event.id} href={`/events/${event.id}`} className="block bg-white border border-stone-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-                  <div className="flex items-start gap-4">
+              {upcomingEvents.map((event: any) => (
+                <Link key={event.id} href={`/events/${event.id}`} className="block bg-white border border-stone-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
+                  {event.image_url && (
+                    <div className="relative h-32 bg-stone-100">
+                      <Image src={event.image_url} alt={event.title} fill className="object-cover" unoptimized />
+                    </div>
+                  )}
+                  <div className="flex items-start gap-4 p-4">
                     <div className="flex-shrink-0 w-12 text-center">
                       <div className="bg-brand py-2">
                         <p className="text-white text-xs font-bold uppercase leading-none">{new Date(event.starts_at).toLocaleDateString('en', { month: 'short' })}</p>
@@ -206,6 +210,9 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
             </svg>
           </div>
         </Link>
+
+        {/* 12. TILE SMASHERS LEADERBOARD */}
+        <TileLeaderboard />
 
       </div>
     </div>

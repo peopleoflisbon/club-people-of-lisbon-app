@@ -18,6 +18,19 @@ const EMPTY: MapPinFormData = {
   youtube_url: '', latitude: 38.7223, longitude: -9.1393, thumbnail_url: '',
 };
 
+async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
+  try {
+    const query = encodeURIComponent(address + ', Lisbon, Portugal');
+    const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${MAPBOX_TOKEN}&limit=1`);
+    const data = await res.json();
+    if (data.features?.length > 0) {
+      const [lng, lat] = data.features[0].center;
+      return { lat, lng };
+    }
+  } catch {}
+  return null;
+}
+
 function PinMapPicker({ lat, lng, onChange }: { lat: number; lng: number; onChange: (lat: number, lng: number) => void }) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
@@ -29,7 +42,7 @@ function PinMapPicker({ lat, lng, onChange }: { lat: number; lng: number; onChan
       (mapboxgl.default as any).accessToken = MAPBOX_TOKEN;
       const map = new (mapboxgl.default as any).Map({
         container: mapContainer.current!,
-        style: 'mapbox://styles/mapbox/dark-v11',
+        style: 'mapbox://styles/mapbox/streets-v12',
         center: [lng, lat],
         zoom: 13,
       });
@@ -55,14 +68,19 @@ function PinMapPicker({ lat, lng, onChange }: { lat: number; lng: number; onChan
     return () => { mapRef.current?.remove(); mapRef.current = null; };
   }, []); // eslint-disable-line
 
+  // Update marker when lat/lng change externally (from geocoding)
+  useEffect(() => {
+    if (markerRef.current && mapRef.current) {
+      markerRef.current.setLngLat([lng, lat]);
+      mapRef.current.flyTo({ center: [lng, lat], zoom: 15 });
+    }
+  }, [lat, lng]);
+
   return (
     <div>
-      <label className="pol-label">Pin Location</label>
-      <p className="text-xs text-stone-400 mb-2">Click the map or drag the red pin to set the exact location.</p>
+      <label className="pol-label">Fine-tune Location (click map or drag pin)</label>
       <div ref={mapContainer} className="w-full h-52 rounded-xl overflow-hidden border border-stone-200" />
-      <p className="text-xs text-stone-400 mt-1.5">
-        📍 {lat.toFixed(5)}, {lng.toFixed(5)}
-      </p>
+      <p className="text-xs text-stone-400 mt-1.5">📍 {lat.toFixed(5)}, {lng.toFixed(5)}</p>
     </div>
   );
 }
@@ -73,17 +91,55 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<MapPinFormData>(EMPTY);
   const [saving, setSaving] = useState(false);
+  const [address, setAddress] = useState('');
+  const [geocoding, setGeocoding] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importMsg, setImportMsg] = useState('');
   const supabase = createClient();
 
-  function startCreate() { setForm(EMPTY); setEditingId(null); setShowForm(true); }
+  async function importFromYouTube() {
+    setImporting(true);
+    setImportMsg('');
+    try {
+      const res = await fetch('/api/youtube-import', { method: 'POST' });
+      const data = await res.json();
+      if (data.error) {
+        setImportMsg(`Error: ${data.error}`);
+      } else if (data.imported === 0) {
+        setImportMsg('All videos already imported.');
+      } else {
+        setImportMsg(`✓ Imported ${data.imported} videos. Now add locations to each one below.`);
+        // Reload page to show new pins
+        window.location.reload();
+      }
+    } catch {
+      setImportMsg('Failed to import. Try again.');
+    }
+    setImporting(false);
+  }
+
+  function startCreate() { setForm(EMPTY); setAddress(''); setEditingId(null); setShowForm(true); }
   function startEdit(p: MapPin) {
     setForm({
       title: p.title, featured_person: p.featured_person, neighborhood: p.neighborhood,
       description: p.description, youtube_url: p.youtube_url,
       latitude: p.latitude, longitude: p.longitude, thumbnail_url: p.thumbnail_url,
     });
+    setAddress('');
     setEditingId(p.id);
     setShowForm(true);
+  }
+
+  async function handleGeocode() {
+    if (!address.trim()) return;
+    setGeocoding(true);
+    const result = await geocodeAddress(address);
+    setGeocoding(false);
+    if (result) {
+      setForm(f => ({ ...f, latitude: result.lat, longitude: result.lng }));
+    } else {
+      alert('Address not found. Try a more specific address.');
+    }
   }
 
   async function save() {
@@ -113,10 +169,21 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="font-display text-3xl text-ink">Map Pins</h1>
-        <button onClick={startCreate} className="pol-btn-primary">+ Add Pin</button>
+        <div className="flex gap-2">
+          <button onClick={importFromYouTube} disabled={importing}
+            className="pol-btn-secondary text-sm">
+            {importing ? 'Importing…' : '▶ Import from YouTube'}
+          </button>
+          <button onClick={startCreate} className="pol-btn-primary">+ Add Pin</button>
+        </div>
       </div>
+      {importMsg && (
+        <div className={`p-3 text-sm mb-4 ${importMsg.startsWith('✓') ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+          {importMsg}
+        </div>
+      )}
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
@@ -132,8 +199,16 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
             </div>
 
             <div>
-              <label className="pol-label">Featured Person</label>
-              <input className="pol-input" value={form.featured_person} onChange={(e) => setForm({ ...form, featured_person: e.target.value })} placeholder="TV Writer & Filmmaker" />
+              <label className="pol-label">Address (auto-places pin on map)</label>
+              <div className="flex gap-2">
+                <input className="pol-input flex-1" value={address} onChange={(e) => setAddress(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleGeocode()}
+                  placeholder="Rua Augusta 123, Lisbon" />
+                <button onClick={handleGeocode} disabled={geocoding || !address.trim()} className="pol-btn-primary flex-shrink-0 text-sm">
+                  {geocoding ? '…' : 'Find'}
+                </button>
+              </div>
+              <p className="text-xs text-stone-400 mt-1">Type address and click Find to place the pin automatically</p>
             </div>
 
             <div>

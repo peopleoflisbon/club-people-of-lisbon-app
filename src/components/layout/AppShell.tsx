@@ -64,11 +64,11 @@ const NAV_ITEMS = [
 // Desktop sidebar secondary nav — ordered as requested
 const SECONDARY_NAV = [
   { href: '/updates', label: 'Latest from Stephen' },
-  { href: '/membership-card', label: '💳 Membership Card' },
+  { href: '/membership-card', label: 'Membership Card' },
   { href: '/sponsors', label: 'Sponsors' },
-  { href: '/leaderboard', label: '👍 Leaderboard' },
+  { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/photos', label: "Rita's Photos" },
-  { href: '/break-tiles', label: '🔨 Break the Tiles' },
+  { href: '/break-tiles', label: 'Break The Tiles' },
 ];
 
 interface AppShellProps {

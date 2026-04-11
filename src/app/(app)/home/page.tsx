@@ -1,6 +1,9 @@
 import { createServerClient } from '@/lib/supabase-server';
 import HomeClient from '@/components/home/HomeClient';
 
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
+
 export const metadata = { title: 'Home · People Of Lisbon' };
 
 export default async function HomePage() {
@@ -26,7 +29,7 @@ export default async function HomePage() {
       .order('joined_at', { ascending: false })
       .limit(1),
     supabase.from('events')
-      .select('id, title, starts_at, location_name, status')
+      .select('id, title, starts_at, location_name, status, image_url')
       .eq('status', 'upcoming')
       .order('starts_at', { ascending: true })
       .limit(3),
@@ -36,7 +39,7 @@ export default async function HomePage() {
       .order('sort_order', { ascending: true })
       .limit(1),
     supabase.from('updates')
-      .select('id, title, content, published_at')
+      .select('id, title, published_at')
       .eq('is_published', true)
       .order('published_at', { ascending: false })
       .limit(1),

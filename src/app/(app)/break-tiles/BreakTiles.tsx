@@ -131,9 +131,11 @@ function drawAzulejo(ctx: CanvasRenderingContext2D, x: number, y: number, s: num
   }
 }
 
-// Progressive rounds: 1, 2, 4, 8, 16... tiles per round
+// Progressive rounds: keep going forever
 function getRoundTileCount(round: number): number {
-  return Math.min(Math.pow(2, round - 1), 64);
+  if (round <= 6) return Math.pow(2, round - 1); // 1,2,4,8,16,32
+  // After round 6, keep adding tiles but cap at reasonable max for screen
+  return Math.min(32 + (round - 6) * 8, 120);
 }
 
 interface Tile { id: number; col: number; row: number; pattern: number; active: boolean; broken: boolean; crackProgress: number; }
@@ -148,8 +150,33 @@ export default function BreakTiles() {
   const [broken, setBroken] = useState(0);
   const [total, setTotal] = useState(1);
   const [complete, setComplete] = useState(false);
+  const [lifetimeScore, setLifetimeScore] = useState(0);
   const roundRef = useRef(1);
   const brokenRef = useRef(0);
+  const sessionBroken = useRef(0); // tiles broken this session, not yet saved
+
+  // Load lifetime score on mount
+  useEffect(() => {
+    fetch('/api/tile-score').then(r => r.json()).then(d => setLifetimeScore(d.score || 0));
+  }, []);
+
+  // Save score to DB every 10 tiles
+  async function saveScore(newTiles: number) {
+    sessionBroken.current += newTiles;
+    if (sessionBroken.current >= 10) {
+      const toSave = sessionBroken.current;
+      sessionBroken.current = 0;
+      try {
+        const res = await fetch('/api/tile-score', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tiles: toSave }),
+        });
+        const data = await res.json();
+        setLifetimeScore(data.score || 0);
+      } catch {}
+    }
+  }
 
   const getGridSize = useCallback(() => {
     const canvas = canvasRef.current;
@@ -253,6 +280,7 @@ export default function BreakTiles() {
     playCeramicSmash();
     brokenRef.current++;
     setBroken(brokenRef.current);
+    saveScore(1);
 
     const activeCount = tilesRef.current.filter(t => t.active && !t.broken).length;
     if (activeCount === 0) {
@@ -294,7 +322,7 @@ export default function BreakTiles() {
       <div className="flex items-center justify-between px-4 py-3 border-b border-stone-800 flex-shrink-0" style={{ background: '#1a1410' }}>
         <div>
           <h1 className="font-display text-2xl text-white">Break The Tiles</h1>
-          <p className="text-stone-500 text-xs">Round {round} · {broken}/{total} smashed</p>
+          <p className="text-stone-500 text-xs">Round {round} · {broken}/{total} this round · {lifetimeScore} total</p>
         </div>
         <button onClick={() => { roundRef.current = 1; setRound(1); buildRound(1); cancelAnimationFrame(animRef.current); requestAnimationFrame(render); }}
           className="px-3 py-2 bg-brand text-white text-xs font-bold hover:bg-red-700 transition-colors">

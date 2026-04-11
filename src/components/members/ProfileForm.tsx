@@ -311,7 +311,7 @@ function GoodNewsSubmit({ profileId }: { profileId: string }) {
       title: title.trim(),
       body: body.trim(),
       category,
-      author_id: profileId,
+      author_profile_id: profileId,
       is_published: false, // goes to admin queue
     });
     setSubmitting(false);

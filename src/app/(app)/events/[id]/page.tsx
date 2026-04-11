@@ -84,7 +84,16 @@ export default async function EventDetailPage({ params }: { params: { id: string
               </svg>
               <div>
                 <p className="font-semibold text-sm text-ink">{event.location_name}</p>
-                {event.location_address && <p className="text-stone-400 text-xs mt-0.5">{event.location_address}</p>}
+                {event.location_address && (
+                  <a
+                    href={`https://maps.google.com/?q=${encodeURIComponent(event.location_address)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-brand text-xs mt-0.5 hover:underline inline-flex items-center gap-1"
+                  >
+                    📍 {event.location_address} — Open in Maps
+                  </a>
+                )}
               </div>
             </div>
           )}
