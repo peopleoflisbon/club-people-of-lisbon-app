@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Avatar from '@/components/ui/Avatar';
 import BrandLogo from '@/components/ui/BrandLogo';
 import LisbonWeather from '@/components/home/LisbonWeather';
-import LisbonNews from '@/components/home/LisbonNews';
 import PortuguesePhrase from '@/components/home/PortuguesePhrase';
 import LatestPodcast from '@/components/home/LatestPodcast';
 import { formatDate, formatDateTime } from '@/lib/utils';
@@ -62,9 +61,6 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
 
         {/* 1. WEATHER */}
         <LisbonWeather />
-
-        {/* 2. LISBON NEWS */}
-        <LisbonNews />
 
         {/* 3. LATEST FROM STEPHEN */}
         {latestUpdate && (
