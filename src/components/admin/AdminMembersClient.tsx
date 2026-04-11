@@ -40,9 +40,53 @@ export default function AdminMembersClient({ members, invitations }: Props) {
   const [localMembers, setLocalMembers] = useState(members);
   const [localInvites, setLocalInvites] = useState(invitations);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [editingMember, setEditingMember] = useState<MemberRow | null>(null);
+  const [editForm, setEditForm] = useState<any>({});
+  const [editSaving, setEditSaving] = useState(false);
+  const [resetMember, setResetMember] = useState<MemberRow | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [resetSaving, setResetSaving] = useState(false);
+  const [resetMsg, setResetMsg] = useState('');
   const supabase = createClient();
 
-  async function generateLink() {
+  function startEditMember(member: MemberRow) {
+    setEditingMember(member);
+    setEditForm({
+      full_name: (member as any).full_name || '',
+      headline: (member as any).headline || '',
+      job_title: (member as any).job_title || '',
+      neighborhood: (member as any).neighborhood || '',
+      short_bio: (member as any).short_bio || '',
+    });
+  }
+
+  async function saveEditMember() {
+    if (!editingMember) return;
+    setEditSaving(true);
+    await supabase.from('profiles').update(editForm).eq('id', editingMember.id);
+    setLocalMembers(prev => prev.map(m => m.id === editingMember.id ? { ...m, ...editForm } : m));
+    setEditSaving(false);
+    setEditingMember(null);
+  }
+
+  async function resetPassword() {
+    if (!resetMember || !newPassword || newPassword.length < 8) return;
+    setResetSaving(true);
+    setResetMsg('');
+    try {
+      const res = await fetch('/api/admin-reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: resetMember.id, password: newPassword }),
+      });
+      const data = await res.json();
+      if (data.error) setResetMsg(`Error: ${data.error}`);
+      else { setResetMsg('✓ Password updated'); setNewPassword(''); }
+    } catch {
+      setResetMsg('Failed. Try again.');
+    }
+    setResetSaving(false);
+  }
     if (!inviteEmail.trim()) return;
     setGenerating(true);
     setGeneratedLink('');
@@ -251,6 +295,63 @@ export default function AdminMembersClient({ members, invitations }: Props) {
         </div>
       )}
 
+      {/* EDIT MEMBER MODAL */}
+      {editingMember && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-xl text-ink">Edit {editingMember.full_name || 'Member'}</h2>
+              <button onClick={() => setEditingMember(null)} className="text-stone-400 hover:text-ink text-xl">✕</button>
+            </div>
+            {[
+              { label: 'Full Name', key: 'full_name', placeholder: 'Jane Smith' },
+              { label: 'Headline', key: 'headline', placeholder: 'Filmmaker & Lisbon enthusiast' },
+              { label: 'Job Title', key: 'job_title', placeholder: 'Founder, Writer…' },
+              { label: 'Neighbourhood', key: 'neighborhood', placeholder: 'Alfama' },
+            ].map(({ label, key, placeholder }) => (
+              <div key={key}>
+                <label className="pol-label">{label}</label>
+                <input className="pol-input" value={editForm[key] || ''} onChange={e => setEditForm((f: any) => ({ ...f, [key]: e.target.value }))} placeholder={placeholder} />
+              </div>
+            ))}
+            <div>
+              <label className="pol-label">Short Bio</label>
+              <textarea className="pol-textarea" rows={3} value={editForm.short_bio || ''} onChange={e => setEditForm((f: any) => ({ ...f, short_bio: e.target.value }))} />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={saveEditMember} disabled={editSaving} className="pol-btn-primary flex-1">
+                {editSaving ? 'Saving…' : 'Save Changes'}
+              </button>
+              <button onClick={() => setEditingMember(null)} className="pol-btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RESET PASSWORD MODAL */}
+      {resetMember && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-xl text-ink">Reset Password</h2>
+              <button onClick={() => { setResetMember(null); setNewPassword(''); setResetMsg(''); }} className="text-stone-400 hover:text-ink text-xl">✕</button>
+            </div>
+            <p className="text-stone-500 text-sm">Set a new password for <strong>{resetMember.full_name || resetMember.email}</strong>. They can change it themselves later in their profile.</p>
+            <div>
+              <label className="pol-label">New Password</label>
+              <input type="password" className="pol-input" value={newPassword} onChange={e => { setNewPassword(e.target.value); setResetMsg(''); }} placeholder="Min 8 characters" />
+            </div>
+            {resetMsg && <p className={`text-sm font-semibold ${resetMsg.startsWith('✓') ? 'text-green-600' : 'text-red-500'}`}>{resetMsg}</p>}
+            <div className="flex gap-3">
+              <button onClick={resetPassword} disabled={resetSaving || newPassword.length < 8} className="pol-btn-primary flex-1">
+                {resetSaving ? 'Updating…' : 'Set Password'}
+              </button>
+              <button onClick={() => { setResetMember(null); setNewPassword(''); setResetMsg(''); }} className="pol-btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MEMBERS TAB */}
       {tab === 'members' && (
         <div className="space-y-2">
@@ -266,21 +367,23 @@ export default function AdminMembersClient({ members, invitations }: Props) {
                 <p className="text-xs text-stone-400">{member.email}</p>
               </div>
               <div className="flex gap-2 flex-shrink-0 flex-wrap justify-end">
+                <button onClick={() => startEditMember(member)} className="text-xs px-3 py-1.5 border border-stone-200 hover:border-brand hover:text-brand transition-colors">
+                  Edit Profile
+                </button>
+                <button onClick={() => { setResetMember(member); setNewPassword(''); setResetMsg(''); }} className="text-xs px-3 py-1.5 border border-stone-200 hover:border-amber-400 hover:text-amber-600 transition-colors">
+                  Password
+                </button>
                 <button onClick={() => toggleAdmin(member.id, member.role)} className="text-xs px-3 py-1.5 border border-stone-200 hover:border-brand hover:text-brand transition-colors">
                   {member.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
                 </button>
                 <button onClick={() => toggleMember(member.id, member.is_active)} className={cn('text-xs px-3 py-1.5 border transition-colors', member.is_active ? 'border-stone-200 hover:border-red-300 hover:text-red-500' : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50')}>
                   {member.is_active ? 'Deactivate' : 'Activate'}
                 </button>
-                <button
-                  onClick={() => deleteUser(member.id, member.full_name)}
-                  disabled={actionLoading === `delete-${member.id}`}
-                  className="text-xs px-3 py-1.5 border border-red-200 text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
-                >
+                <button onClick={() => deleteUser(member.id, member.full_name)} disabled={actionLoading === `delete-${member.id}`}
+                  className="text-xs px-3 py-1.5 border border-red-200 text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40">
                   {actionLoading === `delete-${member.id}` ? '…' : 'Delete'}
                 </button>
               </div>
-              {/* Membership number inline edit */}
               <MemberNumberEdit memberId={member.id} current={(member as any).membership_number} supabase={supabase} />
             </div>
           ))}

@@ -1,6 +1,7 @@
-import Image from 'next/image';
-import { getInitials } from '@/lib/utils';
-import { cn } from '@/lib/utils';
+'use client';
+
+import { useState } from 'react';
+import { getInitials, cn } from '@/lib/utils';
 
 interface AvatarProps {
   src?: string;
@@ -20,29 +21,23 @@ const SIZE_MAP = {
 export default function Avatar({ src, name, size = 'md', className }: AvatarProps) {
   const initials = getInitials(name || '?');
   const sizeClass = SIZE_MAP[size];
+  const [imgError, setImgError] = useState(false);
 
-  if (src) {
+  if (src && !imgError) {
     return (
       <div className={cn('rounded-full overflow-hidden flex-shrink-0 bg-stone-100', sizeClass, className)}>
-        <Image
+        <img
           src={src}
           alt={name}
-          width={80}
-          height={80}
           className="w-full h-full object-cover"
+          onError={() => setImgError(true)}
         />
       </div>
     );
   }
 
   return (
-    <div
-      className={cn(
-        'rounded-full flex-shrink-0 flex items-center justify-center font-bold bg-brand text-white',
-        sizeClass,
-        className
-      )}
-    >
+    <div className={cn('rounded-full flex-shrink-0 flex items-center justify-center font-bold bg-brand text-white', sizeClass, className)}>
       {initials}
     </div>
   );
