@@ -11,10 +11,31 @@ export default async function HomePage() {
   const { data: { session } } = await supabase.auth.getSession();
   const userId = session!.user.id;
 
+  // Fetch events — try with image_url, fall back without it
+  let upcomingEvents: any[] = [];
+  const { data: eventsWithImage, error: eventsError } = await (supabase as any)
+    .from('events')
+    .select('id, title, starts_at, location_name, status, image_url')
+    .in('status', ['upcoming', 'live'])
+    .order('starts_at', { ascending: true })
+    .limit(3);
+
+  if (!eventsError) {
+    upcomingEvents = eventsWithImage || [];
+  } else {
+    // image_url column missing — fetch without it
+    const { data: eventsBasic } = await supabase
+      .from('events')
+      .select('id, title, starts_at, location_name, status')
+      .in('status', ['upcoming', 'live'])
+      .order('starts_at', { ascending: true })
+      .limit(3);
+    upcomingEvents = eventsBasic || [];
+  }
+
   const [
     { data: profile },
     { data: recentMembers },
-    { data: upcomingEvents },
     { data: latestPhotoArr },
     { data: latestUpdateArr },
     { data: brandSetting },
@@ -28,11 +49,6 @@ export default async function HomePage() {
       .not('full_name', 'is', null).neq('full_name', '')
       .order('joined_at', { ascending: false })
       .limit(1),
-    supabase.from('events')
-      .select('id, title, starts_at, location_name, status, image_url')
-      .in('status', ['upcoming', 'live'])
-      .order('starts_at', { ascending: true })
-      .limit(3),
     supabase.from('rita_photos')
       .select('id, image_url, title, caption')
       .eq('is_published', true)
@@ -46,7 +62,6 @@ export default async function HomePage() {
     supabase.from('app_settings').select('value').eq('key', 'brand_square_image_url').single(),
   ]);
 
-  // Fetch Stephen's profile (admin) for the Latest from Stephen section
   const { data: stephenProfile } = await (supabase as any)
     .from('profiles')
     .select('full_name, avatar_url')
@@ -60,7 +75,7 @@ export default async function HomePage() {
     <HomeClient
       profile={profile}
       recentMembers={recentMembers || []}
-      upcomingEvents={upcomingEvents || []}
+      upcomingEvents={upcomingEvents}
       latestPhoto={(latestPhotoArr && latestPhotoArr[0]) || null}
       latestUpdate={(latestUpdateArr && latestUpdateArr[0]) || null}
       stephenProfile={stephenProfile || null}
