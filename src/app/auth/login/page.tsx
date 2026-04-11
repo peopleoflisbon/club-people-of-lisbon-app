@@ -17,8 +17,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [bgImage, setBgImage] = useState(FALLBACK_BG);
-  const [logoUrl, setLogoUrl] = useState('/pol-logo.png');
-  const [bgLoaded, setBgLoaded] = useState(false);
+  const [logoUrl, setLogoUrl] = useState('/pol-logo.png');  const [bgLoaded, setBgLoaded] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
@@ -93,10 +92,8 @@ export default function LoginPage() {
       {/* Left branding panel — desktop only */}
       <div className="hidden lg:flex flex-col justify-between w-1/2 relative z-10 p-12">
         <div>
-          {logoUrl
-            ? <img src={logoUrl} alt="People Of Lisbon" className="w-16 h-16 object-contain" />
-            : <div className="w-16 h-16 bg-brand flex items-center justify-center"><span className="font-display text-white text-2xl">P</span></div>
-          }
+          <img src={logoUrl} alt="People Of Lisbon" className="w-16 h-16 object-contain"
+            onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
         </div>
         <div>
           <h1 className="font-display text-white leading-none tracking-tight mb-6" style={{ fontSize: 'clamp(3.5rem, 6vw, 5rem)', lineHeight: 0.95 }}>
@@ -114,10 +111,8 @@ export default function LoginPage() {
 
           {/* Mobile logo only - no text */}
           <div className="flex flex-col items-center mb-8 lg:hidden">
-            {logoUrl
-              ? <img src={logoUrl} alt="People Of Lisbon" className="w-24 h-24 object-contain mb-4" />
-              : <div className="w-24 h-24 bg-brand flex items-center justify-center mb-4"><span className="font-display text-white text-4xl">P</span></div>
-            }
+            <img src={logoUrl} alt="People Of Lisbon" className="w-24 h-24 object-contain mb-4"
+              onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
           </div>
 
           {/* Form card */}

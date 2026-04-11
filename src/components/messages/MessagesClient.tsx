@@ -219,7 +219,7 @@ export default function MessagesClient({ conversations, userId, initialConversat
                         ? 'bg-brand text-white rounded-br-sm'
                         : 'bg-white text-ink rounded-bl-sm shadow-sm border border-stone-100'
                     )}>
-                      <p>{msg.content}</p>
+                      <p style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{msg.content}</p>
                       <p className={cn(
                         'text-2xs mt-1',
                         isMe ? 'text-white/60 text-right' : 'text-stone-400'
@@ -245,8 +245,9 @@ export default function MessagesClient({ conversations, userId, initialConversat
                       e.preventDefault();
                       sendMessage();
                     }
+                    // Shift+Enter adds a new line naturally
                   }}
-                  placeholder="Write a message…"
+                  placeholder="Write a message… (Shift+Enter for new line)"
                   rows={1}
                   className="flex-1 resize-none px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 text-sm text-ink placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all max-h-32 overflow-y-auto"
                 />

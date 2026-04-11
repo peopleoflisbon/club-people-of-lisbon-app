@@ -78,7 +78,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
                   <h1 className="font-display text-2xl lg:text-3xl text-white leading-tight">{profile.full_name}</h1>
                   {profile.nationality && <span className="text-2xl">{nationalityToFlag(profile.nationality)}</span>}
                 </div>
-                {profile.job_title && <p className="text-brand text-sm font-semibold mt-1">{profile.job_title}</p>}
+                {profile.job_title && <p className="text-brand text-sm font-semibold mt-1">{profile.job_title}{(profile as any).company ? ` · ${(profile as any).company}` : ''}</p>}
                 {profile.headline && <p className="text-stone-400 text-sm mt-0.5 leading-snug">{profile.headline}</p>}
                 {profile.neighborhood && (
                   <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-1.5">

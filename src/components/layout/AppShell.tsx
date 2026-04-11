@@ -92,7 +92,7 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
     <div className="flex bg-parchment overflow-hidden" style={{ height: '100dvh' }}>
 
       {/* ── Desktop Sidebar ── */}
-      <aside className="hidden lg:flex flex-col w-64 xl:w-72 h-full flex-shrink-0" style={{ backgroundImage: 'url(/sidebar-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <aside className="hidden lg:flex flex-col w-64 xl:w-72 h-full flex-shrink-0 overflow-hidden" style={{ backgroundImage: 'url(/sidebar-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: 0 }}>
         <div className="flex flex-col h-full" style={{ background: 'rgba(0,0,0,0.45)' }}>
 
           {/* Logo */}
@@ -101,7 +101,7 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
               <BrandLogo src={brandLogoUrl} size={40} className="shadow-md shadow-brand/30" />
               <div>
                 <p className="font-display text-white text-base leading-tight font-black">People Of Lisbon</p>
-                <p className="text-stone-500 text-xs mt-0.5 font-semibold leading-tight">Lisbon's most interesting people,<br />all in one place.</p>
+                <p className="text-stone-500 text-xs mt-0.5 font-semibold leading-snug">Lisbon's most interesting people, all in one place.</p>
               </div>
             </Link>
           </div>

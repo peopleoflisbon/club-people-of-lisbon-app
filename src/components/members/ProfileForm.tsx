@@ -14,6 +14,7 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
     full_name: profile?.full_name || '',
     headline: profile?.headline || '',
     job_title: profile?.job_title || '',
+    company: (profile as any)?.company || '',
     short_bio: profile?.short_bio || '',
     neighborhood: profile?.neighborhood || '',
     linkedin_url: profile?.linkedin_url || '',
@@ -165,6 +166,11 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         <div>
           <label className="pol-label">Job Title</label>
           <input className="pol-input" value={form.job_title} onChange={(e) => set('job_title', e.target.value)} placeholder="Filmmaker, Founder, Writer…" />
+        </div>
+
+        <div>
+          <label className="pol-label">Company / Project</label>
+          <input className="pol-input" value={form.company} onChange={(e) => set('company', e.target.value)} placeholder="People Of Lisbon, Acme Corp…" />
         </div>
 
         <div>
