@@ -204,7 +204,10 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         <h2 className="font-semibold text-sm text-stone-500 uppercase tracking-wider">Links</h2>
         <div>
           <label className="pol-label">LinkedIn URL</label>
-          <input className="pol-input" type="url" value={form.linkedin_url} onChange={(e) => set('linkedin_url', e.target.value)} placeholder="https://linkedin.com/in/yourname" />
+          <div className="flex items-center border border-stone-200 bg-white focus-within:ring-2 focus-within:ring-brand/20 focus-within:border-brand transition-all">
+            <span className="px-3 py-3 text-stone-400 text-sm border-r border-stone-200 bg-stone-50 select-none">https://</span>
+            <input className="flex-1 px-3 py-3 text-sm text-ink focus:outline-none" value={form.linkedin_url.replace(/^https?:\/\//,'')} onChange={(e) => set('linkedin_url', e.target.value ? 'https://' + e.target.value.replace(/^https?:\/\//,'') : '')} placeholder="linkedin.com/in/yourname" />
+          </div>
         </div>
         <div>
           <label className="pol-label">Instagram Handle</label>
@@ -212,7 +215,10 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         </div>
         <div>
           <label className="pol-label">Website</label>
-          <input className="pol-input" type="url" value={form.website_url} onChange={(e) => set('website_url', e.target.value)} placeholder="https://yoursite.com" />
+          <div className="flex items-center border border-stone-200 bg-white focus-within:ring-2 focus-within:ring-brand/20 focus-within:border-brand transition-all">
+            <span className="px-3 py-3 text-stone-400 text-sm border-r border-stone-200 bg-stone-50 select-none">https://</span>
+            <input className="flex-1 px-3 py-3 text-sm text-ink focus:outline-none" value={form.website_url.replace(/^https?:\/\//,'')} onChange={(e) => set('website_url', e.target.value ? 'https://' + e.target.value.replace(/^https?:\/\//,'') : '')} placeholder="yoursite.com" />
+          </div>
         </div>
       </div>
 
@@ -232,6 +238,12 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         </label>
       </div>
 
+      {/* Share Good News */}
+      <GoodNewsSubmit profileId={profile.id} />
+
+      {/* Change Password */}
+      <ChangePassword />
+
       {/* Save */}
       {error && <p className="text-brand text-sm px-1">{error}</p>}
       <div className="flex items-center gap-3">
@@ -240,6 +252,106 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         </button>
         {saved && <span className="text-sm text-green-600 font-medium">✓ Saved</span>}
       </div>
+    </div>
+  );
+}
+
+function ChangePassword() {
+  const supabase = createClient();
+  const [currentPw, setCurrentPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [confirmPw, setConfirmPw] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [err, setErr] = useState('');
+
+  async function handleChange() {
+    if (!newPw || newPw.length < 8) { setErr('Password must be at least 8 characters'); return; }
+    if (newPw !== confirmPw) { setErr('Passwords do not match'); return; }
+    setSaving(true); setErr(''); setMsg('');
+    const { error } = await supabase.auth.updateUser({ password: newPw });
+    setSaving(false);
+    if (error) setErr(error.message);
+    else { setMsg('Password updated successfully'); setCurrentPw(''); setNewPw(''); setConfirmPw(''); }
+  }
+
+  return (
+    <div className="pol-card p-6 space-y-4">
+      <h2 className="font-semibold text-sm text-stone-500 uppercase tracking-wider">Change Password</h2>
+      <div>
+        <label className="pol-label">New Password</label>
+        <input type="password" className="pol-input" value={newPw} onChange={e => { setNewPw(e.target.value); setErr(''); }} placeholder="Minimum 8 characters" />
+      </div>
+      <div>
+        <label className="pol-label">Confirm New Password</label>
+        <input type="password" className="pol-input" value={confirmPw} onChange={e => { setConfirmPw(e.target.value); setErr(''); }} placeholder="Repeat password" />
+      </div>
+      {err && <p className="text-red-500 text-sm">{err}</p>}
+      {msg && <p className="text-green-600 text-sm font-semibold">✓ {msg}</p>}
+      <button onClick={handleChange} disabled={saving || !newPw || !confirmPw} className="pol-btn-secondary text-sm">
+        {saving ? 'Updating…' : 'Update Password'}
+      </button>
+    </div>
+  );
+}
+
+function GoodNewsSubmit({ profileId }: { profileId: string }) {
+  const supabase = createClient();
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [category, setCategory] = useState('Win');
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(false);
+  const [err, setErr] = useState('');
+
+  async function handleSubmit() {
+    if (!title.trim()) { setErr('Please add a title'); return; }
+    setSubmitting(true); setErr('');
+    const { error } = await (supabase as any).from('good_news_posts').insert({
+      title: title.trim(),
+      body: body.trim(),
+      category,
+      author_id: profileId,
+      is_published: false, // goes to admin queue
+    });
+    setSubmitting(false);
+    if (error) setErr(error.message);
+    else { setDone(true); setTitle(''); setBody(''); }
+  }
+
+  return (
+    <div className="pol-card p-6 space-y-4">
+      <div>
+        <h2 className="font-semibold text-sm text-stone-500 uppercase tracking-wider mb-0.5">Share Good News</h2>
+        <p className="text-xs text-stone-400">Did something great happen because of People Of Lisbon? Tell us about it — a deal, collaboration, friendship. Stephen will review and share with the club.</p>
+      </div>
+      {done ? (
+        <div className="bg-green-50 border border-green-200 p-4">
+          <p className="text-green-700 font-semibold text-sm">✓ Submitted! Stephen will review and share it with the club.</p>
+          <button onClick={() => setDone(false)} className="text-green-600 text-xs mt-2 underline">Submit another</button>
+        </div>
+      ) : (
+        <>
+          <div>
+            <label className="pol-label">Category</label>
+            <select className="pol-input" value={category} onChange={e => setCategory(e.target.value)}>
+              {['Win','Deal','Collaboration','Opportunity','Recommendation','Other'].map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="pol-label">Headline</label>
+            <input className="pol-input" value={title} onChange={e => { setTitle(e.target.value); setErr(''); }} placeholder="I got a new client through POL…" />
+          </div>
+          <div>
+            <label className="pol-label">Tell us more (optional)</label>
+            <textarea className="pol-textarea" rows={3} value={body} onChange={e => setBody(e.target.value)} placeholder="What happened? Who was involved?" />
+          </div>
+          {err && <p className="text-red-500 text-sm">{err}</p>}
+          <button onClick={handleSubmit} disabled={submitting || !title} className="pol-btn-primary text-sm">
+            {submitting ? 'Submitting…' : 'Share Good News'}
+          </button>
+        </>
+      )}
     </div>
   );
 }

@@ -280,10 +280,42 @@ export default function AdminMembersClient({ members, invitations }: Props) {
                   {actionLoading === `delete-${member.id}` ? '…' : 'Delete'}
                 </button>
               </div>
+              {/* Membership number inline edit */}
+              <MemberNumberEdit memberId={member.id} current={(member as any).membership_number} supabase={supabase} />
             </div>
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function MemberNumberEdit({ memberId, current, supabase }: { memberId: string; current?: number; supabase: any }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(current ? String(current) : '');
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    setSaving(true);
+    await supabase.from('profiles').update({ membership_number: parseInt(val) || null }).eq('id', memberId);
+    setSaving(false);
+    setEditing(false);
+  }
+
+  if (!editing) {
+    return (
+      <button onClick={() => setEditing(true)} className="text-xs text-stone-400 hover:text-stone-600 mt-1">
+        {current ? `Card #2020 ${current}` : '+ Set card number'} ✎
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 mt-1">
+      <span className="text-xs text-stone-400">2020</span>
+      <input type="number" value={val} onChange={e => setVal(e.target.value)} className="w-24 text-xs border border-stone-200 px-2 py-1" placeholder="1001" />
+      <button onClick={save} disabled={saving} className="text-xs px-2 py-1 bg-brand text-white">{saving ? '…' : 'Save'}</button>
+      <button onClick={() => setEditing(false)} className="text-xs text-stone-400">Cancel</button>
     </div>
   );
 }

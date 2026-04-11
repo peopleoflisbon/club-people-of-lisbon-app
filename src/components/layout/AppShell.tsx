@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
@@ -80,6 +81,38 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const [hasUnread, setHasUnread] = useState(false);
+
+  // Check for unread messages
+  useEffect(() => {
+    async function checkUnread() {
+      const { data: convs } = await (supabase as any)
+        .from('conversations')
+        .select('id, last_message_sender_id, last_message_at, last_read_at')
+        .or(`participant_a.eq.${profile.id},participant_b.eq.${profile.id}`);
+
+      if (!convs) return;
+      // Unread = last message from someone else and newer than last_read_at
+      const unread = convs.some((c: any) =>
+        c.last_message_sender_id &&
+        c.last_message_sender_id !== profile.id &&
+        (!c.last_read_at || new Date(c.last_message_at) > new Date(c.last_read_at))
+      );
+      setHasUnread(unread);
+    }
+
+    checkUnread();
+
+    // Subscribe to new messages
+    const channel = supabase
+      .channel('unread-check')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
+        if (!pathname.startsWith('/messages')) checkUnread();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [pathname, profile.id]); // eslint-disable-line
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -201,11 +234,17 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
           style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 8px)' }}>
           {NAV_ITEMS.map((item) => {
             const active = isActive(item.href);
+            const showBadge = item.href === '/messages' && hasUnread && !active;
             return (
               <Link key={item.href} href={item.href}
                 className={cn('bottom-nav-item', active && 'active')}
                 style={{ paddingTop: '8px', paddingBottom: '4px', minHeight: '52px' }}>
-                <span className="w-6 h-6">{item.icon(active)}</span>
+                <span className="w-6 h-6 relative">
+                  {item.icon(active)}
+                  {showBadge && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-brand rounded-full border-2 border-white" />
+                  )}
+                </span>
                 <span className="text-2xs font-semibold">{item.mobileLabel}</span>
               </Link>
             );

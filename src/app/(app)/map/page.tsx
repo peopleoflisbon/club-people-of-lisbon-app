@@ -14,8 +14,8 @@ export default async function MapPage() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <div className="px-4 py-2 bg-white border-b border-stone-100 flex-shrink-0">
-        <p className="text-stone-500 text-sm font-medium">🗺️ Have fun exploring People Of Lisbon locations</p>
+      <div className="px-4 py-3 bg-white border-b border-stone-100 flex-shrink-0">
+        <p className="text-ink text-sm font-semibold">Have fun exploring the locations we filmed each People Of Lisbon episode</p>
       </div>
       <LisbonMap pins={pins || []} />
     </div>

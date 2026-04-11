@@ -28,7 +28,7 @@ export default function LisbonMap({ pins }: Props) {
 
       const map = new (mapboxgl.default as any).Map({
         container: mapContainer.current!,
-        style: 'mapbox://styles/mapbox/dark-v11',
+        style: 'mapbox://styles/mapbox/streets-v12',
         center: LISBON_CENTER,
         zoom: 12,
         minZoom: 9,

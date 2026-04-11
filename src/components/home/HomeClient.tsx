@@ -136,21 +136,21 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           </section>
         )}
 
-        {/* 6. PORTUGUESE PHRASE */}
+        {/* 6. PODCAST — under new member */}
+        <LatestPodcast />
+
+        {/* 7. PORTUGUESE PHRASE */}
         <PortuguesePhrase />
 
         {/* Good News hidden for now — keeping for future */}
-
-        {/* 7. PODCAST */}
-        <LatestPodcast />
 
         {/* 8. LEADERBOARD */}
         <Link href="/leaderboard" className="block relative overflow-hidden" style={{ backgroundImage: RED_CHEVRON, backgroundSize: 'cover', backgroundPosition: 'center' }}>
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }} />
           <div className="relative z-10 flex items-center justify-between px-5 py-5">
             <div>
-              <p className="font-display text-white text-2xl leading-tight">👍 Leaderboard</p>
-              <p className="text-stone-400 text-xs mt-1 italic">the totally pointless one, just for fun</p>
+              <p className="font-display text-white text-2xl leading-tight">Leaderboard</p>
+              <p className="text-white/70 text-xs mt-1 italic">the totally pointless one, just for fun</p>
             </div>
             <svg className="w-5 h-5 text-white/50 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -163,8 +163,8 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.65)' }} />
           <div className="relative z-10 flex items-center justify-between px-5 py-5">
             <div>
-              <p className="font-display text-white text-2xl leading-tight">💳 Membership Card</p>
-              <p className="text-stone-400 text-xs mt-1">Your Club People Of Lisbon card</p>
+              <p className="font-display text-white text-2xl leading-tight">Membership Card</p>
+              <p className="text-white/70 text-xs mt-1">Your Club People Of Lisbon card</p>
             </div>
             <svg className="w-5 h-5 text-white/50 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -198,8 +198,8 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }} />
           <div className="relative z-10 flex items-center justify-between px-5 py-5">
             <div>
-              <p className="font-display text-white text-2xl leading-tight">🔨 Break the Tiles</p>
-              <p className="text-stone-300 text-xs mt-1">Tap to smash · stress reliever</p>
+              <p className="font-display text-white text-2xl leading-tight">Break The Tiles</p>
+              <p className="text-white/70 text-xs mt-1">Tap to smash · stress reliever</p>
             </div>
             <svg className="w-5 h-5 text-white/50 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />

@@ -11,22 +11,28 @@ export default async function MembershipCardPage() {
 
   const { data: profile } = await (supabase as any)
     .from('profiles')
-    .select('id, full_name, avatar_url, job_title, neighborhood, joined_at, nationality')
+    .select('id, full_name, avatar_url, job_title, neighborhood, joined_at, nationality, membership_number')
     .eq('id', session.user.id)
     .single();
 
-  // Generate a unique member number from the UUID
-  const memberNumber = profile?.id
-    ? parseInt(profile.id.replace(/-/g, '').slice(0, 8), 16).toString().slice(0, 8).padStart(8, '0')
-    : '00000000';
+  // Generate membership number: 2020 + sequential number
+  // Use membership_number if set by admin, otherwise derive from join order
+  let memberNumber: string;
+  if (profile?.membership_number) {
+    memberNumber = String(profile.membership_number).padStart(4, '0');
+  } else {
+    // Derive from UUID for consistency
+    const derived = parseInt(profile?.id?.replace(/-/g, '').slice(0, 6) || '0', 16) % 9000 + 1000;
+    memberNumber = String(derived);
+  }
 
-  const formattedNumber = memberNumber.match(/.{1,4}/g)?.join(' ') || memberNumber;
-  const joinYear = profile?.joined_at ? new Date(profile.joined_at).getFullYear() : new Date().getFullYear();
+  const fullNumber = `2020 ${memberNumber.match(/.{1,4}/g)?.join(' ') || memberNumber}`;
+  const joinYear = profile?.joined_at ? new Date(profile.joined_at).getFullYear() : 2020;
 
   return (
     <MembershipCardClient
       profile={profile}
-      memberNumber={formattedNumber}
+      memberNumber={fullNumber}
       joinYear={joinYear}
     />
   );
