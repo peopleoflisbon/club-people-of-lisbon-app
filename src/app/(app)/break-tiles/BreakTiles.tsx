@@ -153,29 +153,29 @@ export default function BreakTiles() {
   const [lifetimeScore, setLifetimeScore] = useState(0);
   const roundRef = useRef(1);
   const brokenRef = useRef(0);
-  const sessionBroken = useRef(0); // tiles broken this session, not yet saved
+  const lifetimeRef = useRef(0);
 
   // Load lifetime score on mount
   useEffect(() => {
-    fetch('/api/tile-score').then(r => r.json()).then(d => setLifetimeScore(d.score || 0));
+    fetch('/api/tile-score').then(r => r.json()).then(d => {
+      const s = d.score || 0;
+      setLifetimeScore(s);
+      lifetimeRef.current = s;
+    });
   }, []);
 
-  // Save score to DB every 10 tiles
-  async function saveScore(newTiles: number) {
-    sessionBroken.current += newTiles;
-    if (sessionBroken.current >= 1) {
-      const toSave = sessionBroken.current;
-      sessionBroken.current = 0;
-      try {
-        const res = await fetch('/api/tile-score', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tiles: toSave }),
-        });
-        const data = await res.json();
-        setLifetimeScore(data.score || 0);
-      } catch {}
-    }
+  // Save one tile to DB — called directly, no batching
+  function saveOneTile() {
+    const newScore = lifetimeRef.current + 1;
+    lifetimeRef.current = newScore;
+    setLifetimeScore(newScore);
+    fetch('/api/tile-score', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tiles: 1 }),
+    }).then(r => r.json()).then(d => {
+      if (d.score) { lifetimeRef.current = d.score; setLifetimeScore(d.score); }
+    }).catch(() => {});
   }
 
   const getGridSize = useCallback(() => {
@@ -280,7 +280,7 @@ export default function BreakTiles() {
     playCeramicSmash();
     brokenRef.current++;
     setBroken(brokenRef.current);
-    saveScore(1);
+    saveOneTile();
 
     const activeCount = tilesRef.current.filter(t => t.active && !t.broken).length;
     if (activeCount === 0) {

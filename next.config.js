@@ -1,12 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    // Skip type checking during build — app works fine, types checked in editor
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    // Skip ESLint during build too
-    ignoreDuringBuilds: true,
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
+  async redirects() {
+    return [
+      { source: '/members', destination: '/home', permanent: false, has: [{ type: 'cookie', key: 'sb-access-token' }] },
+    ];
   },
   images: {
     remotePatterns: [

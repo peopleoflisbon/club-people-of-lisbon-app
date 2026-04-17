@@ -17,6 +17,7 @@ export default async function HomePage() {
     .from('events')
     .select('id, title, starts_at, location_name, status, image_url')
     .in('status', ['upcoming', 'live'])
+    .gt('starts_at', new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString())
     .order('starts_at', { ascending: true })
     .limit(3);
 
@@ -28,6 +29,7 @@ export default async function HomePage() {
       .from('events')
       .select('id, title, starts_at, location_name, status')
       .in('status', ['upcoming', 'live'])
+      .gt('starts_at', new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString())
       .order('starts_at', { ascending: true })
       .limit(3);
     upcomingEvents = eventsBasic || [];

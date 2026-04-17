@@ -216,8 +216,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           </div>
         </Link>
 
-        {/* 12. TILE SMASHERS LEADERBOARD */}
-        <TileLeaderboard />
+        {/* 12. TILE SMASHERS — link to leaderboard page */}
 
       </div>
     </div>
