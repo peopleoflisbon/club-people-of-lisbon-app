@@ -16,17 +16,21 @@ export async function middleware(req: NextRequest) {
   const supabase = createMiddlewareClient({ req, res });
   const { data: { session } } = await supabase.auth.getSession();
 
-  const isPublic = PUBLIC_PATHS.some((p) => req.nextUrl.pathname.startsWith(p));
+  const pathname = req.nextUrl.pathname;
+  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
   if (!session && !isPublic) {
     return NextResponse.redirect(new URL('/auth/login', req.url));
   }
-  if (session && req.nextUrl.pathname === '/') {
+
+  // Always redirect root to home
+  if (session && (pathname === '/' || pathname === '')) {
     return NextResponse.redirect(new URL('/home', req.url));
   }
+
   return res;
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest.json|icon-|pol-logo.png).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest.json|icon-|pol-logo.png|apple-touch-icon|favicon-).*)'],
 };

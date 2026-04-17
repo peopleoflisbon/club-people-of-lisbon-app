@@ -64,7 +64,7 @@ const NAV_ITEMS = [
 // Desktop sidebar secondary nav — ordered as requested
 const SECONDARY_NAV = [
   { href: '/updates', label: 'Latest from Stephen' },
-  { href: '/board', label: 'Board' },
+  { href: '/board', label: 'Message Board' },
   { href: '/membership-card', label: 'Membership Card' },
   { href: '/sponsors', label: 'Sponsors' },
   { href: '/leaderboard', label: 'Leaderboard' },
@@ -84,27 +84,39 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
   const supabase = createClient();
   const [hasUnread, setHasUnread] = useState(false);
 
-  // Check for unread messages
+  // Clear unread when visiting messages, set when new messages arrive
   useEffect(() => {
+    if (pathname.startsWith('/messages')) {
+      localStorage.setItem('pol_messages_last_read', new Date().toISOString());
+      setHasUnread(false);
+      return;
+    }
+
     async function checkUnread() {
+      const lastRead = localStorage.getItem('pol_messages_last_read') || '1970-01-01';
+      // Get conversations user is part of
       const { data: convs } = await (supabase as any)
         .from('conversations')
-        .select('id, last_message_sender_id, last_message_at, last_read_at')
+        .select('id')
         .or(`participant_a.eq.${profile.id},participant_b.eq.${profile.id}`);
 
-      if (!convs) return;
-      // Unread = last message from someone else and newer than last_read_at
-      const unread = convs.some((c: any) =>
-        c.last_message_sender_id &&
-        c.last_message_sender_id !== profile.id &&
-        (!c.last_read_at || new Date(c.last_message_at) > new Date(c.last_read_at))
-      );
-      setHasUnread(unread);
+      if (!convs?.length) return;
+      const convIds = convs.map((c: any) => c.id);
+
+      // Check for messages from others after last read
+      const { data: newMsgs } = await (supabase as any)
+        .from('messages')
+        .select('id')
+        .in('conversation_id', convIds)
+        .neq('sender_id', profile.id)
+        .gt('created_at', lastRead)
+        .limit(1);
+
+      setHasUnread(!!(newMsgs?.length));
     }
 
     checkUnread();
 
-    // Subscribe to new messages
     const channel = supabase
       .channel('unread-check')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
