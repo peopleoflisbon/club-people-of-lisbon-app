@@ -197,8 +197,9 @@ function EventCard({
                 'px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50',
                 attending
                   ? 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                  : 'text-white hover:opacity-90' style={{ background: '#2F6DA5' }}
+                  : 'text-white'
               )}
+              style={!attending ? { background: '#2F6DA5' } : undefined}
             >
               {rsvpLoading ? '…' : attending ? '✓ Going' : 'RSVP'}
             </button>

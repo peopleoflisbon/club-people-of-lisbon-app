@@ -119,7 +119,7 @@ export default function LoginPage() {
           <div className="bg-white border border-stone-200 p-8 shadow-card rounded-xl">
             {!showForgot ? (
               <>
-                <h2 className="font-display text-3xl mb-6 hidden lg:block" style={{ color: "#1C1C1C" }} ">Sign In</h2>
+                <h2 className="font-display text-3xl mb-6 hidden lg:block" style={{ color: "#1C1C1C" }}>Sign In</h2>
                 <form onSubmit={handleLogin} className="space-y-4" noValidate>
                   <div>
                     <label className="block text-xs font-bold text-stone-300 uppercase tracking-widest mb-2">Email</label>
