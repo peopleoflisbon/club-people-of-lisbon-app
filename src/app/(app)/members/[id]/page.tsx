@@ -8,8 +8,22 @@ import KudosButton from '@/components/members/KudosButton';
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const supabase = createServerClient();
-  const { data } = await (supabase as any).from('profiles').select('full_name').eq('id', params.id).single();
-  return { title: `${data?.full_name || 'Member'} · People Of Lisbon` };
+  const { data } = await (supabase as any).from('profiles').select('full_name, avatar_url, headline').eq('id', params.id).single();
+  const name = data?.full_name || 'Member';
+  const image = data?.avatar_url || '/pol-logo.png';
+  return {
+    title: `${name} · People Of Lisbon`,
+    openGraph: {
+      title: `${name} · People Of Lisbon`,
+      description: data?.headline || 'Member of Club People Of Lisbon',
+      images: [{ url: image, width: 400, height: 400 }],
+    },
+    twitter: {
+      card: 'summary',
+      title: `${name} · People Of Lisbon`,
+      images: [image],
+    },
+  };
 }
 
 function nationalityToFlag(nationality: string): string {

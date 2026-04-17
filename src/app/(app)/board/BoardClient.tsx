@@ -1,0 +1,118 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { createClient } from '@/lib/supabase';
+import Avatar from '@/components/ui/Avatar';
+import { formatDate } from '@/lib/utils';
+import Link from 'next/link';
+
+interface Post {
+  id: string;
+  content: string;
+  created_at: string;
+  profiles: { id: string; full_name: string; avatar_url: string; job_title: string };
+}
+
+export default function BoardClient({ posts: initial, profile }: { posts: Post[]; profile: any }) {
+  const [posts, setPosts] = useState(initial);
+  const [text, setText] = useState('');
+  const [posting, setPosting] = useState(false);
+  const supabase = createClient();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('board')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'board_posts' }, async (payload) => {
+        const { data } = await (supabase as any)
+          .from('board_posts')
+          .select('id, content, created_at, profiles(id, full_name, avatar_url, job_title)')
+          .eq('id', payload.new.id)
+          .single();
+        if (data) setPosts(prev => [data, ...prev]);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []); // eslint-disable-line
+
+  async function post() {
+    if (!text.trim() || posting) return;
+    setPosting(true);
+    await (supabase as any).from('board_posts').insert({ content: text.trim(), author_id: profile.id });
+    setText('');
+    setPosting(false);
+    textareaRef.current?.focus();
+  }
+
+  function handleKey(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); post(); }
+  }
+
+  const remaining = 280 - text.length;
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      <div className="px-4 pt-4 pb-3 bg-white border-b border-stone-100 flex-shrink-0">
+        <h1 className="font-display text-2xl text-ink">Board</h1>
+        <p className="text-stone-400 text-xs mt-0.5">Share something with the club</p>
+      </div>
+
+      {/* Post composer */}
+      <div className="px-4 py-3 bg-white border-b border-stone-100 flex-shrink-0">
+        <div className="flex gap-3">
+          <Avatar src={profile?.avatar_url} name={profile?.full_name} size="sm" className="flex-shrink-0 mt-1" />
+          <div className="flex-1">
+            <textarea
+              ref={textareaRef}
+              value={text}
+              onChange={e => setText(e.target.value.slice(0, 280))}
+              onKeyDown={handleKey}
+              placeholder="What's on your mind?"
+              rows={2}
+              className="w-full text-sm text-ink placeholder-stone-400 resize-none focus:outline-none leading-relaxed"
+            />
+            <div className="flex items-center justify-between mt-1">
+              <span className={`text-xs ${remaining < 20 ? 'text-red-400' : 'text-stone-300'}`}>{remaining}</span>
+              <button onClick={post} disabled={posting || !text.trim()}
+                className="pol-btn-primary text-xs px-4 py-1.5 disabled:opacity-40">
+                {posting ? 'Posting…' : 'Post'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Posts */}
+      <div className="flex-1 overflow-y-auto">
+        {posts.length === 0 && (
+          <div className="text-center py-16">
+            <p className="text-stone-400 text-sm">No posts yet — be the first.</p>
+          </div>
+        )}
+        {posts.map(post => (
+          <div key={post.id} className="px-4 py-4 border-b border-stone-50 hover:bg-stone-50/50 transition-colors">
+            <div className="flex gap-3">
+              <Link href={`/members/${post.profiles?.id}`} className="flex-shrink-0">
+                <Avatar src={post.profiles?.avatar_url} name={post.profiles?.full_name} size="sm" />
+              </Link>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-2 flex-wrap">
+                  <Link href={`/members/${post.profiles?.id}`} className="font-semibold text-sm text-ink hover:underline">
+                    {post.profiles?.full_name}
+                  </Link>
+                  {post.profiles?.job_title && (
+                    <span className="text-xs text-stone-400">{post.profiles.job_title}</span>
+                  )}
+                  <span className="text-xs text-stone-300">{formatDate(post.created_at)}</span>
+                </div>
+                <p className="text-sm text-ink mt-1 leading-relaxed" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                  {post.content}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

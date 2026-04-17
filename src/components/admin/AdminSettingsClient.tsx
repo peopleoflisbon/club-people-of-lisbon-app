@@ -13,12 +13,15 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
   const [loginBg, setLoginBg] = useState(initial['login_background_image_url'] || '');
   const [brandLogo, setBrandLogo] = useState(initial['brand_square_image_url'] || '/pol-logo.png');
   const [stephenPhoto, setStephenPhoto] = useState(initial['stephen_photo_url'] || '');
+  const [latestEpisode, setLatestEpisode] = useState(initial['latest_episode_url'] || '');
   const [savingBg, setSavingBg] = useState(false);
   const [savedBg, setSavedBg] = useState(false);
   const [savingLogo, setSavingLogo] = useState(false);
   const [savedLogo, setSavedLogo] = useState(false);
   const [savingStephen, setSavingStephen] = useState(false);
   const [savedStephen, setSavedStephen] = useState(false);
+  const [savingEpisode, setSavingEpisode] = useState(false);
+  const [savedEpisode, setSavedEpisode] = useState(false);
   const [bgImgError, setBgImgError] = useState(false);
   const supabase = createClient();
 
@@ -174,6 +177,33 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
             </button>
             {savedStephen && <span className="text-sm text-emerald-600 font-medium">✓ Saved</span>}
           </div>
+        </div>
+      </div>
+
+      {/* ── Latest Episode ── */}
+      <div className="pol-card p-6 space-y-4">
+        <h2 className="font-semibold text-sm text-ink mb-1">Latest Episode</h2>
+        <p className="text-xs text-stone-400">Paste a YouTube URL for the latest People Of Lisbon episode. It will appear on the home screen under New Member.</p>
+        <input
+          className="pol-input"
+          value={latestEpisode}
+          onChange={e => setLatestEpisode(e.target.value)}
+          placeholder="https://www.youtube.com/watch?v=EYfPjPnQeP4"
+        />
+        {latestEpisode && (
+          <div className="aspect-video w-full bg-stone-100 overflow-hidden rounded">
+            <iframe
+              src={`https://www.youtube.com/embed/${latestEpisode.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1]}`}
+              className="w-full h-full"
+              allowFullScreen
+            />
+          </div>
+        )}
+        <div className="flex items-center gap-3">
+          <button onClick={() => save('latest_episode_url', latestEpisode, setSavingEpisode, setSavedEpisode)} disabled={savingEpisode} className="pol-btn-primary">
+            {savingEpisode ? 'Saving…' : 'Save Episode'}
+          </button>
+          {savedEpisode && <span className="text-sm text-emerald-600 font-medium">✓ Saved</span>}
         </div>
       </div>
 

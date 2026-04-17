@@ -163,7 +163,7 @@ export default function BreakTiles() {
   // Save score to DB every 10 tiles
   async function saveScore(newTiles: number) {
     sessionBroken.current += newTiles;
-    if (sessionBroken.current >= 10) {
+    if (sessionBroken.current >= 1) {
       const toSave = sessionBroken.current;
       sessionBroken.current = 0;
       try {

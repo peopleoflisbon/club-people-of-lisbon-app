@@ -8,6 +8,7 @@ import LisbonWeather from '@/components/home/LisbonWeather';
 import PortuguesePhrase from '@/components/home/PortuguesePhrase';
 import LatestPodcast from '@/components/home/LatestPodcast';
 import TileLeaderboard from '@/components/home/TileLeaderboard';
+import LatestEpisode from '@/components/home/LatestEpisode';
 import { formatDate, formatDateTime } from '@/lib/utils';
 import ScrollPage from '@/components/ui/ScrollPage';
 
@@ -30,9 +31,10 @@ interface Props {
   latestUpdate: { id: string; title: string; published_at: string } | null;
   stephenProfile: { full_name: string; avatar_url: string } | null;
   brandLogoUrl?: string;
+  latestEpisodeUrl?: string;
 }
 
-export default function HomeClient({ profile, recentMembers, upcomingEvents, latestPhoto, latestUpdate, stephenProfile, brandLogoUrl }: Props) {
+export default function HomeClient({ profile, recentMembers, upcomingEvents, latestPhoto, latestUpdate, stephenProfile, brandLogoUrl, latestEpisodeUrl }: Props) {
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
   const newestMember = recentMembers[0] || null;
   const timeGreeting = getTimeGreeting();
@@ -140,7 +142,10 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           </section>
         )}
 
-        {/* 6. PODCAST — under new member */}
+        {/* 6. LATEST EPISODE */}
+        {latestEpisodeUrl && <LatestEpisode url={latestEpisodeUrl} />}
+
+        {/* 7. PODCAST — under new member */}
         <LatestPodcast />
 
         {/* 7. PORTUGUESE PHRASE */}

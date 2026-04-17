@@ -39,6 +39,7 @@ export default async function HomePage() {
     { data: latestPhotoArr },
     { data: latestUpdateArr },
     { data: brandSetting },
+    { data: episodeSetting },
   ] = await Promise.all([
     supabase.from('profiles').select('full_name, avatar_url, neighborhood').eq('id', userId).single(),
     supabase.from('profiles')
@@ -60,6 +61,7 @@ export default async function HomePage() {
       .order('published_at', { ascending: false })
       .limit(1),
     supabase.from('app_settings').select('value').eq('key', 'brand_square_image_url').single(),
+    supabase.from('app_settings').select('value').eq('key', 'latest_episode_url').single(),
   ]);
 
   const { data: stephenProfile } = await (supabase as any)
@@ -70,6 +72,7 @@ export default async function HomePage() {
     .single();
 
   const brandLogoUrl = (brandSetting as any)?.value || '/pol-logo.png';
+  const latestEpisodeUrl = (episodeSetting as any)?.value || '';
 
   return (
     <HomeClient
@@ -80,6 +83,7 @@ export default async function HomePage() {
       latestUpdate={(latestUpdateArr && latestUpdateArr[0]) || null}
       stephenProfile={stephenProfile || null}
       brandLogoUrl={brandLogoUrl}
+      latestEpisodeUrl={latestEpisodeUrl}
     />
   );
 }

@@ -3,6 +3,7 @@
   "short_name": "POL",
   "description": "Private members club — Lisbon's most interesting people",
   "start_url": "/home",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#F4141E",
   "theme_color": "#F4141E",

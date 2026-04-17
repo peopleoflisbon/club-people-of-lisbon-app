@@ -55,8 +55,15 @@ export default function AdminMembersClient({ members, invitations }: Props) {
       full_name: (member as any).full_name || '',
       headline: (member as any).headline || '',
       job_title: (member as any).job_title || '',
+      company: (member as any).company || '',
       neighborhood: (member as any).neighborhood || '',
+      nationality: (member as any).nationality || '',
       short_bio: (member as any).short_bio || '',
+      personal_story: (member as any).personal_story || '',
+      favorite_spots: (member as any).favorite_spots || '',
+      instagram_handle: (member as any).instagram_handle || '',
+      linkedin_url: (member as any).linkedin_url || '',
+      website_url: (member as any).website_url || '',
     });
   }
 
@@ -222,7 +229,12 @@ export default function AdminMembersClient({ members, invitations }: Props) {
               { label: 'Full Name', key: 'full_name', placeholder: 'Jane Smith' },
               { label: 'Headline', key: 'headline', placeholder: 'Filmmaker & Lisbon enthusiast' },
               { label: 'Job Title', key: 'job_title', placeholder: 'Founder, Writer…' },
+              { label: 'Company / Project', key: 'company', placeholder: 'People Of Lisbon' },
               { label: 'Neighbourhood', key: 'neighborhood', placeholder: 'Alfama' },
+              { label: 'Nationality', key: 'nationality', placeholder: 'Irish' },
+              { label: 'Instagram', key: 'instagram_handle', placeholder: '@handle' },
+              { label: 'LinkedIn URL', key: 'linkedin_url', placeholder: 'https://linkedin.com/in/…' },
+              { label: 'Website', key: 'website_url', placeholder: 'https://…' },
             ].map(({ label, key, placeholder }) => (
               <div key={key}>
                 <label className="pol-label">{label}</label>
@@ -232,6 +244,14 @@ export default function AdminMembersClient({ members, invitations }: Props) {
             <div>
               <label className="pol-label">Short Bio</label>
               <textarea className="pol-textarea" rows={3} value={editForm.short_bio || ''} onChange={e => setEditForm((f: any) => ({ ...f, short_bio: e.target.value }))} />
+            </div>
+            <div>
+              <label className="pol-label">My Lisbon Story</label>
+              <textarea className="pol-textarea" rows={3} value={editForm.personal_story || ''} onChange={e => setEditForm((f: any) => ({ ...f, personal_story: e.target.value }))} />
+            </div>
+            <div>
+              <label className="pol-label">Favourite Spots</label>
+              <textarea className="pol-textarea" rows={2} value={editForm.favorite_spots || ''} onChange={e => setEditForm((f: any) => ({ ...f, favorite_spots: e.target.value }))} />
             </div>
             <div className="flex gap-3 pt-2">
               <button onClick={saveEditMember} disabled={editSaving} className="pol-btn-primary flex-1">
