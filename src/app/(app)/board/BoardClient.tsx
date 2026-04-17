@@ -32,12 +32,26 @@ export default function BoardClient({ posts: initial, profile }: { posts: Post[]
     const channel = supabase
       .channel('board-posts')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'board_posts' }, async (payload) => {
+        // Skip if we already added this optimistically (same author posting)
         const { data } = await (supabase as any)
           .from('board_posts')
           .select('id, content, created_at, profiles(id, full_name, avatar_url, job_title)')
           .eq('id', payload.new.id)
           .single();
-        if (data) setPosts(prev => [data, ...prev]);
+        if (data) {
+          setPosts(prev => {
+            // Replace any temp post with same content, or add if from someone else
+            const hasDuplicate = prev.some(p => p.id === data.id);
+            if (hasDuplicate) return prev;
+            const tempIdx = prev.findIndex(p => p.id.startsWith('temp-') && p.content === data.content);
+            if (tempIdx !== -1) {
+              const updated = [...prev];
+              updated[tempIdx] = data;
+              return updated;
+            }
+            return [data, ...prev];
+          });
+        }
       })
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'board_posts' }, (payload) => {
         setPosts(prev => prev.filter(p => p.id !== payload.old.id));
@@ -49,8 +63,30 @@ export default function BoardClient({ posts: initial, profile }: { posts: Post[]
   async function post() {
     if (!text.trim() || posting) return;
     setPosting(true);
-    await (supabase as any).from('board_posts').insert({ content: text.trim(), author_id: profile.id });
+    const content = text.trim();
     setText('');
+
+    // Optimistically add to top immediately
+    const optimistic: Post = {
+      id: `temp-${Date.now()}`,
+      content,
+      created_at: new Date().toISOString(),
+      profiles: { id: profile.id, full_name: profile.full_name, avatar_url: profile.avatar_url, job_title: profile.job_title || '' },
+    };
+    setPosts(prev => [optimistic, ...prev]);
+
+    // Insert to DB — realtime will update other users
+    const { data } = await (supabase as any)
+      .from('board_posts')
+      .insert({ content, author_id: profile.id })
+      .select('id, content, created_at, profiles(id, full_name, avatar_url, job_title)')
+      .single();
+
+    // Replace optimistic post with real one
+    if (data) {
+      setPosts(prev => prev.map(p => p.id === optimistic.id ? data : p));
+    }
+
     setPosting(false);
     textareaRef.current?.focus();
   }

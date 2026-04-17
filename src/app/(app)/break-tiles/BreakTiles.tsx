@@ -154,6 +154,7 @@ export default function BreakTiles() {
   const roundRef = useRef(1);
   const brokenRef = useRef(0);
   const lifetimeRef = useRef(0);
+  const saveOneTileRef = useRef<() => void>(() => {});
 
   // Load lifetime score on mount
   useEffect(() => {
@@ -164,19 +165,21 @@ export default function BreakTiles() {
     });
   }, []);
 
-  // Save one tile to DB — called directly, no batching
-  function saveOneTile() {
-    const newScore = lifetimeRef.current + 1;
-    lifetimeRef.current = newScore;
-    setLifetimeScore(newScore);
-    fetch('/api/tile-score', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tiles: 1 }),
-    }).then(r => r.json()).then(d => {
-      if (d.score) { lifetimeRef.current = d.score; setLifetimeScore(d.score); }
-    }).catch(() => {});
-  }
+  // Keep saveOneTile in a ref so useCallback closures always call latest version
+  useEffect(() => {
+    saveOneTileRef.current = () => {
+      const newScore = lifetimeRef.current + 1;
+      lifetimeRef.current = newScore;
+      setLifetimeScore(newScore);
+      fetch('/api/tile-score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tiles: 1 }),
+      }).then(r => r.json()).then(d => {
+        if (d.score) { lifetimeRef.current = d.score; setLifetimeScore(d.score); }
+      }).catch(() => {});
+    };
+  });
 
   const getGridSize = useCallback(() => {
     const canvas = canvasRef.current;
@@ -280,7 +283,7 @@ export default function BreakTiles() {
     playCeramicSmash();
     brokenRef.current++;
     setBroken(brokenRef.current);
-    saveOneTile();
+    saveOneTileRef.current();
 
     const activeCount = tilesRef.current.filter(t => t.active && !t.broken).length;
     if (activeCount === 0) {
