@@ -48,7 +48,7 @@ export default function SetPasswordPage() {
 
   if (!ready) {
     return (
-      <div className="min-h-screen bg-ink flex items-center justify-center">
+      <div className="min-h-screen bg-sand flex items-center justify-center">
         <img src="/pol-logo.png" alt="People Of Lisbon" className="w-16 h-16 object-contain opacity-50" />
       </div>
     );
@@ -57,7 +57,7 @@ export default function SetPasswordPage() {
   return (
     <div className="relative min-h-screen w-full flex items-stretch overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 z-0 bg-ink">
+      <div className="absolute inset-0 z-0 bg-sand">
         <img
           src={bgImage}
           alt=""
@@ -126,7 +126,7 @@ export default function SetPasswordPage() {
                 <button
                   onClick={handleSubmit}
                   disabled={saving || !password || !confirm}
-                  className="w-full py-4 font-bold text-sm text-white bg-brand hover:bg-brand-dark active:scale-[0.98] transition-all disabled:opacity-40"
+                  className="w-full py-4 font-bold text-sm text-white active:scale-[0.98] transition-all disabled:opacity-40" style={{ background: "#2F6DA5" }}
                 >
                   {saving ? 'Creating your account…' : 'Create Password & Join'}
                 </button>
@@ -145,7 +145,7 @@ export default function SetPasswordPage() {
               <p className="text-stone-500 text-xs mb-8">Let's set up your profile so other members can find you.</p>
               <button
                 onClick={() => router.push('/profile')}
-                className="w-full py-4 font-bold text-sm text-white bg-brand hover:bg-brand-dark active:scale-[0.98] transition-all"
+                className="w-full py-4 font-bold text-sm text-white active:scale-[0.98] transition-all" style={{ background: "#2F6DA5" }}
               >
                 Set Up My Profile →
               </button>

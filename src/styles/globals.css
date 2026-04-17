@@ -4,21 +4,29 @@
 
 /* ============================================================
    People Of Lisbon — Global Styles
+   LP EDITORIAL THEME — to revert, restore the 6 variables below
+   to: --primary:#F4141E  --primary-dark:#C0000A
+       --bg:#F9F6F0  --card-bg:#FFFFFF
+       --text:#0A0A0A  --accent:#F4141E
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:wght@400;600&display=swap');
 
 :root {
-  --brand: #F4141E;
-  --brand-dark: #C0000A;
-  --brand-light: #FF4550;
-  --ink: #0A0A0A;
-  --ink-soft: #1A1A1A;
-  --ink-muted: #2C2C2C;
-  --parchment: #F9F6F0;
-  --stone-100: #EDE9E3;
-  --stone-200: #D9D3CA;
-  --radius: 0.75rem;
+  /* ── REVERT THESE 6 TO GO BACK ── */
+  --primary:       #2F6DA5;   /* Lisbon blue */
+  --primary-dark:  #1E4E7A;
+  --accent:        #E6B75C;   /* sunlight gold */
+  --bg:            #F5F1EA;   /* warm stone */
+  --text:          #1C1C1C;   /* dark charcoal */
+  --card-bg:       #FFFFFF;
+  /* ─────────────────────────────── */
+
+  --brand:         #F4141E;   /* logo red — keep */
+  --brand-dark:    #C0000A;
+  --radius-card:   10px;
+  --shadow-card:   0 2px 12px rgba(0,0,0,0.07);
+  --shadow-hover:  0 8px 28px rgba(0,0,0,0.12);
 }
 
 * {
@@ -34,80 +42,81 @@ html {
 
 body {
   font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-  background-color: var(--parchment);
-  color: var(--ink);
+  background-color: var(--bg);
+  color: var(--text);
   overscroll-behavior: none;
-  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
 }
 
-/* Stronger default text throughout */
-p, span, div {
-  color: inherit;
-}
-
-.text-stone-500 { color: #57534e !important; }
-.text-stone-600 { color: #44403c !important; }
+p, span, div { color: inherit; }
 
 /* ============================================================
-   Typography
+   Typography — editorial hierarchy
    ============================================================ */
 
 .font-display {
-  font-family: 'SF UI Display', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
-  font-weight: 900;
-  letter-spacing: -0.02em;
+  font-family: 'Bebas Neue', 'SF UI Display', -apple-system, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  line-height: 1.05;
 }
 
-.font-display-alt {
-  font-family: 'Bebas Neue', 'SF UI Display', sans-serif;
-  letter-spacing: 0.02em;
+.font-serif {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* LP-style location pill */
+.pol-eyebrow {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+/* Category pill tag */
+.pol-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border: 1px solid currentColor;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  color: var(--primary);
 }
 
 /* ============================================================
-   Mapbox overrides
+   Mapbox
    ============================================================ */
 
 .mapboxgl-popup-content {
   padding: 0 !important;
-  border-radius: 0 !important;
+  border-radius: var(--radius-card) !important;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4) !important;
+  box-shadow: var(--shadow-hover) !important;
   border: none !important;
 }
-
-.pol-hover-popup .mapboxgl-popup-tip {
-  display: none !important;
-}
-
+.pol-hover-popup .mapboxgl-popup-tip { display: none !important; }
 .mapboxgl-ctrl-bottom-left,
-.mapboxgl-ctrl-bottom-right {
-  margin-bottom: env(safe-area-inset-bottom);
-}
+.mapboxgl-ctrl-bottom-right { margin-bottom: env(safe-area-inset-bottom); }
 
-/* Custom map marker */
 .pol-marker {
-  width: 40px;
-  height: 40px;
-  background: var(--brand);
+  width: 36px; height: 36px;
+  background: var(--primary);
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
-  border: 3px solid white;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  border: 2px solid white;
+  box-shadow: 0 4px 16px rgba(47,109,165,0.4);
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease;
 }
-
-.pol-marker:hover {
-  transform: rotate(-45deg) scale(1.15);
-  box-shadow: 0 8px 30px rgba(244,20,30,0.5);
-}
-
+.pol-marker:hover { transform: rotate(-45deg) scale(1.15); }
 .pol-marker-inner {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
   transform: rotate(45deg);
 }
 
@@ -115,48 +124,29 @@ p, span, div {
    Scrollbar
    ============================================================ */
 
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--stone-200);
-  border-radius: 2px;
-}
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #C8BEB2; border-radius: 2px; }
 
 /* ============================================================
-   Utility classes
+   Utilities
    ============================================================ */
 
 @layer utilities {
   .text-brand { color: var(--brand); }
   .bg-brand { background-color: var(--brand); }
   .border-brand { border-color: var(--brand); }
-
+  .text-primary { color: var(--primary); }
+  .bg-primary { background-color: var(--primary); }
+  .text-accent { color: var(--accent); }
+  .bg-accent { background-color: var(--accent); }
+  .bg-sand { background-color: var(--bg); }
   .safe-top { padding-top: env(safe-area-inset-top); }
   .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
-
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
+  .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 }
 
 /* ============================================================
@@ -164,30 +154,15 @@ p, span, div {
    ============================================================ */
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-
-@keyframes pulse-brand {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(244,20,30,0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(244,20,30,0); }
-}
-
-.animate-fade-up { animation: fadeUp 0.5s ease forwards; }
+.animate-fade-up { animation: fadeUp 0.45s ease forwards; }
 .animate-fade-in { animation: fadeIn 0.3s ease forwards; }
 .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-/* Staggered animations */
 .stagger-1 { animation-delay: 0.05s; }
 .stagger-2 { animation-delay: 0.1s; }
 .stagger-3 { animation-delay: 0.15s; }
@@ -195,103 +170,165 @@ p, span, div {
 .stagger-5 { animation-delay: 0.25s; }
 
 /* ============================================================
-   Form styles
+   Form styles — editorial feel
    ============================================================ */
 
 .pol-input {
-  @apply w-full px-4 py-3 rounded-none border border-stone-200 bg-white
-         text-ink placeholder-stone-400 text-sm
-         focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand
-         transition-all duration-200;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #E0D9CE;
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  border-radius: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
+.pol-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(47,109,165,0.12);
+}
+.pol-input::placeholder { color: #A89A8C; }
 
-.pol-textarea {
-  @apply pol-input resize-none;
+.pol-textarea { resize: none; }
+.pol-textarea, .pol-input[type="text"], .pol-input[type="email"], .pol-input[type="password"], .pol-input[type="url"], .pol-input[type="number"], .pol-input[type="datetime-local"] {
+  /* All inputs use pol-input base */
 }
 
 .pol-label {
-  @apply block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1.5;
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8A7C6E;
+  margin-bottom: 6px;
 }
 
+/* Primary button — Lisbon blue */
 .pol-btn-primary {
-  @apply inline-flex items-center justify-center px-6 py-3 rounded-none
-         bg-brand text-white font-semibold text-sm
-         hover:bg-brand-dark active:scale-95
-         transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 24px;
+  background: var(--primary);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(47,109,165,0.25);
 }
+.pol-btn-primary:hover { background: var(--primary-dark); box-shadow: 0 4px 16px rgba(47,109,165,0.35); }
+.pol-btn-primary:active { transform: scale(0.97); }
+.pol-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* Secondary button — warm outlined */
 .pol-btn-secondary {
-  @apply inline-flex items-center justify-center px-6 py-3 rounded-none
-         bg-stone-100 text-ink font-semibold text-sm
-         hover:bg-stone-200 active:scale-95
-         transition-all duration-200 disabled:opacity-50;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 22px;
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border: 1.5px solid #E0D9CE;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
 }
+.pol-btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+.pol-btn-secondary:active { transform: scale(0.97); }
+.pol-btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .pol-btn-ghost {
-  @apply inline-flex items-center justify-center px-4 py-2 rounded-none
-         text-stone-600 font-medium text-sm
-         hover:bg-stone-100 active:scale-95
-         transition-all duration-200;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  color: #6B5E52;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
+.pol-btn-ghost:hover { background: #EDE7DC; }
 
 /* ============================================================
-   Card styles
+   Card — warm white, soft shadow, rounded
    ============================================================ */
 
 .pol-card {
-  @apply bg-white rounded-none border border-stone-100 shadow-sm
-         hover:shadow-md transition-shadow duration-200;
+  background: var(--card-bg);
+  border-radius: var(--radius-card);
+  border: 1px solid #EDE7DC;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s, transform 0.2s;
 }
+.pol-card:hover { box-shadow: var(--shadow-hover); }
 
 /* ============================================================
-   Mobile nav bottom tab bar
+   Mobile bottom nav — warm white, blue active
    ============================================================ */
 
 .bottom-nav-item {
-  @apply flex flex-col items-center justify-center gap-0.5
-         flex-1 py-2 text-stone-400 transition-colors duration-200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  flex: 1;
+  padding: 8px 4px;
+  color: #A89A8C;
+  transition: color 0.2s;
 }
-
-.bottom-nav-item.active {
-  @apply text-brand;
-}
-
-.bottom-nav-item svg {
-  @apply w-6 h-6;
-}
-
+.bottom-nav-item.active { color: var(--primary); }
+.bottom-nav-item svg { width: 22px; height: 22px; }
 .bottom-nav-item span {
-  @apply text-2xs font-semibold;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 /* ============================================================
-   Loading / skeleton states
+   LP-style hero card (full-bleed image)
    ============================================================ */
-.skeleton {
-  @apply bg-stone-200 animate-pulse rounded-lg;
-}
 
-/* Spinner */
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.pol-hero-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-card);
 }
-.animate-spin {
-  animation: spin 0.8s linear infinite;
+.pol-hero-card img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.pol-hero-card:hover img { transform: scale(1.03); }
+.pol-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
 }
 
 /* ============================================================
-   Photos gallery
+   Skeletons / loading
    ============================================================ */
-.photo-grid {
-  column-gap: 1rem;
-}
-.photo-grid > * {
-  break-inside: avoid;
-  margin-bottom: 1rem;
-}
 
-/* 2xs text size */
-.text-2xs {
-  font-size: 0.625rem;
-  line-height: 0.875rem;
-}
+.skeleton { background: #EDE7DC; animation: pulse 1.5s ease infinite; border-radius: 6px; }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+/* Photos */
+.photo-grid { column-gap: 1rem; }
+.photo-grid > * { break-inside: avoid; margin-bottom: 1rem; }
+
+/* 2xs */
+.text-2xs { font-size: 0.625rem; line-height: 0.875rem; }

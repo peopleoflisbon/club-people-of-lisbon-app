@@ -37,7 +37,7 @@ export default function PortuguesePhrase() {
   const phrase = PHRASES[Math.floor(Math.random() * PHRASES.length)];
 
   return (
-    <div className="overflow-hidden" style={{ background: 'linear-gradient(135deg, #166534, #15803d)' }}>
+    <div className="overflow-hidden" style={{ background: '#2F6DA5', borderRadius: '10px', boxShadow: '0 2px 12px rgba(47,109,165,0.25)' }}>
       <div className="px-5 py-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">

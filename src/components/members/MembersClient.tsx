@@ -95,7 +95,7 @@ function MemberCard({ member, index }: { member: MemberRow; index: number }) {
           {member.full_name}
         </h3>
         {member.job_title && (
-          <p className="text-brand text-sm font-semibold mt-0.5">{member.job_title}</p>
+          <p className="text-sm font-semibold mt-0.5" style={{ color: "#2F6DA5" }}>{member.job_title}</p>
         )}
         {member.headline && (
           <p className="text-stone-500 text-sm mt-0.5 leading-snug line-clamp-1">{member.headline}</p>

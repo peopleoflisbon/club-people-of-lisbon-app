@@ -46,15 +46,16 @@ export default function LisbonWeather() {
   const condition = WMO_CODES[weather.code] || { label: 'Lisbon', icon: '🌡️' };
 
   return (
-    <div className="flex items-center gap-3 bg-white border border-stone-100 px-4 py-3">
+    <div className="flex items-center gap-3 px-4 py-3"
+      style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid #EDE7DC', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
       <span className="text-2xl leading-none">{condition.icon}</span>
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-stone-400 font-medium">The current weather in Lisbon is</p>
-        <p className="text-sm font-semibold text-ink leading-tight">{condition.label}</p>
+        <p className="pol-eyebrow mb-0.5">Lisbon, Portugal</p>
+        <p className="text-sm font-medium leading-tight" style={{ color: '#6B5E52' }}>{condition.label}</p>
       </div>
       <div className="text-right flex-shrink-0">
-        <p className="font-display text-2xl text-ink leading-none">{weather.temp}°</p>
-        <p className="text-2xs text-stone-400 mt-0.5">{weather.high}° / {weather.low}°</p>
+        <p className="font-display text-3xl leading-none" style={{ color: '#1C1C1C' }}>{weather.temp}°</p>
+        <p className="text-2xs mt-0.5" style={{ color: '#A89A8C' }}>{weather.high}° / {weather.low}°</p>
       </div>
     </div>
   );

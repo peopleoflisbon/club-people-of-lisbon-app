@@ -16,8 +16,8 @@ export default function LatestEpisode({ url }: { url: string }) {
 
   return (
     <section>
-      <h2 className="font-display text-2xl text-ink mb-3">Latest Episode</h2>
-      <div className="relative bg-black overflow-hidden" style={{ aspectRatio: '16/9' }}>
+      <h2 className="font-display text-2xl mb-3" style={{ color: '#1C1C1C' }}>Latest Episode</h2>
+      <div className="relative bg-black overflow-hidden" style={{ aspectRatio: '16/9', borderRadius: '10px', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
         {playing ? (
           <iframe
             src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
@@ -30,7 +30,7 @@ export default function LatestEpisode({ url }: { url: string }) {
             <img src={thumbnail} alt="Latest Episode" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform" style={{ background: "#2F6DA5" }}>
                 <svg className="w-7 h-7 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z" />
                 </svg>

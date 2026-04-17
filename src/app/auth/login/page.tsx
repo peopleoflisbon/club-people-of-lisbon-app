@@ -64,14 +64,13 @@ export default function LoginPage() {
   // Welcome screen
   if (welcomeName) {
     return (
-      <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-ink">
-        <img src={bgImage} alt="" className="absolute inset-0 w-full h-full object-cover opacity-25" />
-        <div className="absolute inset-0 bg-ink/60" />
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ background: '#F5F1EA' }}>
+        <img src={bgImage} alt="" className="absolute inset-0 w-full h-full object-cover opacity-10" />
         <div className="relative z-10 text-center px-6">
           {logoUrl && <img src={logoUrl} alt="Logo" className="w-16 h-16 object-contain mx-auto mb-6" />}
-          <p className="text-stone-400 text-sm uppercase tracking-widest mb-1 font-semibold">Welcome back</p>
-          <p className="text-stone-500 text-xs mb-3 italic">(Bem-vindo de volta)</p>
-          <h1 className="font-display text-white text-5xl">{welcomeName}</h1>
+          <p className="pol-eyebrow mb-1">Welcome back</p>
+          <p className="text-xs mb-3 italic" style={{ color: '#A89A8C' }}>(Bem-vindo de volta)</p>
+          <h1 className="font-display text-6xl" style={{ color: '#1C1C1C' }}>{welcomeName}</h1>
         </div>
       </div>
     );
@@ -80,14 +79,14 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen w-full flex items-stretch overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 z-0 bg-ink">
+      <div className="absolute inset-0 z-0" style={{ background: '#F5F1EA' }}>
         <img
           src={bgImage}
           alt=""
           className={cn('absolute inset-0 w-full h-full object-cover transition-opacity duration-1000', bgLoaded ? 'opacity-100' : 'opacity-0')}
           onLoad={() => setBgLoaded(true)}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/50 to-ink/20" />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(28,28,28,0.88) 0%, rgba(28,28,28,0.5) 55%, rgba(245,241,234,0.15) 100%)' }} />
       </div>
 
       {/* Left branding panel — desktop only */}
@@ -97,13 +96,13 @@ export default function LoginPage() {
             onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
         </div>
         <div>
-          <h1 className="font-display text-white leading-none tracking-tight mb-6" style={{ fontSize: 'clamp(3.5rem, 6vw, 5rem)', lineHeight: 0.95 }}>
+          <h1 className="font-display text-white leading-none mb-6" style={{ fontSize: 'clamp(3.5rem, 6vw, 5rem)', lineHeight: 0.95 }}>
             People<br />Of<br />Lisbon
           </h1>
-          <p className="text-white text-lg font-semibold leading-snug mb-1">{TAGLINE}</p>
-          <p className="text-stone-400 text-sm italic">{TAGLINE_PT}</p>
+          <p className="text-white text-lg font-medium leading-snug mb-1">{TAGLINE}</p>
+          <p className="text-sm italic" style={{ color: 'rgba(255,255,255,0.5)' }}>{TAGLINE_PT}</p>
         </div>
-        <div className="h-px bg-stone-700" />
+        <div className="h-px" style={{ background: 'rgba(255,255,255,0.15)' }} />
       </div>
 
       {/* Right form panel */}
@@ -117,10 +116,10 @@ export default function LoginPage() {
           </div>
 
           {/* Form card */}
-          <div className="bg-white/[0.06] backdrop-blur-md border border-white/10 p-8 shadow-2xl">
+          <div className="bg-white border border-stone-200 p-8 shadow-card rounded-xl">
             {!showForgot ? (
               <>
-                <h2 className="font-display text-white text-2xl mb-6 hidden lg:block">Sign In</h2>
+                <h2 className="font-display text-3xl mb-6 hidden lg:block" style={{ color: "#1C1C1C" }} ">Sign In</h2>
                 <form onSubmit={handleLogin} className="space-y-4" noValidate>
                   <div>
                     <label className="block text-xs font-bold text-stone-300 uppercase tracking-widest mb-2">Email</label>
@@ -130,7 +129,7 @@ export default function LoginPage() {
                       onChange={(e) => { setEmail(e.target.value); setError(''); }}
                       autoComplete="email"
                       autoCapitalize="none"
-                      className="w-full px-4 py-3.5 text-sm text-white placeholder-stone-500 bg-white/[0.06] border border-white/15 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand/50 transition-all"
+                      className="w-full px-4 py-3.5 text-sm text-ink placeholder-stone-400 bg-white border border-stone-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                       placeholder="your@email.com"
                       required
                     />
@@ -142,7 +141,7 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => { setPassword(e.target.value); setError(''); }}
                       autoComplete="current-password"
-                      className="w-full px-4 py-3.5 text-sm text-white placeholder-stone-500 bg-white/[0.06] border border-white/15 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand/50 transition-all"
+                      className="w-full px-4 py-3.5 text-sm text-ink placeholder-stone-400 bg-white border border-stone-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                       placeholder="••••••••"
                       required
                     />
@@ -155,7 +154,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={loading || !email || !password}
-                    className="w-full py-4 font-bold text-sm text-white mt-2 bg-brand hover:bg-brand-dark shadow-lg shadow-brand/25 active:scale-[0.98] transition-all disabled:opacity-40"
+                    className="w-full py-4 font-bold text-sm text-white mt-2 bg-primary hover:bg-primary-dark shadow-lg shadow-primary/25 active:scale-[0.98] transition-all disabled:opacity-40"
                   >
                     {loading ? 'Signing in…' : 'Sign In'}
                   </button>
@@ -194,7 +193,7 @@ export default function LoginPage() {
                         type="email"
                         value={forgotEmail}
                         onChange={(e) => setForgotEmail(e.target.value)}
-                        className="w-full px-4 py-3.5 text-sm text-white placeholder-stone-500 bg-white/[0.06] border border-white/15 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand/50 transition-all"
+                        className="w-full px-4 py-3.5 text-sm text-ink placeholder-stone-400 bg-white border border-stone-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                         placeholder="your@email.com"
                         required
                       />
@@ -202,7 +201,7 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={forgotLoading || !forgotEmail}
-                      className="w-full py-4 font-bold text-sm text-white bg-brand hover:bg-brand-dark active:scale-[0.98] transition-all disabled:opacity-40"
+                      className="w-full py-4 font-bold text-sm text-white bg-primary hover:bg-primary-dark active:scale-[0.98] transition-all disabled:opacity-40"
                     >
                       {forgotLoading ? 'Sending…' : 'Send Reset Link'}
                     </button>

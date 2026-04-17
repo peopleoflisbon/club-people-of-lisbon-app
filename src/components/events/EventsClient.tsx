@@ -147,7 +147,7 @@ function EventCard({
             unoptimized
           />
           {event.status === 'live' && (
-            <div className="absolute top-3 left-3 bg-brand text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
+            <div className="absolute top-3 left-3 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5" style={{ background: "#2F6DA5" }}>
               <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
               Live
             </div>
@@ -157,7 +157,7 @@ function EventCard({
 
       <div className="p-5">
         {/* Date */}
-        <p className="text-brand text-xs font-semibold uppercase tracking-wider mb-1">
+        <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: "#2F6DA5" }}>
           {formatDateTime(event.starts_at)}
         </p>
 
@@ -197,7 +197,7 @@ function EventCard({
                 'px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50',
                 attending
                   ? 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                  : 'bg-brand text-white hover:bg-brand-dark'
+                  : 'text-white hover:opacity-90' style={{ background: '#2F6DA5' }}
               )}
             >
               {rsvpLoading ? '…' : attending ? '✓ Going' : 'RSVP'}

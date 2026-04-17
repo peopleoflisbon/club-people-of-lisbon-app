@@ -19,7 +19,7 @@ export default async function UpdatesPage() {
     <div className="flex-1 overflow-y-auto overscroll-contain"><div className="max-w-2xl mx-auto">
 
       {/* Stephen header */}
-      <div className="bg-ink px-4 lg:px-8 py-8">
+      <div className="px-4 lg:px-8 py-8" style={{ background: "#1C1C1C" }}>
         <div className="flex items-center gap-4">
           {stephenPhoto ? (
             <img src={stephenPhoto} alt="Stephen O'Regan" className="w-16 h-16 rounded-2xl object-cover flex-shrink-0 ring-2 ring-white/10" />
@@ -66,7 +66,7 @@ export default async function UpdatesPage() {
                   </div>
                 )}
                 <div className="p-6">
-                  <time className="text-brand text-xs font-semibold uppercase tracking-wider">
+                  <time className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#2F6DA5" }}>
                     {formatDate(update.published_at)}
                   </time>
                   <h2 className="font-display text-2xl text-ink mt-1 mb-3">{update.title}</h2>

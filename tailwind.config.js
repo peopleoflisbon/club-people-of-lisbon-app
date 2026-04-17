@@ -4,36 +4,54 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // ── Original brand (keep for logo compatibility) ──
         brand: {
           DEFAULT: '#F4141E',
           dark: '#C0000A',
           light: '#FF4550',
         },
         ink: {
-          DEFAULT: '#0A0A0A',
-          soft: '#1A1A1A',
-          muted: '#2C2C2C',
+          DEFAULT: '#1C1C1C',
+          soft: '#2A2A2A',
+          muted: '#3D3D3D',
         },
+        // ── LP Editorial Theme ──
+        // To revert: delete these 3 and restore brand/ink/parchment above
+        primary: {
+          DEFAULT: '#2F6DA5',   // Lisbon blue
+          dark: '#1E4E7A',
+          light: '#4A8DC5',
+        },
+        gold: {
+          DEFAULT: '#E6B75C',   // sunlight gold
+          dark: '#C49A3A',
+          light: '#F0CC7E',
+        },
+        sand: {
+          DEFAULT: '#F5F1EA',   // warm stone background
+          dark: '#EDE7DC',
+          light: '#FAF8F4',
+        },
+        parchment: '#F5F1EA',   // keep alias
         stone: {
-          50: '#F7F6F3',
-          100: '#EDE9E3',
-          200: '#D9D3CA',
-          300: '#C0B8AC',
-          400: '#A09690',
-          500: '#7D7168',
-          600: '#5E5450',
-          700: '#433D39',
-          800: '#2D2825',
-          900: '#1A1714',
+          50: '#FAF8F4',
+          100: '#F0EBE2',
+          200: '#E0D9CE',
+          300: '#C8BEB2',
+          400: '#A89A8C',
+          500: '#8A7C6E',
+          600: '#6B5E52',
+          700: '#4E4239',
+          800: '#332C26',
+          900: '#1C1814',
         },
-        parchment: '#F9F6F0',
       },
       fontFamily: {
         display: [
+          'Bebas Neue',
           'SF UI Display',
           '-apple-system',
           'BlinkMacSystemFont',
-          'SF Pro Display',
           'Helvetica Neue',
           'sans-serif',
         ],
@@ -54,6 +72,10 @@ module.exports = {
       },
       borderRadius: {
         '4xl': '2rem',
+      },
+      boxShadow: {
+        'card': '0 2px 12px rgba(0,0,0,0.06)',
+        'card-hover': '0 8px 24px rgba(0,0,0,0.1)',
       },
       animation: {
         'fade-up': 'fadeUp 0.5s ease forwards',

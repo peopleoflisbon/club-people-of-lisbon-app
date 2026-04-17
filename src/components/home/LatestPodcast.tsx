@@ -75,8 +75,8 @@ export default function LatestPodcast() {
         </a>
       </div>
 
-      <div className="overflow-hidden relative" style={{ backgroundImage: "url('/sidebar-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
+      <div className="overflow-hidden relative" style={{ background: '#1C1C1C', borderRadius: '10px', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/sidebar-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.15 }} />
         <div className="relative z-10 flex items-center gap-4 p-5">
           {episode.artwork && (
             <img src={episode.artwork} alt="Podcast" className="w-16 h-16 object-cover flex-shrink-0 shadow-lg" />
@@ -87,7 +87,7 @@ export default function LatestPodcast() {
           </div>
           {episode.audioUrl && (
             <button onClick={togglePlay}
-              className="w-12 h-12 bg-brand flex items-center justify-center hover:bg-red-700 transition-colors flex-shrink-0">
+              className="w-12 h-12 flex items-center justify-center transition-colors transition-colors flex-shrink-0">
               {playing ? (
                 <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
               ) : (
@@ -101,7 +101,7 @@ export default function LatestPodcast() {
             <audio ref={audioRef} src={episode.audioUrl}
               onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={() => setPlaying(false)} />
             <input type="range" min="0" max="100" value={progress} onChange={handleSeek}
-              className="w-full h-0.5 bg-white/20 appearance-none cursor-pointer" style={{ accentColor: '#F4141E' }} />
+              className="w-full h-0.5 bg-white/20 appearance-none cursor-pointer" style={{ accentColor: "#2F6DA5" }} />
           </div>
         )}
       </div>
