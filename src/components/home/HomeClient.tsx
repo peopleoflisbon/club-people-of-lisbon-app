@@ -216,7 +216,18 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           </div>
         </Link>
 
-        {/* 12. TILE SMASHERS — link to leaderboard page */}
+        {/* 12. TILE SMASHERS LEADERBOARD LINK */}
+        <Link href="/tile-leaderboard" className="block relative overflow-hidden" style={{ background: '#1a1410' }}>
+          <div className="flex items-center justify-between px-5 py-4">
+            <div>
+              <p className="font-display text-white text-lg leading-tight">Tile Smashers Leaderboard</p>
+              <p className="text-stone-500 text-xs mt-0.5">See who's smashing the most tiles</p>
+            </div>
+            <svg className="w-5 h-5 text-stone-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </div>
+        </Link>
 
       </div>
     </div>
