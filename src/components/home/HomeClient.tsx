@@ -167,7 +167,21 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           </div>
         </Link>
 
-        {/* 9. MEMBERSHIP CARD */}
+        {/* 9. MESSAGE BOARD */}
+        <Link href="/board" className="block relative overflow-hidden" style={{ backgroundImage: RED_CHEVRON, backgroundSize: 'cover', backgroundPosition: 'center top' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.65)' }} />
+          <div className="relative z-10 flex items-center justify-between px-5 py-5">
+            <div>
+              <p className="font-display text-white text-2xl leading-tight">Message Board</p>
+              <p className="text-white/70 text-xs mt-1">Post a thought, event or happening</p>
+            </div>
+            <svg className="w-5 h-5 text-white/50 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </div>
+        </Link>
+
+        {/* 10. MEMBERSHIP CARD */}
         <Link href="/membership-card" className="block relative overflow-hidden" style={{ backgroundImage: RED_CHEVRON, backgroundSize: 'cover', backgroundPosition: 'center top' }}>
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.65)' }} />
           <div className="relative z-10 flex items-center justify-between px-5 py-5">
