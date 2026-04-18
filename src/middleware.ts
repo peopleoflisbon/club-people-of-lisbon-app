@@ -25,9 +25,30 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/auth/login', req.url));
   }
 
-  // Logged in + root → home
-  if (session && path === '/') {
-    return NextResponse.redirect(new URL('/home', req.url));
+  if (session) {
+    // Fetch role from profiles
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+
+    const role = (profile as any)?.role;
+
+    // map_user trying to access anything other than /map → redirect to /map
+    if (role === 'map_user' && !path.startsWith('/map') && !isPublic && !path.startsWith('/api/')) {
+      return NextResponse.redirect(new URL('/map', req.url));
+    }
+
+    // Logged in member at root → home
+    if (path === '/' && role !== 'map_user') {
+      return NextResponse.redirect(new URL('/home', req.url));
+    }
+
+    // map_user at root → map
+    if (path === '/' && role === 'map_user') {
+      return NextResponse.redirect(new URL('/map', req.url));
+    }
   }
 
   return res;

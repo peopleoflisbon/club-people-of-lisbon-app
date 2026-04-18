@@ -18,9 +18,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const profile = profileRaw as any;
 
-  // map_users don't need is_active check — they're public users
   if (!profile?.is_active && profile?.role !== 'map_user') redirect('/auth/login');
 
+  // map_user — no shell at all, just full screen children
+  // (middleware already blocks them from reaching any non-/map route)
+  if (profile?.role === 'map_user') {
+    return (
+      <div style={{ height: '100dvh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        {children}
+      </div>
+    );
+  }
+
+  // Full member — normal app shell
   const settingsMap: Record<string, string> = {};
   (settings || []).forEach((s: { key: string; value: string }) => {
     settingsMap[s.key] = s.value;
