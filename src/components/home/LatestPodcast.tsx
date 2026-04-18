@@ -75,33 +75,32 @@ export default function LatestPodcast() {
         </a>
       </div>
 
-      <div className="overflow-hidden relative" style={{ background: '#1C1C1C', borderRadius: '10px', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/sidebar-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.15 }} />
-        <div className="relative z-10 flex items-center gap-4 p-5">
+      <div style={{ background: '#FFFFFF', borderRadius: 14, overflow: 'hidden', border: '1px solid #EDE7DC' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px' }}>
           {episode.artwork && (
-            <img src={episode.artwork} alt="Podcast" className="w-16 h-16 object-cover flex-shrink-0 shadow-lg" />
+            <img src={episode.artwork} alt="Podcast" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8, flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }} />
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-brand text-xs font-semibold uppercase tracking-wider mb-1">People Of Lisbon Podcast</p>
-            <p className="text-white font-semibold text-base leading-snug">{episode.title}</p>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#2F6DA5', margin: '0 0 3px' }}>People Of Lisbon Podcast</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: '#1C1C1C', lineHeight: 1.3, margin: 0, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{episode.title}</p>
           </div>
           {episode.audioUrl && (
             <button onClick={togglePlay}
-              className="w-12 h-12 flex items-center justify-center transition-colors transition-colors flex-shrink-0">
+              style={{ width: 44, height: 44, borderRadius: '50%', background: '#2F6DA5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: 'none', cursor: 'pointer' }}>
               {playing ? (
-                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                <svg style={{ width: 16, height: 16 }} fill="white" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
               ) : (
-                <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <svg style={{ width: 16, height: 16, marginLeft: 2 }} fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
               )}
             </button>
           )}
         </div>
         {episode.audioUrl && (
-          <div className="relative z-10 px-5 pb-4">
+          <div style={{ padding: '0 18px 14px' }}>
             <audio ref={audioRef} src={episode.audioUrl}
               onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={() => setPlaying(false)} />
             <input type="range" min="0" max="100" value={progress} onChange={handleSeek}
-              className="w-full h-0.5 bg-white/20 appearance-none cursor-pointer" style={{ accentColor: "#2F6DA5" }} />
+              style={{ width: '100%', accentColor: '#2F6DA5', cursor: 'pointer' }} />
           </div>
         )}
       </div>
