@@ -15,13 +15,16 @@ export default async function MembershipCardPage() {
     .eq('id', session.user.id)
     .single();
 
-  // Generate membership number: 2020 + sequential number
-  // Use membership_number if set by admin, otherwise derive from join order
+  const { data: offers } = await (supabase as any)
+    .from('membership_offers')
+    .select('*')
+    .eq('is_active', true)
+    .order('display_order', { ascending: true });
+
   let memberNumber: string;
   if (profile?.membership_number) {
     memberNumber = String(profile.membership_number).padStart(4, '0');
   } else {
-    // Derive from UUID for consistency
     const derived = parseInt(profile?.id?.replace(/-/g, '').slice(0, 6) || '0', 16) % 9000 + 1000;
     memberNumber = String(derived);
   }
@@ -34,6 +37,7 @@ export default async function MembershipCardPage() {
       profile={profile}
       memberNumber={fullNumber}
       joinYear={joinYear}
+      offers={offers || []}
     />
   );
 }

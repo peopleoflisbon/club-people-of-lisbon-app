@@ -13,6 +13,7 @@ const ADMIN_NAV = [
   { href: '/admin/updates', label: 'Updates from Stephen', emoji: '✍️' },
   { href: '/admin/good-news', label: 'Good News', emoji: '🎉' },
   { href: '/admin/board', label: 'Message Board', emoji: '📋' },
+  { href: '/admin/offers', label: 'Member Offers', emoji: '🎁' },
   { href: '/admin/settings', label: 'Settings', emoji: '⚙️' },
 ];
 

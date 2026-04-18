@@ -3,6 +3,16 @@
 import { useState, useRef } from 'react';
 import Link from 'next/link';
 
+interface Offer {
+  id: string;
+  title: string;
+  description: string;
+  discount: string;
+  partner_name: string;
+  partner_url?: string;
+  how_to_redeem: string;
+}
+
 interface Props {
   profile: {
     id: string;
@@ -14,6 +24,7 @@ interface Props {
   } | null;
   memberNumber: string;
   joinYear: number;
+  offers?: Offer[];
 }
 
 const NATIONALITY_FLAGS: Record<string, string> = {
@@ -23,7 +34,7 @@ const NATIONALITY_FLAGS: Record<string, string> = {
   'Latvian': '🇱🇻', 'Swedish': '🇸🇪', 'Belgian': '🇧🇪', 'Norwegian': '🇳🇴',
 };
 
-export default function MembershipCardClient({ profile, memberNumber, joinYear }: Props) {
+export default function MembershipCardClient({ profile, memberNumber, joinYear, offers = [] }: Props) {
   const [flipped, setFlipped] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -268,6 +279,63 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear }
         <p className="text-center text-stone-400 text-xs mt-4 leading-relaxed">
           Show this card at partner venues around Lisbon for member discounts.
         </p>
+
+        {/* ── Member Offers ── */}
+        {offers.length > 0 && (
+          <div className="mt-10">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-px flex-1" style={{ background: '#EDE7DC' }} />
+              <p className="text-xs font-bold uppercase tracking-widest px-2" style={{ color: '#A89A8C' }}>
+                Member Offers
+              </p>
+              <div className="h-px flex-1" style={{ background: '#EDE7DC' }} />
+            </div>
+            <div className="space-y-3">
+              {offers.map((offer) => (
+                <div key={offer.id} className="rounded-xl overflow-hidden"
+                  style={{ background: '#FFFFFF', border: '1px solid #EDE7DC', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                  {/* Gold accent bar */}
+                  <div className="h-1" style={{ background: 'linear-gradient(to right, #E6B75C, #C49A3A)' }} />
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="flex-1">
+                        <p className="text-xs font-bold uppercase tracking-wider mb-0.5" style={{ color: '#2F6DA5' }}>
+                          {offer.partner_name}
+                        </p>
+                        <p className="text-base font-semibold" style={{ color: '#1C1C1C' }}>{offer.title}</p>
+                      </div>
+                      {offer.discount && (
+                        <div className="flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-bold"
+                          style={{ background: '#FFF8EE', color: '#C49A3A', border: '1px solid #E6B75C' }}>
+                          {offer.discount}
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-sm leading-relaxed mb-3" style={{ color: '#6B5E52' }}>{offer.description}</p>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-1.5 flex-1">
+                        <svg className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#A89A8C' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                        <p className="text-xs italic" style={{ color: '#A89A8C' }}>{offer.how_to_redeem}</p>
+                      </div>
+                      {offer.partner_url && (
+                        <a href={offer.partner_url} target="_blank" rel="noopener noreferrer"
+                          className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg"
+                          style={{ background: '#EEF4FA', color: '#2F6DA5' }}>
+                          Visit →
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-center text-xs mt-4" style={{ color: '#C8BEB2' }}>
+              Offers are updated regularly. Check back soon.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
