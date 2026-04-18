@@ -134,15 +134,29 @@ export default function LisbonMap({ pins }: Props) {
         </div>
       </div>
 
-      {/* Stories pill */}
-      {pins.length > 0 && (
-        <div className="absolute top-4 right-4 z-10 pointer-events-none">
+      {/* Join the Club pill — top right */}
+      <div className="absolute top-4 right-4 z-10 flex flex-col items-end gap-2">
+        <a
+          href="https://www.peopleoflisbon.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-all"
+          style={{
+            background: '#2F6DA5', color: 'white',
+            boxShadow: '0 2px 12px rgba(47,109,165,0.35)',
+            textDecoration: 'none', letterSpacing: '0.02em',
+          }}
+        >
+          Join the Club ↗
+        </a>
+        {/* Stories pill below */}
+        {pins.length > 0 && (
           <div className="rounded-full px-3 py-1.5 flex items-center gap-1.5" style={{ background:'rgba(250,248,244,0.93)', backdropFilter:'blur(12px)', boxShadow:'0 2px 12px rgba(0,0,0,0.08)' }}>
             <span className="w-1.5 h-1.5 rounded-full" style={{ background:'#2F6DA5' }} />
             <span className="text-xs font-semibold" style={{ color:'#1C1C1C' }}>{pins.length} {pins.length === 1 ? 'story' : 'stories'}</span>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Soft gradients */}
       <div className="absolute top-0 left-0 right-0 h-24 pointer-events-none z-[5]"

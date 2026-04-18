@@ -18,7 +18,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const profile = profileRaw as any;
 
-  if (!profile?.is_active) redirect('/auth/login');
+  // map_users don't need is_active check — they're public users
+  if (!profile?.is_active && profile?.role !== 'map_user') redirect('/auth/login');
 
   const settingsMap: Record<string, string> = {};
   (settings || []).forEach((s: { key: string; value: string }) => {

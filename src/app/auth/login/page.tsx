@@ -3,25 +3,23 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
-import { cn } from '@/lib/utils';
 
 const FALLBACK_BG = 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=85';
 
-export default function LoginPage() {
+export default function GatewayPage() {
   const router = useRouter();
   const supabase = createClient();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+
   const [bgImage, setBgImage] = useState(FALLBACK_BG);
   const [logoUrl, setLogoUrl] = useState('/pol-logo.png');
   const [bgLoaded, setBgLoaded] = useState(false);
-  const [showForgot, setShowForgot] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotSent, setForgotSent] = useState(false);
-  const [forgotLoading, setForgotLoading] = useState(false);
-  const [welcomeName, setWelcomeName] = useState('');
+
+  // Map entry state
+  const [mapEmail, setMapEmail] = useState('');
+  const [mapPassword, setMapPassword] = useState('');
+  const [mapLoading, setMapLoading] = useState(false);
+  const [mapError, setMapError] = useState('');
+  const [showMapForm, setShowMapForm] = useState(false);
 
   useEffect(() => {
     supabase.from('app_settings').select('key, value').then(({ data }) => {
@@ -32,282 +30,209 @@ export default function LoginPage() {
     });
   }, []); // eslint-disable-line
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleMapEntry(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim() || !password) return;
-    setLoading(true);
-    setError('');
-    const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-    if (error) {
-      setError('Incorrect email or password.');
-      setLoading(false);
-    } else {
-      const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', data.user.id).single();
-      const firstName = (profile as any)?.full_name?.split(' ')[0] || '';
-      setWelcomeName(firstName);
-      setTimeout(() => { router.push('/home'); router.refresh(); }, 1400);
+    if (!mapEmail.trim() || !mapPassword) return;
+    setMapLoading(true);
+    setMapError('');
+
+    try {
+      const res = await fetch('/api/auth/map-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: mapEmail.trim(), password: mapPassword }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        setMapError(data.error || 'Something went wrong. Try again.');
+        setMapLoading(false);
+        return;
+      }
+
+      // Redirect based on role — members go home, map_users go to map
+      if (data.role === 'map_user') {
+        router.push('/map');
+      } else {
+        router.push('/home');
+      }
+    } catch {
+      setMapError('Connection error. Please try again.');
+      setMapLoading(false);
     }
   }
 
-  async function handleForgot(e: React.FormEvent) {
-    e.preventDefault();
-    if (!forgotEmail.trim()) return;
-    setForgotLoading(true);
-    await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
-      redirectTo: `${window.location.origin}/auth/confirm`,
-    });
-    setForgotSent(true);
-    setForgotLoading(false);
-  }
-
-  // Welcome flash screen
-  if (welcomeName) {
-    return (
-      <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <img src={bgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.55))' }} />
-        <div className="relative z-10 text-center px-6">
-          <img src={logoUrl} alt="People Of Lisbon" className="w-14 h-14 object-contain mx-auto mb-5 opacity-90"
-            onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
-          <p className="text-white/60 text-xs uppercase tracking-widest mb-2 font-medium">Welcome back</p>
-          <h1 className="font-display text-white" style={{ fontSize: 'clamp(3rem, 10vw, 5rem)', letterSpacing: '0.02em' }}>{welcomeName}</h1>
-          <p className="text-white/50 text-sm mt-3 italic">(Bem-vindo de volta)</p>
-        </div>
-      </div>
-    );
-  }
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '13px 16px', borderRadius: '10px',
+    border: '1px solid rgba(255,255,255,0.15)',
+    background: 'rgba(255,255,255,0.07)',
+    color: '#fff', fontSize: '15px', fontFamily: 'inherit', outline: 'none',
+  };
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden flex flex-col">
 
-      {/* ── Full-bleed background image ── */}
-      <div className="absolute inset-0 z-0" style={{ background: '#1a1a18' }}>
+      {/* ── Full-bleed background ── */}
+      <div className="absolute inset-0 z-0" style={{ background: '#111' }}>
         <img
-          src={bgImage}
-          alt=""
-          className={cn('absolute inset-0 w-full h-full object-cover transition-opacity duration-1500', bgLoaded ? 'opacity-100' : 'opacity-0')}
+          src={bgImage} alt=""
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${bgLoaded ? 'opacity-100' : 'opacity-0'}`}
           onLoad={() => setBgLoaded(true)}
         />
-        {/* LP-style soft gradient — bottom-weighted for readability, not heavy */}
+        {/* Deep gradient — readable at bottom */}
         <div className="absolute inset-0" style={{
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.1) 35%, rgba(0,0,0,0.75) 70%, rgba(0,0,0,0.92) 100%)'
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.1) 35%, rgba(0,0,0,0.78) 70%, rgba(0,0,0,0.94) 100%)'
         }} />
       </div>
 
-      {/* ── Top: Logo + location pill ── */}
-      <div className="relative z-10 flex items-start justify-between px-6 pt-12 pb-0 lg:px-12 lg:pt-14">
-        <img
-          src={logoUrl}
-          alt="People Of Lisbon"
-          className="w-11 h-11 object-contain"
-          onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }}
-        />
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-          style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}>
-          <span style={{ color: '#E6B75C', fontSize: '8px' }}>●</span>
-          <span className="text-white text-xs font-semibold tracking-wide">LISBON</span>
-        </div>
+      {/* ── Top: Logo ── */}
+      <div className="relative z-10 px-6 pt-12 lg:px-12 lg:pt-14">
+        <img src={logoUrl} alt="People Of Lisbon" style={{ width: 44, height: 44, objectFit: 'contain' }}
+          onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
       </div>
 
-      {/* ── Middle: Tagline only ── */}
-      <div className="relative z-10 flex-1 flex items-end lg:items-center px-6 lg:px-12 pb-8 lg:pb-0">
-        <div className="hidden lg:block">
-          <h1 className="text-white font-bold" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', lineHeight: 1.2, maxWidth: '18ch', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
-            Lisbon's most interesting people, all in one place.
-          </h1>
-        </div>
+      {/* ── Middle: Tagline ── */}
+      <div className="relative z-10 flex-1 flex items-end px-6 pb-10 lg:px-12 lg:pb-12">
+        <h1 className="text-white font-bold" style={{
+          fontSize: 'clamp(1.6rem, 4.5vw, 2.8rem)',
+          lineHeight: 1.2, maxWidth: '18ch',
+          textShadow: '0 2px 12px rgba(0,0,0,0.4)',
+        }}>
+          Lisbon's most interesting people, all in one place.
+        </h1>
       </div>
 
-      {/* ── Bottom: Form panel ── */}
-      <div className="relative z-10 w-full px-4 pb-10 pt-6 lg:absolute lg:right-0 lg:top-0 lg:bottom-0 lg:w-[420px] lg:flex lg:items-center lg:p-12">
+      {/* ── Bottom: Gateway panel ── */}
+      <div className="relative z-10 w-full px-4 pb-8 lg:absolute lg:right-0 lg:top-0 lg:bottom-0 lg:w-[420px] lg:flex lg:items-center lg:p-12">
+        <div className="w-full" style={{
+          background: 'rgba(8,8,8,0.65)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderRadius: '20px 20px 0 0',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          // Desktop override
+        }}>
+          <div style={{ padding: '28px 28px 24px' }}>
 
-        {/* Mobile: tagline above form */}
-        <div className="lg:hidden text-center mb-8">
-          <h1 className="text-white font-bold" style={{ fontSize: '1.6rem', lineHeight: 1.25, textShadow: '0 2px 8px rgba(0,0,0,0.35)' }}>
-            Lisbon's most interesting people, all in one place.
-          </h1>
-        </div>
-
-        {/* Cinematic form panel — no heavy box */}
-        <div className="w-full lg:rounded-2xl"
-          style={{
-            background: 'rgba(10, 10, 10, 0.6)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            borderTop: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: '20px 20px 0 0',
-          }}>
-          <div className="p-7 lg:p-8">
-            {!showForgot ? (
+            {!showMapForm ? (
+              /* ── Primary: Enter the Map ── */
               <>
-                <div className="mb-6">
-                  <h2 className="text-lg font-semibold mb-0.5" style={{ color: 'rgba(255,255,255,0.9)' }}>Sign in</h2>
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>Private members only.</p>
+                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>
+                  Explore Lisbon
+                </p>
+
+                <button
+                  onClick={() => setShowMapForm(true)}
+                  style={{
+                    width: '100%', padding: '16px',
+                    background: '#2F6DA5', color: 'white',
+                    fontSize: '16px', fontWeight: 700,
+                    borderRadius: '12px', border: 'none',
+                    cursor: 'pointer', letterSpacing: '0.01em',
+                    boxShadow: '0 4px 24px rgba(47,109,165,0.4)',
+                    transition: 'background 0.2s, transform 0.1s',
+                  }}
+                  onMouseEnter={e => { (e.currentTarget).style.background = '#1E4E7A'; }}
+                  onMouseLeave={e => { (e.currentTarget).style.background = '#2F6DA5'; }}
+                  onMouseDown={e => { (e.currentTarget).style.transform = 'scale(0.98)'; }}
+                  onMouseUp={e => { (e.currentTarget).style.transform = 'scale(1)'; }}
+                >
+                  Enter the Map →
+                </button>
+
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: 12, lineHeight: 1.5 }}>
+                  Free to explore. No credit card needed.
+                </p>
+
+                {/* ── Secondary: Member sign in ── */}
+                <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                  <a href="/auth/member-login"
+                    style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
+                    onMouseEnter={e => { (e.currentTarget).style.color = 'rgba(255,255,255,0.65)'; }}
+                    onMouseLeave={e => { (e.currentTarget).style.color = 'rgba(255,255,255,0.35)'; }}>
+                    Already a member? Sign in
+                  </a>
+                </div>
+              </>
+            ) : (
+              /* ── Map entry form ── */
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                  <button onClick={() => { setShowMapForm(false); setMapError(''); }}
+                    style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: 0 }}>
+                    ←
+                  </button>
+                  <p style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.9)', margin: 0 }}>Enter the Map</p>
                 </div>
 
-                <form onSubmit={handleLogin} className="space-y-4" noValidate>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 20, lineHeight: 1.5 }}>
+                  Create a free account or sign in if you've been before.
+                </p>
+
+                <form onSubmit={handleMapEntry} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#A89A8C' }}>
+                    <label style={{ display: 'block', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>
                       Email
                     </label>
                     <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => { setEmail(e.target.value); setError(''); }}
-                      autoComplete="email"
-                      autoCapitalize="none"
-                      style={{
-                        width: '100%', padding: '12px 16px',
-                        borderRadius: '10px',
-                        border: '1px solid rgba(255,255,255,0.12)',
-                        background: 'rgba(255,255,255,0.06)',
-                        color: '#FFFFFF',
-                        fontSize: '15px',
-                        outline: 'none',
-                        transition: 'border-color 0.2s, box-shadow 0.2s',
-                      }}
+                      type="email" value={mapEmail} required
+                      onChange={e => { setMapEmail(e.target.value); setMapError(''); }}
                       placeholder="your@email.com"
-                      onFocus={e => { e.target.style.borderColor = 'rgba(255,255,255,0.35)'; e.target.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.1)'; }}
-                      onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.boxShadow = 'none'; }}
-                      required
+                      style={inputStyle}
+                      onFocus={e => { e.target.style.borderColor = 'rgba(255,255,255,0.35)'; e.target.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.08)'; }}
+                      onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; e.target.style.boxShadow = 'none'; }}
+                      autoComplete="email" autoCapitalize="none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#A89A8C' }}>
+                    <label style={{ display: 'block', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>
                       Password
                     </label>
                     <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                      autoComplete="current-password"
-                      style={{
-                        width: '100%', padding: '12px 16px',
-                        borderRadius: '10px',
-                        border: '1px solid rgba(255,255,255,0.12)',
-                        background: 'rgba(255,255,255,0.06)',
-                        color: '#FFFFFF',
-                        fontSize: '15px',
-                        outline: 'none',
-                        transition: 'border-color 0.2s, box-shadow 0.2s',
-                      }}
-                      placeholder="••••••••"
-                      onFocus={e => { e.target.style.borderColor = 'rgba(255,255,255,0.35)'; e.target.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.1)'; }}
-                      onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.boxShadow = 'none'; }}
-                      required
+                      type="password" value={mapPassword} required
+                      onChange={e => { setMapPassword(e.target.value); setMapError(''); }}
+                      placeholder="Choose a password"
+                      style={inputStyle}
+                      onFocus={e => { e.target.style.borderColor = 'rgba(255,255,255,0.35)'; e.target.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.08)'; }}
+                      onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; e.target.style.boxShadow = 'none'; }}
+                      autoComplete="current-password" minLength={6}
                     />
+                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 4 }}>Minimum 6 characters</p>
                   </div>
 
-                  {error && (
-                    <div className="text-sm px-4 py-3 rounded-lg" style={{ background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.3)' }}>
-                      {error}
+                  {mapError && (
+                    <div style={{ fontSize: 13, padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.25)' }}>
+                      {mapError}
                     </div>
                   )}
 
                   <button
                     type="submit"
-                    disabled={loading || !email || !password}
+                    disabled={mapLoading || !mapEmail || !mapPassword}
                     style={{
-                      width: '100%', padding: '13px',
-                      borderRadius: '10px',
-                      background: loading || !email || !password ? '#93B5D4' : '#2F6DA5',
-                      color: 'white',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      letterSpacing: '0.04em',
-                      border: 'none',
-                      cursor: loading || !email || !password ? 'not-allowed' : 'pointer',
-                      transition: 'background 0.2s, transform 0.1s',
-                      marginTop: '4px',
+                      width: '100%', padding: '14px',
+                      background: mapLoading || !mapEmail || !mapPassword ? 'rgba(47,109,165,0.4)' : '#2F6DA5',
+                      color: 'white', fontSize: '15px', fontWeight: 700,
+                      borderRadius: '10px', border: 'none',
+                      cursor: mapLoading || !mapEmail || !mapPassword ? 'not-allowed' : 'pointer',
+                      transition: 'background 0.2s',
                     }}
-                    onMouseEnter={e => { if (!loading && email && password) (e.target as HTMLElement).style.background = '#1E4E7A'; }}
-                    onMouseLeave={e => { if (!loading && email && password) (e.target as HTMLElement).style.background = '#2F6DA5'; }}
                   >
-                    {loading ? 'Signing in…' : 'Enter'}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => { setShowForgot(true); setForgotEmail(email); }}
-                    className="w-full text-center text-sm font-medium mt-1 py-1 transition-colors"
-                    style={{ color: '#A89A8C' }}
-                    onMouseEnter={e => { (e.target as HTMLElement).style.color = '#2F6DA5'; }}
-                    onMouseLeave={e => { (e.target as HTMLElement).style.color = '#A89A8C'; }}
-                  >
-                    Forgot password?
+                    {mapLoading ? 'Opening the map…' : 'Enter the Map →'}
                   </button>
                 </form>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => { setShowForgot(false); setForgotSent(false); }}
-                  className="flex items-center gap-1.5 text-sm font-medium mb-5 transition-colors"
-                  style={{ color: 'rgba(255,255,255,0.5)' }}
-                >
-                  ← Back
-                </button>
-                <h2 className="text-xl font-semibold mb-1" style={{ color: 'rgba(255,255,255,0.9)' }}>Reset password</h2>
-                <p className="text-sm mb-6" style={{ color: 'rgba(255,255,255,0.45)' }}>We'll send a link to your email.</p>
 
-                {forgotSent ? (
-                  <div className="text-center py-6">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
-                      style={{ background: 'rgba(255,255,255,0.08)' }}>
-                      <svg className="w-6 h-6" style={{ color: 'rgba(255,255,255,0.7)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <p className="font-semibold mb-1" style={{ color: 'rgba(255,255,255,0.9)' }}>Check your email</p>
-                    <p className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>Reset link sent to {forgotEmail}</p>
-                  </div>
-                ) : (
-                  <form onSubmit={handleForgot} className="space-y-4" noValidate>
-                    <input
-                      type="email"
-                      value={forgotEmail}
-                      onChange={(e) => setForgotEmail(e.target.value)}
-                      style={{
-                        width: '100%', padding: '12px 16px',
-                        borderRadius: '10px',
-                        border: '1.5px solid #E8E0D4',
-                        background: '#FFFFFF',
-                        color: '#1C1C1C',
-                        fontSize: '15px',
-                        outline: 'none',
-                      }}
-                      placeholder="your@email.com"
-                      onFocus={e => { e.target.style.borderColor = 'rgba(255,255,255,0.35)'; e.target.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.1)'; }}
-                      onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.boxShadow = 'none'; }}
-                      required
-                    />
-                    <button
-                      type="submit"
-                      disabled={forgotLoading || !forgotEmail}
-                      style={{
-                        width: '100%', padding: '13px',
-                        borderRadius: '10px',
-                        background: '#2F6DA5',
-                        color: 'white',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        border: 'none',
-                        cursor: 'pointer',
-                        opacity: forgotLoading || !forgotEmail ? 0.5 : 1,
-                      }}
-                    >
-                      {forgotLoading ? 'Sending…' : 'Send reset link'}
-                    </button>
-                  </form>
-                )}
+                <div style={{ marginTop: 20, textAlign: 'center' }}>
+                  <a href="/auth/member-login"
+                    style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', textDecoration: 'none' }}
+                    onMouseEnter={e => { (e.currentTarget).style.color = 'rgba(255,255,255,0.5)'; }}
+                    onMouseLeave={e => { (e.currentTarget).style.color = 'rgba(255,255,255,0.25)'; }}>
+                    Already a member? Sign in
+                  </a>
+                </div>
               </>
             )}
-          </div>
-
-          {/* Bottom note */}
-          <div className="px-7 pb-5 lg:px-8">
-            <p className="text-xs text-center" style={{ color: 'rgba(255,255,255,0.25)' }}>By invitation only · People Of Lisbon</p>
           </div>
         </div>
       </div>

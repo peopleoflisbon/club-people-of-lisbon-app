@@ -134,6 +134,18 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
   }
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
+  const isMapUser = profile?.role === 'map_user';
+
+  // Map users get a stripped shell — just the map
+  if (isMapUser) {
+    return (
+      <div className="flex flex-col overflow-hidden" style={{ height: '100dvh', background: '#F5F1EA' }}>
+        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+          {children}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex overflow-hidden" style={{ height: '100dvh', background: '#F5F1EA' }}>
