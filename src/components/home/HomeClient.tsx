@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import Avatar from '@/components/ui/Avatar';
-import BrandLogo from '@/components/ui/BrandLogo';
 import LisbonWeather from '@/components/home/LisbonWeather';
 import PortuguesePhrase from '@/components/home/PortuguesePhrase';
 import LatestPodcast from '@/components/home/LatestPodcast';
@@ -11,12 +10,58 @@ import LatestEpisode from '@/components/home/LatestEpisode';
 import { formatDate, formatDateTime } from '@/lib/utils';
 import ScrollPage from '@/components/ui/ScrollPage';
 
-// LP-style chevron — a simple right arrow for module cards
-const ChevronRight = () => (
-  <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+// ── Section theme tokens ──────────────────────────────────
+const LIGHT  = { bg: '#F5F1EA', text: '#1C1C1C', muted: '#8A7C6E', border: '#EDE7DC' };
+const BLUE   = { bg: '#EAF2F8', text: '#1C1C1C', muted: '#5A7A8E', border: '#C5DFF0' };
+const DARK   = { bg: '#111111', text: '#FFFFFF',  muted: '#888888', border: '#2A2A2A' };
+const ACCENT = { bg: '#1A1A1A', text: '#FFFFFF',  muted: '#666666', border: '#2A2A2A' };
+
+// ── Tiny helpers ──────────────────────────────────────────
+const Eyebrow = ({ label, color = LIGHT.muted }: { label: string; color?: string }) => (
+  <p style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color, marginBottom: '8px' }}>
+    {label}
+  </p>
+);
+
+const SectionHead = ({ eyebrow, title, href, linkLabel, dark = false }:
+  { eyebrow: string; title: string; href?: string; linkLabel?: string; dark?: boolean }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '16px' }}>
+    <div>
+      <Eyebrow label={eyebrow} color={dark ? '#666' : LIGHT.muted} />
+      <h2 style={{ fontSize: '26px', fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.1, color: dark ? '#fff' : '#1C1C1C', margin: 0 }}>
+        {title}
+      </h2>
+    </div>
+    {href && (
+      <Link href={href} style={{ fontSize: '12px', fontWeight: 600, color: dark ? '#E6B75C' : '#2F6DA5', textDecoration: 'none', whiteSpace: 'nowrap', marginLeft: '12px' }}>
+        {linkLabel || 'See all →'}
+      </Link>
+    )}
+  </div>
+);
+
+const ChevronRight = ({ color = '#2F6DA5' }: { color?: string }) => (
+  <svg style={{ width: 18, height: 18, flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke={color} strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
   </svg>
 );
+
+// ── Module link card ──────────────────────────────────────
+function ModuleCard({ href, eyebrow, title, subtitle, accentColor = '#2F6DA5' }:
+  { href: string; eyebrow: string; title: string; subtitle: string; accentColor?: string }) {
+  return (
+    <Link href={href} style={{ display: 'block', background: '#FFFFFF', borderRadius: '10px', border: '1px solid #EDE7DC', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', textDecoration: 'none', overflow: 'hidden' }}>
+      <div style={{ borderLeft: `3px solid ${accentColor}`, padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+        <div>
+          <p style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: accentColor, marginBottom: '3px' }}>{eyebrow}</p>
+          <p style={{ fontSize: '17px', fontWeight: 600, color: '#1C1C1C', margin: '0 0 2px' }}>{title}</p>
+          <p style={{ fontSize: '12px', color: '#A89A8C', margin: 0 }}>{subtitle}</p>
+        </div>
+        <ChevronRight color={accentColor} />
+      </div>
+    </Link>
+  );
+}
 
 interface Props {
   profile: { full_name: string; avatar_url: string; neighborhood: string } | null;
@@ -29,209 +74,211 @@ interface Props {
   latestEpisodeUrl?: string;
 }
 
-// LP-style module card — warm card with blue accent
-function ModuleCard({ href, eyebrow, title, subtitle }: { href: string; eyebrow: string; title: string; subtitle: string }) {
-  return (
-    <Link href={href} className="block group"
-      style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid #EDE7DC', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden', transition: 'box-shadow 0.2s, transform 0.2s' }}
-      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 28px rgba(0,0,0,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
-      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)'; (e.currentTarget as HTMLElement).style.transform = 'none'; }}>
-      <div style={{ borderLeft: '3px solid #2F6DA5', padding: '16px 20px' }} className="flex items-center justify-between">
-        <div>
-          <p className="pol-eyebrow mb-1">{eyebrow}</p>
-          <p className="font-display text-2xl" style={{ color: '#1C1C1C', letterSpacing: '0.03em' }}>{title}</p>
-          <p className="text-xs mt-1" style={{ color: '#A89A8C' }}>{subtitle}</p>
-        </div>
-        <span style={{ color: '#2F6DA5' }}><ChevronRight /></span>
-      </div>
-    </Link>
-  );
-}
-
 export default function HomeClient({ profile, recentMembers, upcomingEvents, latestPhoto, latestUpdate, stephenProfile, brandLogoUrl, latestEpisodeUrl }: Props) {
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
   const newestMember = recentMembers[0] || null;
 
   return (
     <ScrollPage>
-    <div className="max-w-4xl mx-auto">
+    <div style={{ maxWidth: '680px', margin: '0 auto' }}>
 
-      {/* ── Hero — warm editorial header ── */}
-      <div className="px-5 lg:px-8 py-8 lg:py-10" style={{ background: '#FFFFFF', borderBottom: '1px solid #EDE7DC' }}>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="pol-eyebrow mb-2">Club People Of Lisbon</p>
-            <h1 className="text-2xl font-bold" style={{ color: '#1C1C1C', letterSpacing: '-0.01em' }}>
-              Welcome back, {firstName}.
-            </h1>
-            <p className="text-sm mt-3" style={{ color: '#A89A8C' }}>Lisbon's most interesting people, all in one place.</p>
-          </div>
-          <BrandLogo src={brandLogoUrl} size={52} radius={0} className="flex-shrink-0 mt-1" />
-        </div>
+      {/* ══════════════════════════════════════════════
+          HERO — clean white, spacious
+      ══════════════════════════════════════════════ */}
+      <div style={{ background: '#FFFFFF', padding: '36px 20px 28px', borderBottom: '1px solid #EDE7DC' }}>
+        <Eyebrow label="Club People Of Lisbon" color="#2F6DA5" />
+        <h1 style={{ fontSize: 'clamp(28px, 6vw, 38px)', fontWeight: 700, letterSpacing: '-0.025em', lineHeight: 1.1, color: '#1C1C1C', margin: '0 0 10px' }}>
+          Good to see you,<br />{firstName}.
+        </h1>
+        <p style={{ fontSize: '14px', color: '#A89A8C', margin: 0 }}>
+          Lisbon's most interesting people, all in one place.
+        </p>
       </div>
 
-      <div className="px-4 lg:px-8 py-6 space-y-6" style={{ background: '#F5F1EA' }}>
-
-        {/* 1. WEATHER */}
+      {/* ══════════════════════════════════════════════
+          WEATHER — light editorial strip
+      ══════════════════════════════════════════════ */}
+      <div style={{ background: LIGHT.bg, padding: '16px 20px 0' }}>
         <LisbonWeather />
+      </div>
 
-        {/* 2. LATEST FROM STEPHEN — LP editorial card */}
-        {latestUpdate && (
-          <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-display text-2xl" style={{ color: '#1C1C1C' }}>Latest from Stephen</h2>
-              <Link href="/updates" className="text-xs font-bold uppercase tracking-wider" style={{ color: '#2F6DA5' }}>See all →</Link>
-            </div>
-            <Link href="/updates" className="block group"
-              style={{ background: '#FFFFFF', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #EDE7DC' }}>
-              <div className="p-5">
-                <div className="flex items-center gap-3 mb-3">
-                  <Avatar src={stephenProfile?.avatar_url || ''} name={stephenProfile?.full_name || 'Stephen'} size="md" className="flex-shrink-0" />
-                  <div>
-                    <p className="font-semibold text-sm" style={{ color: '#1C1C1C' }}>{stephenProfile?.full_name || "Stephen O'Regan"}</p>
-                    <p className="text-xs" style={{ color: '#A89A8C' }}>{formatDate(latestUpdate.published_at)}</p>
-                  </div>
-                </div>
-                <div style={{ borderLeft: '3px solid #E6B75C', paddingLeft: '14px' }}>
-                  <p className="font-display text-2xl group-hover:underline" style={{ color: '#1C1C1C', letterSpacing: '0.03em' }}>{latestUpdate.title}</p>
-                </div>
-                <p className="text-xs font-bold mt-3 uppercase tracking-wider" style={{ color: '#2F6DA5' }}>Read more →</p>
-              </div>
-            </Link>
-          </section>
-        )}
-
-        {/* 3. EVENTS — LP full-bleed cards */}
-        {upcomingEvents.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-display text-2xl" style={{ color: '#1C1C1C' }}>Upcoming Events</h2>
-              <Link href="/events" className="text-xs font-bold uppercase tracking-wider" style={{ color: '#2F6DA5' }}>See all →</Link>
-            </div>
-            <div className="space-y-3">
-              {upcomingEvents.map((event: any) => (
-                <Link key={event.id} href={`/events/${event.id}`} className="block group"
-                  style={{ background: '#FFFFFF', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #EDE7DC' }}>
-                  {event.image_url && (
-                    <div className="relative h-40 bg-stone-100">
-                      <Image src={event.image_url} alt={event.title} fill className="object-cover group-hover:scale-[1.02] transition-transform duration-500" unoptimized />
-                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 60%)' }} />
-                    </div>
-                  )}
-                  <div className="flex items-start gap-4 p-4">
-                    <div className="flex-shrink-0 text-center" style={{ minWidth: '48px' }}>
-                      <div style={{ background: '#2F6DA5', borderRadius: '6px', padding: '6px 4px' }}>
-                        <p className="text-white text-xs font-bold uppercase leading-none">{new Date(event.starts_at).toLocaleDateString('en', { month: 'short' })}</p>
-                        <p className="text-white font-display text-xl leading-none mt-0.5">{new Date(event.starts_at).getDate()}</p>
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-base leading-tight" style={{ color: '#1C1C1C' }}>{event.title}</p>
-                      {event.location_name && <p className="text-sm mt-1" style={{ color: '#A89A8C' }}>{event.location_name}</p>}
-                      <p className="text-xs mt-0.5" style={{ color: '#A89A8C' }}>{formatDateTime(event.starts_at)}</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* 4. NEW MEMBER */}
-        {newestMember && (
-          <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-display text-2xl" style={{ color: '#1C1C1C' }}>New Member</h2>
-              <Link href="/members" className="text-xs font-bold uppercase tracking-wider" style={{ color: '#2F6DA5' }}>All members →</Link>
-            </div>
-            <Link href={`/members/${newestMember.id}`} className="block group"
-              style={{ background: '#FFFFFF', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #EDE7DC' }}>
-              <div className="flex items-center gap-4 p-4">
-                <Avatar src={newestMember.avatar_url} name={newestMember.full_name} size="xl" className="flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="pol-eyebrow mb-1">Say Hello to</p>
-                  <p className="font-display text-2xl leading-tight" style={{ color: '#1C1C1C' }}>{newestMember.full_name}</p>
-                  {newestMember.headline && <p className="text-sm mt-0.5 line-clamp-1" style={{ color: '#6B5E52' }}>{newestMember.headline}</p>}
-                  {newestMember.neighborhood && (
-                    <span className="inline-flex mt-2 text-xs font-bold px-2 py-1 rounded" style={{ background: '#EEF4FA', color: '#2F6DA5' }}>
-                      {newestMember.neighborhood}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </Link>
-          </section>
-        )}
-
-        {/* 5. LATEST EPISODE */}
-        {latestEpisodeUrl && <LatestEpisode url={latestEpisodeUrl} />}
-
-        {/* 6. PODCAST */}
-        <LatestPodcast />
-
-        {/* 7. PORTUGUESE PHRASE */}
-        <PortuguesePhrase />
-
-        {/* 8. MODULE GRID — LP editorial cards */}
-        <div className="space-y-3">
-          <ModuleCard href="/leaderboard" eyebrow="Club" title="Leaderboard" subtitle="The totally pointless one, just for fun" />
-          <ModuleCard href="/recommendations" eyebrow="Curated by POL" title="Recommendations" subtitle="Restaurants, cafés and experiences we love" />
-          <ModuleCard href="/board" eyebrow="Community" title="Message Board" subtitle="Post a thought, event or happening" />
-          <ModuleCard href="/membership-card" eyebrow="Members only" title="Membership Card" subtitle="Your Club People Of Lisbon card" />
+      {/* ══════════════════════════════════════════════
+          LATEST EPISODE — DARK FEATURE section
+      ══════════════════════════════════════════════ */}
+      {latestEpisodeUrl && (
+        <div style={{ background: DARK.bg, padding: '28px 20px' }}>
+          <SectionHead eyebrow="Latest episode" title="Watch Now" dark />
+          <div style={{ borderRadius: '10px', overflow: 'hidden' }}>
+            <LatestEpisode url={latestEpisodeUrl} />
+          </div>
         </div>
+      )}
 
-        {/* 9. RITA'S PHOTOS — LP full-bleed */}
-        {latestPhoto && (
-          <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-display text-2xl" style={{ color: '#1C1C1C' }}>Rita's Latest Photos</h2>
-              <Link href="/photos" className="text-xs font-bold uppercase tracking-wider" style={{ color: '#2F6DA5' }}>See all →</Link>
+      {/* ══════════════════════════════════════════════
+          LATEST FROM STEPHEN — light editorial card
+      ══════════════════════════════════════════════ */}
+      {latestUpdate && (
+        <div style={{ background: LIGHT.bg, padding: '28px 20px' }}>
+          <SectionHead eyebrow="From the founder" title="Latest from Stephen" href="/updates" linkLabel="All updates →" />
+          <Link href="/updates" style={{ display: 'block', textDecoration: 'none' }}>
+            <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid #EDE7DC', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+              <div style={{ borderLeft: '4px solid #E6B75C', padding: '18px 20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
+                    <Avatar src={stephenProfile?.avatar_url || ''} name={stephenProfile?.full_name || 'Stephen'} size="sm" />
+                  </div>
+                  <div>
+                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#1C1C1C', margin: 0 }}>{stephenProfile?.full_name || "Stephen O'Regan"}</p>
+                    <p style={{ fontSize: '11px', color: '#A89A8C', margin: 0 }}>{formatDate(latestUpdate.published_at)}</p>
+                  </div>
+                </div>
+                <p style={{ fontSize: '18px', fontWeight: 600, color: '#1C1C1C', lineHeight: 1.3, margin: 0 }}>{latestUpdate.title}</p>
+                <p style={{ fontSize: '12px', fontWeight: 600, color: '#2F6DA5', marginTop: '10px', marginBottom: 0 }}>Read more →</p>
+              </div>
             </div>
-            <Link href="/photos" className="block group"
-              style={{ borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-              <div className="relative overflow-hidden aspect-[4/3] bg-stone-100">
-                <Image src={latestPhoto.image_url} alt={latestPhoto.title || "Rita's photo"} fill
-                  className="object-cover group-hover:scale-[1.03] transition-transform duration-500" unoptimized />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)' }} />
-                {latestPhoto.title && (
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <p className="font-display text-white text-2xl leading-tight">{latestPhoto.title}</p>
+          </Link>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════
+          EVENTS — light editorial
+      ══════════════════════════════════════════════ */}
+      {upcomingEvents.length > 0 && (
+        <div style={{ background: LIGHT.bg, padding: '0 20px 28px' }}>
+          <SectionHead eyebrow="What's on" title="Upcoming Events" href="/events" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {upcomingEvents.map((event: any) => (
+              <Link key={event.id} href={`/events/${event.id}`} style={{ display: 'block', textDecoration: 'none', background: '#FFFFFF', borderRadius: '10px', border: '1px solid #EDE7DC', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+                {event.image_url && (
+                  <div style={{ position: 'relative', height: '140px', background: '#E0D9CE' }}>
+                    <Image src={event.image_url} alt={event.title} fill style={{ objectFit: 'cover' }} unoptimized />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 60%)' }} />
                   </div>
                 )}
-              </div>
-            </Link>
-          </section>
-        )}
-
-        {/* 10. BREAK THE TILES — LP style with azulejo image */}
-        <Link href="/break-tiles" className="block group"
-          style={{ borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', position: 'relative' }}>
-          <div style={{ backgroundImage: "url('/tile-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
-            <div style={{ background: 'rgba(245,241,234,0.88)', padding: '20px' }} className="flex items-center justify-between">
-              <div>
-                <p className="pol-eyebrow mb-1">Game</p>
-                <p className="font-display text-2xl" style={{ color: '#1C1C1C' }}>Break The Tiles</p>
-                <p className="text-xs mt-1" style={{ color: '#6B5E52' }}>Tap to smash Portuguese azulejos</p>
-              </div>
-              <span style={{ color: '#2F6DA5' }}><ChevronRight /></span>
-            </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', padding: '14px 16px' }}>
+                  <div style={{ flexShrink: 0, textAlign: 'center', minWidth: '44px' }}>
+                    <div style={{ background: '#2F6DA5', borderRadius: '7px', padding: '6px 4px' }}>
+                      <p style={{ color: 'white', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', lineHeight: 1, margin: '0 0 2px' }}>
+                        {new Date(event.starts_at).toLocaleDateString('en', { month: 'short' })}
+                      </p>
+                      <p style={{ color: 'white', fontSize: '20px', fontWeight: 700, lineHeight: 1, margin: 0 }}>
+                        {new Date(event.starts_at).getDate()}
+                      </p>
+                    </div>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: '15px', fontWeight: 600, color: '#1C1C1C', margin: '0 0 3px', lineHeight: 1.3 }}>{event.title}</p>
+                    {event.location_name && <p style={{ fontSize: '12px', color: '#A89A8C', margin: '0 0 1px' }}>{event.location_name}</p>}
+                    <p style={{ fontSize: '12px', color: '#A89A8C', margin: 0 }}>{formatDateTime(event.starts_at)}</p>
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
-        </Link>
+        </div>
+      )}
 
-        {/* 11. TILE SMASHERS LINK */}
-        <Link href="/tile-leaderboard" className="block group"
-          style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid #EDE7DC', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-          <div style={{ borderLeft: '3px solid #E6B75C', padding: '14px 20px' }} className="flex items-center justify-between">
-            <div>
-              <p className="pol-eyebrow mb-1" style={{ color: '#C49A3A' }}>Leaderboard</p>
-              <p className="font-display text-xl" style={{ color: '#1C1C1C' }}>Tile Smashers</p>
-              <p className="text-xs mt-0.5" style={{ color: '#A89A8C' }}>See who's smashing the most tiles</p>
+      {/* ══════════════════════════════════════════════
+          NEW MEMBER — SOFT BLUE section
+      ══════════════════════════════════════════════ */}
+      {newestMember && (
+        <div style={{ background: BLUE.bg, padding: '28px 20px', borderTop: '1px solid #C5DFF0', borderBottom: '1px solid #C5DFF0' }}>
+          <SectionHead eyebrow="New to the club" title="Say Hello" href="/members" linkLabel="All members →" />
+          <Link href={`/members/${newestMember.id}`} style={{ display: 'flex', alignItems: 'center', gap: '14px', background: '#FFFFFF', borderRadius: '10px', border: '1px solid #C5DFF0', padding: '16px', textDecoration: 'none', boxShadow: '0 2px 8px rgba(47,109,165,0.08)' }}>
+            <div style={{ flexShrink: 0 }}>
+              <Avatar src={newestMember.avatar_url} name={newestMember.full_name} size="xl" />
             </div>
-            <span style={{ color: '#E6B75C' }}><ChevronRight /></span>
-          </div>
-        </Link>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: '18px', fontWeight: 700, color: '#1C1C1C', margin: '0 0 3px', lineHeight: 1.2 }}>{newestMember.full_name}</p>
+              {newestMember.headline && <p style={{ fontSize: '13px', color: '#6B5E52', margin: '0 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{newestMember.headline}</p>}
+              {newestMember.neighborhood && (
+                <span style={{ display: 'inline-block', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#2F6DA5', background: '#EAF2F8', padding: '3px 8px', borderRadius: '4px' }}>
+                  {newestMember.neighborhood}
+                </span>
+              )}
+            </div>
+            <ChevronRight />
+          </Link>
+        </div>
+      )}
 
+      {/* ══════════════════════════════════════════════
+          PODCAST — DARK section
+      ══════════════════════════════════════════════ */}
+      <div style={{ background: DARK.bg, padding: '28px 20px' }}>
+        <SectionHead eyebrow="Listen" title="Latest Podcast" dark />
+        <LatestPodcast />
       </div>
+
+      {/* ══════════════════════════════════════════════
+          PORTUGUESE PHRASE — blue accent
+      ══════════════════════════════════════════════ */}
+      <div style={{ background: BLUE.bg, padding: '20px', borderTop: '1px solid #C5DFF0', borderBottom: '1px solid #C5DFF0' }}>
+        <PortuguesePhrase />
+      </div>
+
+      {/* ══════════════════════════════════════════════
+          MODULE CARDS — light editorial grid
+      ══════════════════════════════════════════════ */}
+      <div style={{ background: LIGHT.bg, padding: '28px 20px' }}>
+        <Eyebrow label="Explore the club" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <ModuleCard href="/recommendations" eyebrow="Curated by POL" title="Recommendations" subtitle="Restaurants, cafés & experiences" />
+          <ModuleCard href="/leaderboard" eyebrow="Club" title="Leaderboard" subtitle="Totally pointless, just for fun" />
+          <ModuleCard href="/board" eyebrow="Community" title="Message Board" subtitle="Post a thought or happening" />
+          <ModuleCard href="/membership-card" eyebrow="Members only" title="Membership Card" subtitle="Your Club People Of Lisbon card" />
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════
+          RITA'S PHOTOS — light, full-bleed
+      ══════════════════════════════════════════════ */}
+      {latestPhoto && (
+        <div style={{ background: LIGHT.bg, padding: '0 20px 28px' }}>
+          <SectionHead eyebrow="Photography" title="Rita's Latest Photos" href="/photos" />
+          <Link href="/photos" style={{ display: 'block', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.1)', textDecoration: 'none' }}>
+            <div style={{ position: 'relative', aspectRatio: '4/3', background: '#E0D9CE' }}>
+              <Image src={latestPhoto.image_url} alt={latestPhoto.title || "Rita's photo"} fill style={{ objectFit: 'cover' }} unoptimized />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 55%)' }} />
+              {latestPhoto.title && (
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px' }}>
+                  <p style={{ fontSize: '20px', fontWeight: 700, color: 'white', margin: 0, lineHeight: 1.2 }}>{latestPhoto.title}</p>
+                </div>
+              )}
+            </div>
+          </Link>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════
+          BREAK TILES — ACCENT dark section
+      ══════════════════════════════════════════════ */}
+      <Link href="/break-tiles" style={{ display: 'block', textDecoration: 'none', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ backgroundImage: "url('/tile-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+          <div style={{ background: 'rgba(17,17,17,0.82)', padding: '24px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <Eyebrow label="Game" color="#E6B75C" />
+              <p style={{ fontSize: '22px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 3px' }}>Break The Tiles</p>
+              <p style={{ fontSize: '12px', color: '#888', margin: 0 }}>Smash Portuguese azulejos · stress reliever</p>
+            </div>
+            <ChevronRight color="#E6B75C" />
+          </div>
+        </div>
+      </Link>
+
+      {/* Tile Smashers leaderboard link */}
+      <Link href="/tile-leaderboard" style={{ display: 'block', textDecoration: 'none', background: ACCENT.bg }}>
+        <div style={{ borderLeft: '3px solid #E6B75C', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#E6B75C', margin: '0 0 2px' }}>Leaderboard</p>
+            <p style={{ fontSize: '15px', fontWeight: 600, color: '#FFFFFF', margin: 0 }}>Tile Smashers</p>
+          </div>
+          <ChevronRight color="#E6B75C" />
+        </div>
+      </Link>
+
+      {/* Bottom spacer */}
+      <div style={{ height: '24px', background: LIGHT.bg }} />
     </div>
     </ScrollPage>
   );

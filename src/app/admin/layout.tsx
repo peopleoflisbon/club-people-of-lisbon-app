@@ -15,6 +15,7 @@ const ADMIN_NAV = [
   { href: '/admin/board', label: 'Message Board', emoji: '📋' },
   { href: '/admin/offers', label: 'Member Offers', emoji: '🎁' },
   { href: '/admin/recommendations', label: 'Recommendations', emoji: '🗺️' },
+  { href: '/admin/setup', label: 'DB Setup', emoji: '🔧' },
   { href: '/admin/settings', label: 'Settings', emoji: '⚙️' },
 ];
 
