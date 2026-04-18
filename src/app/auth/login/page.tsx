@@ -42,6 +42,7 @@ export default function GatewayPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: mapEmail.trim(), password: mapPassword }),
       });
+
       const data = await res.json();
 
       if (!res.ok || data.error) {
@@ -50,12 +51,21 @@ export default function GatewayPage() {
         return;
       }
 
-      // Redirect based on role — members go home, map_users go to map
+      // Set session on the client using returned tokens
+      if (data.access_token && data.refresh_token) {
+        await supabase.auth.setSession({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+        });
+      }
+
+      // Redirect based on role
       if (data.role === 'map_user') {
         router.push('/map');
       } else {
         router.push('/home');
       }
+      router.refresh();
     } catch {
       setMapError('Connection error. Please try again.');
       setMapLoading(false);
