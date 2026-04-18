@@ -69,9 +69,9 @@ export default function LatestPodcast() {
   return (
     <section>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-display text-2xl text-ink">Latest Podcast</h2>
-        <a href={episode.appleUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-brand hover:underline">
-          Apple Podcasts →
+        <a href={episode.appleUrl} target="_blank" rel="noopener noreferrer"
+          style={{ fontSize: 12, fontWeight: 600, color: '#2F6DA5', textDecoration: 'none' }}>
+          Listen on Apple Podcasts →
         </a>
       </div>
 

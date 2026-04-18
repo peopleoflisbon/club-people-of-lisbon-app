@@ -304,18 +304,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           </Link>
         </div>
 
-        {/* Tile Smashers link */}
-        <div style={{ padding: pad }}>
-          <Link href="/tile-leaderboard"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-              ...card, padding: '12px 18px', textDecoration: 'none' }}>
-            <div>
-              <Eye t="Leaderboard" color={GOLD} />
-              <p style={{ fontSize: 15, fontWeight: 600, color: INK, margin: 0 }}>Tile Smashers</p>
-            </div>
-            <Chev color={GOLD} />
-          </Link>
-        </div>
+        <Mod href="/tile-leaderboard" eye="Leaderboard" title="Tile Smashers" sub="See who's smashing the most tiles" accent={GOLD} />
 
       </div>
     </ScrollPage>

@@ -7,15 +7,6 @@ import { cn } from '@/lib/utils';
 
 const FALLBACK_BG = 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=85';
 
-// Rotating taglines — LP style human voice
-const TAGLINES = [
-  'Stayed for the people.',
-  'Met my co-founder here.',
-  'Lisbon, but better.',
-  'Found my tribe.',
-  'Still here, still grateful.',
-];
-
 export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
@@ -31,8 +22,6 @@ export default function LoginPage() {
   const [forgotSent, setForgotSent] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
   const [welcomeName, setWelcomeName] = useState('');
-  const [taglineIndex, setTaglineIndex] = useState(0);
-  const [taglineFade, setTaglineFade] = useState(true);
 
   useEffect(() => {
     supabase.from('app_settings').select('key, value').then(({ data }) => {
@@ -42,18 +31,6 @@ export default function LoginPage() {
       });
     });
   }, []); // eslint-disable-line
-
-  // Rotate taglines
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTaglineFade(false);
-      setTimeout(() => {
-        setTaglineIndex(i => (i + 1) % TAGLINES.length);
-        setTaglineFade(true);
-      }, 400);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, []);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -132,33 +109,30 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* ── Middle: Rotating tagline (LP editorial voice) ── */}
+      {/* ── Middle: Brand statement ── */}
       <div className="relative z-10 flex-1 flex items-end lg:items-center px-6 lg:px-12 pb-8 lg:pb-0">
         <div className="hidden lg:block">
-          <p className="text-white/50 text-xs uppercase tracking-widest font-medium mb-3">
-            {TAGLINES[taglineIndex]}
-          </p>
-          <h1 className="font-display text-white leading-none mb-4"
+          <h1 className="font-display text-white leading-none mb-5"
             style={{ fontSize: 'clamp(3.5rem, 6vw, 6rem)', letterSpacing: '0.02em' }}>
             Good to<br />see you.
           </h1>
-          <p className="text-white/60 text-base font-light">Lisbon's people are inside.</p>
+          <p className="text-white/70 text-lg font-light" style={{ maxWidth: '28ch', lineHeight: 1.5 }}>
+            Lisbon's most interesting people, all in one place.
+          </p>
         </div>
       </div>
 
       {/* ── Bottom: Form panel ── */}
       <div className="relative z-10 w-full px-4 pb-10 pt-6 lg:absolute lg:right-0 lg:top-0 lg:bottom-0 lg:w-[420px] lg:flex lg:items-center lg:p-12">
 
-        {/* Mobile header (shown only on mobile above form) */}
+        {/* Mobile header */}
         <div className="lg:hidden text-center mb-8">
-          <p className="text-white/50 text-xs uppercase tracking-widest font-medium mb-2"
-            style={{ opacity: taglineFade ? 1 : 0, transition: 'opacity 0.4s ease' }}>
-            {TAGLINES[taglineIndex]}
-          </p>
-          <h1 className="font-display text-white text-5xl leading-none mb-2" style={{ letterSpacing: '0.02em' }}>
+          <h1 className="font-display text-white text-5xl leading-none mb-3" style={{ letterSpacing: '0.02em' }}>
             Good to see you.
           </h1>
-          <p className="text-white/50 text-sm font-light">Lisbon's people are inside.</p>
+          <p className="text-white/65 text-sm font-light" style={{ lineHeight: 1.55 }}>
+            Lisbon's most interesting people,<br />all in one place.
+          </p>
         </div>
 
         {/* Glass form panel */}
