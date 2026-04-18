@@ -109,30 +109,23 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* ── Middle: Brand statement ── */}
+      {/* ── Middle: Tagline only ── */}
       <div className="relative z-10 flex-1 flex items-end lg:items-center px-6 lg:px-12 pb-8 lg:pb-0">
         <div className="hidden lg:block">
-          <h1 className="font-display text-white leading-none mb-5"
-            style={{ fontSize: 'clamp(3.5rem, 6vw, 6rem)', letterSpacing: '0.02em' }}>
-            Good to<br />see you.
-          </h1>
-          <p className="text-white/70 text-lg font-light" style={{ maxWidth: '28ch', lineHeight: 1.5 }}>
+          <h1 className="text-white font-bold" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', lineHeight: 1.2, maxWidth: '18ch', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
             Lisbon's most interesting people, all in one place.
-          </p>
+          </h1>
         </div>
       </div>
 
       {/* ── Bottom: Form panel ── */}
       <div className="relative z-10 w-full px-4 pb-10 pt-6 lg:absolute lg:right-0 lg:top-0 lg:bottom-0 lg:w-[420px] lg:flex lg:items-center lg:p-12">
 
-        {/* Mobile header */}
+        {/* Mobile: tagline above form */}
         <div className="lg:hidden text-center mb-8">
-          <h1 className="font-display text-white text-5xl leading-none mb-3" style={{ letterSpacing: '0.02em' }}>
-            Good to see you.
+          <h1 className="text-white font-bold" style={{ fontSize: '1.6rem', lineHeight: 1.25, textShadow: '0 2px 8px rgba(0,0,0,0.35)' }}>
+            Lisbon's most interesting people, all in one place.
           </h1>
-          <p className="text-white/65 text-sm font-light" style={{ lineHeight: 1.55 }}>
-            Lisbon's most interesting people,<br />all in one place.
-          </p>
         </div>
 
         {/* Glass form panel */}

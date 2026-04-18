@@ -304,7 +304,9 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           </Link>
         </div>
 
-        <Mod href="/tile-leaderboard" eye="Leaderboard" title="Tile Smashers" sub="See who's smashing the most tiles" accent={GOLD} />
+        <div style={{ padding: pad, marginBottom: 32 }}>
+          <Mod href="/tile-leaderboard" eye="Leaderboard" title="Tile Smashers" sub="See who's smashing the most tiles" accent={GOLD} />
+        </div>
 
       </div>
     </ScrollPage>

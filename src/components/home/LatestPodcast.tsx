@@ -68,13 +68,6 @@ export default function LatestPodcast() {
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-3">
-        <a href={episode.appleUrl} target="_blank" rel="noopener noreferrer"
-          style={{ fontSize: 12, fontWeight: 600, color: '#2F6DA5', textDecoration: 'none' }}>
-          Listen on Apple Podcasts →
-        </a>
-      </div>
-
       <div style={{ background: '#FFFFFF', borderRadius: 14, overflow: 'hidden', border: '1px solid #EDE7DC' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px' }}>
           {episode.artwork && (
