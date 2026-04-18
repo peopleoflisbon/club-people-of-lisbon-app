@@ -35,7 +35,7 @@ const iStyle: React.CSSProperties = {
 };
 const lStyle: React.CSSProperties = {
   display: 'block', fontSize: '11px', fontWeight: 700,
-  letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8A7C6E', marginBottom: '6px',
+  letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#8A7C6E', marginBottom: '6px',
 };
 
 export default function AdminRecommendationsPage() {
@@ -44,10 +44,12 @@ export default function AdminRecommendationsPage() {
   const [editing, setEditing] = useState<Rec | null>(null);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
+  const [err, setErr] = useState('');
 
   async function load() {
-    const { data } = await (supabase as any)
+    const { data, error } = await (supabase as any)
       .from('recommendations').select('*').order('display_order', { ascending: true });
+    if (error) { setErr('Could not load recommendations: ' + error.message); return; }
     setRecs(data || []);
   }
 
@@ -59,26 +61,39 @@ export default function AdminRecommendationsPage() {
 
   async function save() {
     if (!editing) return;
-    setSaving(true);
-    if (editing.id) {
-      await (supabase as any).from('recommendations').update(editing).eq('id', editing.id);
+    if (!editing.name.trim()) { setErr('Name is required.'); return; }
+    setSaving(true); setErr('');
+
+    // Strip id from payload when inserting
+    const { id, ...payload } = editing;
+
+    let error: any;
+    if (id) {
+      ({ error } = await (supabase as any).from('recommendations').update({ ...payload }).eq('id', id));
     } else {
-      await (supabase as any).from('recommendations').insert(editing);
+      ({ error } = await (supabase as any).from('recommendations').insert([payload]));
     }
-    setSaving(false); setEditing(null);
-    setMsg('Saved!'); load();
+
+    setSaving(false);
+    if (error) {
+      setErr('Save failed: ' + error.message);
+      return;
+    }
+    setEditing(null);
+    setMsg('Saved!');
+    await load();
     setTimeout(() => setMsg(''), 2500);
   }
 
   async function toggle(rec: Rec) {
     await (supabase as any).from('recommendations').update({ is_active: !rec.is_active }).eq('id', rec.id);
-    load();
+    await load();
   }
 
   async function remove(id: string) {
     if (!confirm('Delete this recommendation?')) return;
     await (supabase as any).from('recommendations').delete().eq('id', id);
-    load();
+    await load();
   }
 
   const onFocus = (e: React.FocusEvent<any>) => { e.target.style.borderColor = '#2F6DA5'; };
@@ -92,11 +107,12 @@ export default function AdminRecommendationsPage() {
             <h1 className="text-2xl font-bold" style={{ color: '#1C1C1C' }}>Recommendations</h1>
             <p className="text-sm mt-0.5" style={{ color: '#A89A8C' }}>Places we love in Lisbon</p>
           </div>
-          <button onClick={() => setEditing({ ...EMPTY, display_order: recs.length + 1 })}
+          <button onClick={() => { setEditing({ ...EMPTY, display_order: recs.length + 1 }); setErr(''); }}
             className="pol-btn-primary text-sm">+ Add</button>
         </div>
 
         {msg && <div className="mb-4 px-4 py-2 rounded-lg text-sm font-semibold" style={{ background: '#EEF4FA', color: '#2F6DA5' }}>{msg}</div>}
+        {err && <div className="mb-4 px-4 py-2 rounded-lg text-sm" style={{ background: '#FEF2F2', color: '#B91C1C' }}>{err}</div>}
 
         {editing && (
           <div className="pol-card p-5 mb-6">
@@ -126,7 +142,7 @@ export default function AdminRecommendationsPage() {
               <label style={lStyle}>Description *</label>
               <textarea style={{ ...iStyle, resize: 'vertical' }} value={editing.description}
                 onChange={e => set('description', e.target.value)} rows={3}
-                placeholder="Why you love it, in 1-2 sentences..." onFocus={onFocus} onBlur={onBlur} />
+                placeholder="Why you love it..." onFocus={onFocus} onBlur={onBlur} />
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
@@ -174,9 +190,10 @@ export default function AdminRecommendationsPage() {
             </div>
 
             <div className="flex gap-3">
-              <button onClick={save} disabled={saving || !editing.name}
-                className="pol-btn-primary">{saving ? 'Saving…' : 'Save'}</button>
-              <button onClick={() => setEditing(null)} className="pol-btn-secondary">Cancel</button>
+              <button onClick={save} disabled={saving || !editing.name.trim()} className="pol-btn-primary">
+                {saving ? 'Saving…' : 'Save'}
+              </button>
+              <button onClick={() => { setEditing(null); setErr(''); }} className="pol-btn-secondary">Cancel</button>
             </div>
           </div>
         )}
@@ -200,17 +217,17 @@ export default function AdminRecommendationsPage() {
                     style={{ background: rec.is_active ? '#EEF4FA' : '#F0EBE2', color: rec.is_active ? '#2F6DA5' : '#A89A8C' }}>
                     {rec.is_active ? 'Live' : 'Hidden'}
                   </button>
-                  <button onClick={() => setEditing({ ...rec })} className="text-xs px-2.5 py-1.5 rounded-lg font-medium"
-                    style={{ background: '#F0EBE2', color: '#6B5E52' }}>Edit</button>
-                  <button onClick={() => remove(rec.id!)} className="text-xs px-2.5 py-1.5 rounded-lg font-medium"
-                    style={{ background: '#FEF2F2', color: '#B91C1C' }}>✕</button>
+                  <button onClick={() => { setEditing({ ...rec }); setErr(''); }}
+                    className="text-xs px-2.5 py-1.5 rounded-lg font-medium" style={{ background: '#F0EBE2', color: '#6B5E52' }}>Edit</button>
+                  <button onClick={() => remove(rec.id!)}
+                    className="text-xs px-2.5 py-1.5 rounded-lg font-medium" style={{ background: '#FEF2F2', color: '#B91C1C' }}>✕</button>
                 </div>
               </div>
             </div>
           ))}
           {recs.length === 0 && !editing && (
             <div className="text-center py-12" style={{ color: '#A89A8C' }}>
-              <p className="text-sm">No recommendations yet.</p>
+              <p className="text-sm">No recommendations yet — add your first one above.</p>
             </div>
           )}
         </div>

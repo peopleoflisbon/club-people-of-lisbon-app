@@ -61,8 +61,8 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="pol-eyebrow mb-2">Club People Of Lisbon</p>
-            <h1 className="font-display leading-none" style={{ fontSize: 'clamp(2.8rem, 7vw, 4.5rem)', color: '#1C1C1C', letterSpacing: '0.02em' }}>
-              Welcome back,<br />{firstName}.
+            <h1 className="text-2xl font-bold" style={{ color: '#1C1C1C', letterSpacing: '-0.01em' }}>
+              Welcome back, {firstName}.
             </h1>
             <p className="text-sm mt-3" style={{ color: '#A89A8C' }}>Lisbon's most interesting people, all in one place.</p>
           </div>
@@ -175,7 +175,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
         {/* 8. MODULE GRID — LP editorial cards */}
         <div className="space-y-3">
           <ModuleCard href="/leaderboard" eyebrow="Club" title="Leaderboard" subtitle="The totally pointless one, just for fun" />
-          <ModuleCard href="/recommendations" eyebrow="Curated by POL" title="Our Recommendations" subtitle="Restaurants, cafés and experiences we love" />
+          <ModuleCard href="/recommendations" eyebrow="Curated by POL" title="Recommendations" subtitle="Restaurants, cafés and experiences we love" />
           <ModuleCard href="/board" eyebrow="Community" title="Message Board" subtitle="Post a thought, event or happening" />
           <ModuleCard href="/membership-card" eyebrow="Members only" title="Membership Card" subtitle="Your Club People Of Lisbon card" />
         </div>
