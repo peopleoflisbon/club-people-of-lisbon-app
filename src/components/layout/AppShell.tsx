@@ -64,6 +64,7 @@ const NAV_ITEMS = [
 // Desktop sidebar secondary nav — ordered as requested
 const SECONDARY_NAV = [
   { href: '/updates', label: 'Latest from Stephen' },
+  { href: '/recommendations', label: 'Recommendations' },
   { href: '/board', label: 'Message Board' },
   { href: '/membership-card', label: 'Membership Card' },
   { href: '/sponsors', label: 'Sponsors' },

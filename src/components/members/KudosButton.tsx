@@ -37,21 +37,24 @@ export default function KudosButton({ recipientId, initialCount, isOwnProfile, i
     return (
       <div className="flex items-center gap-3 relative">
         {floaters.map(id => (
-          <span key={id} className="absolute text-white font-display text-lg pointer-events-none"
-            style={{ right: '60px', top: '-5px', animation: 'floatUp 1s ease-out forwards' }}>
+          <span key={id} className="absolute pointer-events-none font-bold text-base"
+            style={{ right: '54px', top: '-8px', color: '#2F6DA5', animation: 'floatUp 1s ease-out forwards' }}>
             +1
           </span>
         ))}
         <div className="text-right">
-          <p className="font-display text-3xl text-white leading-none">{count}</p>
-          <p className="text-stone-500 text-xs">points</p>
+          <p className="text-3xl font-bold leading-none" style={{ color: '#1C1C1C' }}>{count}</p>
+          <p className="text-xs mt-0.5" style={{ color: '#A89A8C' }}>points</p>
         </div>
         <button
           onClick={giveKudos}
           disabled={isOwnProfile}
-          title={isOwnProfile ? "You can't vote for yourself!" : 'Tap to vote!'}
-          className={`text-4xl transition-transform select-none ${bumping ? 'scale-150' : 'scale-100'} ${isOwnProfile ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:scale-125 active:scale-150'}`}
-          style={{ transition: 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+          title={isOwnProfile ? "You can't vote for yourself!" : 'Tap to give kudos!'}
+          className={`text-4xl select-none ${isOwnProfile ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer active:scale-150'}`}
+          style={{
+            transform: bumping ? 'scale(1.5)' : 'scale(1)',
+            transition: 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          }}
         >
           👍
         </button>
@@ -61,10 +64,11 @@ export default function KudosButton({ recipientId, initialCount, isOwnProfile, i
   }
 
   return (
-    <div className="flex items-center gap-4 bg-white border border-stone-100 p-5 relative overflow-visible">
+    <div className="flex items-center gap-4 p-5 relative overflow-visible"
+      style={{ background: '#FFFFFF', border: '1px solid #EDE7DC', borderRadius: '10px' }}>
       {floaters.map(id => (
-        <span key={id} className="absolute text-brand font-display text-xl pointer-events-none"
-          style={{ left: '60px', top: '10px', animation: 'floatUp 1s ease-out forwards' }}>
+        <span key={id} className="absolute pointer-events-none font-bold text-lg"
+          style={{ left: '70px', top: '8px', color: '#2F6DA5', animation: 'floatUp 1s ease-out forwards' }}>
           +1
         </span>
       ))}
@@ -72,14 +76,19 @@ export default function KudosButton({ recipientId, initialCount, isOwnProfile, i
         onClick={giveKudos}
         disabled={isOwnProfile}
         title={isOwnProfile ? "You can't vote for yourself!" : 'Tap to vote!'}
-        className={`text-5xl transition-transform select-none ${bumping ? 'scale-150' : 'scale-100'} ${isOwnProfile ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:scale-125 active:scale-150'}`}
-        style={{ transition: 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+        className={`text-5xl select-none ${isOwnProfile ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
+        style={{
+          transform: bumping ? 'scale(1.5)' : 'scale(1)',
+          transition: 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        }}
       >
         👍
       </button>
       <div>
-        <p className="font-display text-4xl text-ink leading-none">{count}</p>
-        <p className="text-stone-400 text-xs mt-1">{isOwnProfile ? 'Your kudos score' : 'Tap to vote!'}</p>
+        <p className="text-4xl font-bold leading-none" style={{ color: '#1C1C1C' }}>{count}</p>
+        <p className="text-xs mt-1" style={{ color: '#A89A8C' }}>
+          {isOwnProfile ? 'Your kudos score' : 'Tap to vote!'}
+        </p>
       </div>
       <style>{`@keyframes floatUp { 0% { opacity:1; transform:translateY(0); } 100% { opacity:0; transform:translateY(-40px); } }`}</style>
     </div>

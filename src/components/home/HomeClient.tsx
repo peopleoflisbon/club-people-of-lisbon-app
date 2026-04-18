@@ -175,6 +175,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
         {/* 8. MODULE GRID — LP editorial cards */}
         <div className="space-y-3">
           <ModuleCard href="/leaderboard" eyebrow="Club" title="Leaderboard" subtitle="The totally pointless one, just for fun" />
+          <ModuleCard href="/recommendations" eyebrow="Curated by POL" title="Our Recommendations" subtitle="Restaurants, cafés and experiences we love" />
           <ModuleCard href="/board" eyebrow="Community" title="Message Board" subtitle="Post a thought, event or happening" />
           <ModuleCard href="/membership-card" eyebrow="Members only" title="Membership Card" subtitle="Your Club People Of Lisbon card" />
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { MapPin } from '@/types';
 import { getYouTubeVideoId } from '@/lib/utils';
 
@@ -22,30 +22,20 @@ export default function LisbonMap({ pins }: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
-  // selectedPin stored in a ref too so marker clicks don't trigger re-render of markers
-  const selectedPinRef = useRef<MapPin | null>(null);
   const [selectedPin, setSelectedPin] = useState<MapPin | null>(null);
   const [featuredPin, setFeaturedPin] = useState<MapPin | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [playingVideo, setPlayingVideo] = useState(false);
 
-  // Keep ref in sync with state
-  useEffect(() => { selectedPinRef.current = selectedPin; }, [selectedPin]);
-
-  // Set a random featured pin once pins load
   useEffect(() => {
-    if (pins.length > 0) {
-      setFeaturedPin(pins[Math.floor(Math.random() * pins.length)]);
-    }
+    if (pins.length > 0) setFeaturedPin(pins[Math.floor(Math.random() * pins.length)]);
   }, [pins]);
 
-  // ── Init map ONCE ──
+  // Init map ONCE
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
-
     import('mapbox-gl').then((mapboxgl) => {
       (mapboxgl.default as any).accessToken = MAPBOX_TOKEN;
-
       const map = new (mapboxgl.default as any).Map({
         container: mapContainer.current!,
         style: 'mapbox://styles/mapbox/light-v11',
@@ -54,46 +44,40 @@ export default function LisbonMap({ pins }: Props) {
         minZoom: 9,
         maxZoom: 19,
       });
-
-      map.addControl(
-        new (mapboxgl.default as any).NavigationControl({ showCompass: false }),
-        'bottom-right'
-      );
-
+      map.addControl(new (mapboxgl.default as any).NavigationControl({ showCompass: false }), 'bottom-right');
       map.on('load', () => setMapReady(true));
       mapRef.current = { map, mapboxgl: mapboxgl.default };
     });
-
-    return () => {
-      mapRef.current?.map?.remove();
-      mapRef.current = null;
-    };
+    return () => { mapRef.current?.map?.remove(); mapRef.current = null; };
   }, []); // eslint-disable-line
 
-  // ── Add markers ONLY when map is ready or pins change — NOT on selectedPin change ──
+  // Add markers ONLY when mapReady or pins change — NEVER on selectedPin change
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
     const { map, mapboxgl } = mapRef.current;
 
-    // Remove all existing markers cleanly
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
     pins.forEach((pin) => {
-      // ── CRITICAL: cast to number, never swap lat/lng ──
       const lng = Number(pin.longitude);
       const lat = Number(pin.latitude);
-      if (isNaN(lng) || isNaN(lat)) return; // skip bad data
+      if (isNaN(lng) || isNaN(lat)) return;
 
       const thumbnail = getThumbnail(pin);
 
-      // Build marker element
+      // ── CRITICAL FIX: outer el is a plain zero-size anchor ──
+      // Mapbox positions this el via CSS transform — we must NEVER touch el.style.transform
+      // All visual styling goes on the INNER div only
       const el = document.createElement('div');
-      el.style.cssText = `
-        width:44px; height:44px; border-radius:50%;
+      el.style.cssText = 'width:44px;height:44px;cursor:pointer;';
+
+      const inner = document.createElement('div');
+      inner.style.cssText = `
+        width:44px;height:44px;border-radius:50%;
         border:2.5px solid white;
         box-shadow:0 3px 14px rgba(47,109,165,0.35),0 1px 4px rgba(0,0,0,0.2);
-        cursor:pointer; overflow:hidden; background:#2F6DA5;
+        overflow:hidden;background:#2F6DA5;
         transition:transform 0.2s ease,box-shadow 0.2s ease;
       `;
 
@@ -102,38 +86,38 @@ export default function LisbonMap({ pins }: Props) {
         img.src = thumbnail;
         img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
         img.onerror = () => { img.style.display = 'none'; };
-        el.appendChild(img);
+        inner.appendChild(img);
       } else {
-        el.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+        inner.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
         </div>`;
       }
 
+      // Scale the INNER element only — never touch el.style.transform
       el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.12)';
-        el.style.boxShadow = '0 6px 20px rgba(47,109,165,0.5),0 2px 8px rgba(0,0,0,0.25)';
+        inner.style.transform = 'scale(1.12)';
+        inner.style.boxShadow = '0 6px 20px rgba(47,109,165,0.5),0 2px 8px rgba(0,0,0,0.25)';
       });
       el.addEventListener('mouseleave', () => {
-        el.style.transform = 'scale(1)';
-        el.style.boxShadow = '0 3px 14px rgba(47,109,165,0.35),0 1px 4px rgba(0,0,0,0.2)';
+        inner.style.transform = 'scale(1)';
+        inner.style.boxShadow = '0 3px 14px rgba(47,109,165,0.35),0 1px 4px rgba(0,0,0,0.2)';
       });
       el.addEventListener('click', () => {
         setSelectedPin(pin);
         setFeaturedPin(pin);
         setPlayingVideo(false);
-        // Fly to the pin's exact stored coordinates
         map.flyTo({ center: [lng, lat], zoom: 14.5, speed: 0.8, curve: 1.2 });
       });
 
-      // ── setLngLat([longitude, latitude]) — Mapbox convention ──
+      el.appendChild(inner);
+
+      // setLngLat([longitude, latitude]) — correct Mapbox convention
       const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
         .setLngLat([lng, lat])
         .addTo(map);
-
       markersRef.current.push(marker);
     });
-  // selectedPin intentionally excluded — changing selection must NOT recreate markers
-  }, [mapReady, pins]); // eslint-disable-line
+  }, [mapReady, pins]); // selectedPin intentionally excluded
 
   const selectedThumbnail = selectedPin ? getThumbnail(selectedPin) : '';
   const featuredThumbnail = featuredPin ? getThumbnail(featuredPin) : '';
@@ -172,7 +156,7 @@ export default function LisbonMap({ pins }: Props) {
         </div>
       )}
 
-      {/* Bottom discovery card — shown when nothing selected */}
+      {/* Bottom discovery card */}
       {!selectedPin && featuredPin && (
         <div className="absolute bottom-6 left-4 right-4 z-20 animate-fade-in">
           <button onClick={() => { setSelectedPin(featuredPin); setPlayingVideo(false); }} className="w-full text-left group">
