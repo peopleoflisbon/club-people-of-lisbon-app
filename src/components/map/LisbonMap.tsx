@@ -123,7 +123,7 @@ export default function LisbonMap({ pins }: Props) {
   const featuredThumbnail = featuredPin ? getThumbnail(featuredPin) : '';
 
   return (
-    <div className="relative flex-1 h-full overflow-hidden">
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
       <div ref={mapContainer} className="w-full h-full" />
 
       {/* Floating title */}

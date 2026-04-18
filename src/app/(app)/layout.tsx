@@ -14,7 +14,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // map_user — full screen map, no shell whatsoever
   if (role === 'map_user') {
     return (
-      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
+      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         {children}
       </div>
     );
