@@ -8,6 +8,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!session) redirect('/auth/login');
 
+  // Read role from session metadata — same source as middleware, always consistent
+  const role = session.user.user_metadata?.role;
+
+  // map_user — full screen map, no shell whatsoever
+  if (role === 'map_user') {
+    return (
+      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
+        {children}
+      </div>
+    );
+  }
+
+  // Full member — load profile and render app shell
   const [{ data: profileRaw }, { data: settings }] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', session.user.id).single(),
     supabase.from('app_settings').select('key, value').in('key', [
@@ -17,20 +30,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   ]);
 
   const profile = profileRaw as any;
+  if (!profile?.is_active) redirect('/auth/login');
 
-  if (!profile?.is_active && profile?.role !== 'map_user') redirect('/auth/login');
-
-  // map_user — no shell at all, just full screen children
-  // (middleware already blocks them from reaching any non-/map route)
-  if (profile?.role === 'map_user') {
-    return (
-      <div style={{ height: '100dvh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        {children}
-      </div>
-    );
-  }
-
-  // Full member — normal app shell
   const settingsMap: Record<string, string> = {};
   (settings || []).forEach((s: { key: string; value: string }) => {
     settingsMap[s.key] = s.value;

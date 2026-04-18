@@ -17,54 +17,74 @@ export async function POST(req: NextRequest) {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // ── Step 1: Try to create the user (new users) ──
-    // If they already exist this will fail, and we fall through to sign-in
-    const { data: created, error: createError } = await admin.auth.admin.createUser({
-      email: email.trim(),
-      password,
-      email_confirm: true, // no confirmation email needed
-    });
-
-    if (!createError && created?.user) {
-      // New user created — make their profile
-      await admin.from('profiles').insert({
-        id: created.user.id,
-        full_name: email.trim().split('@')[0],
-        role: 'map_user',
-        is_active: true,
-        joined_at: new Date().toISOString(),
-      });
-    }
-
-    // ── Step 2: Sign in (works for both new and existing users) ──
     const anon = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    const { data: session, error: signInError } = await anon.auth.signInWithPassword({
-      email: email.trim(),
-      password,
+    // Try sign in first (returning user)
+    const { data: signIn, error: signInError } = await anon.auth.signInWithPassword({
+      email: email.trim(), password,
     });
 
-    if (signInError || !session?.session) {
+    if (!signInError && signIn?.session) {
+      // Make sure their metadata has role=map_user
+      await admin.auth.admin.updateUserById(signIn.user.id, {
+        user_metadata: { role: 'map_user' }
+      });
+      // Refresh session to get updated metadata
+      const { data: refreshed } = await admin.auth.admin.getUserById(signIn.user.id);
+      return NextResponse.json({
+        ok: true,
+        role: 'map_user',
+        access_token: signIn.session.access_token,
+        refresh_token: signIn.session.refresh_token,
+      });
+    }
+
+    // Wrong password for existing user
+    if (signInError?.message?.toLowerCase().includes('invalid login')) {
       return NextResponse.json({ error: 'Incorrect password. Please try again.' }, { status: 401 });
     }
 
-    // Get their role
-    const { data: profile } = await admin
-      .from('profiles')
-      .select('role')
-      .eq('id', session.user.id)
-      .single();
+    // New user — create with role in metadata
+    const { data: created, error: createError } = await admin.auth.admin.createUser({
+      email: email.trim(),
+      password,
+      email_confirm: true,
+      user_metadata: { role: 'map_user' }, // role stored IN the token
+    });
 
-    const role = (profile as any)?.role || 'map_user';
+    if (createError) {
+      if (createError.message?.includes('already')) {
+        return NextResponse.json({ error: 'Incorrect password. Please try again.' }, { status: 401 });
+      }
+      return NextResponse.json({ error: 'Could not create account. Please try again.' }, { status: 400 });
+    }
+
+    // Create profile too (belt and braces)
+    await admin.from('profiles').upsert({
+      id: created.user.id,
+      full_name: email.trim().split('@')[0],
+      role: 'map_user',
+      is_active: true,
+      joined_at: new Date().toISOString(),
+    }, { onConflict: 'id' });
+
+    // Sign them in
+    const { data: newSession, error: newSignInError } = await anon.auth.signInWithPassword({
+      email: email.trim(), password,
+    });
+
+    if (newSignInError || !newSession?.session) {
+      return NextResponse.json({ error: 'Account created — please try again.' }, { status: 200 });
+    }
 
     return NextResponse.json({
       ok: true,
-      role,
-      access_token: session.session.access_token,
-      refresh_token: session.session.refresh_token,
+      role: 'map_user',
+      access_token: newSession.session.access_token,
+      refresh_token: newSession.session.refresh_token,
     });
 
   } catch (err: any) {

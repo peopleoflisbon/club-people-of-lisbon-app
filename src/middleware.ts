@@ -26,28 +26,19 @@ export async function middleware(req: NextRequest) {
   }
 
   if (session) {
-    // Fetch role from profiles
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', session.user.id)
-      .single();
+    // Read role from user metadata — no DB query needed, always reliable
+    const role = session.user.user_metadata?.role;
 
-    const role = (profile as any)?.role;
-
-    // map_user trying to access anything other than /map → redirect to /map
-    if (role === 'map_user' && !path.startsWith('/map') && !isPublic && !path.startsWith('/api/')) {
-      return NextResponse.redirect(new URL('/map', req.url));
-    }
-
-    // Logged in member at root → home
-    if (path === '/' && role !== 'map_user') {
-      return NextResponse.redirect(new URL('/home', req.url));
-    }
-
-    // map_user at root → map
-    if (path === '/' && role === 'map_user') {
-      return NextResponse.redirect(new URL('/map', req.url));
+    if (role === 'map_user') {
+      // map_user can ONLY access /map — everything else → redirect to /map
+      if (!path.startsWith('/map') && !path.startsWith('/api/') && !isPublic) {
+        return NextResponse.redirect(new URL('/map', req.url));
+      }
+    } else {
+      // Regular member at root → home
+      if (path === '/') {
+        return NextResponse.redirect(new URL('/home', req.url));
+      }
     }
   }
 
