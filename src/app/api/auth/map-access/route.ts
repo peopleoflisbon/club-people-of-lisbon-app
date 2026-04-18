@@ -22,16 +22,16 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    // Step 1: Try to CREATE the account first (works for new users)
+    // Step 1: Try to create account (new users only)
     const { data: created, error: createError } = await admin.auth.admin.createUser({
       email: email.trim(),
       password,
-      email_confirm: true,
+      email_confirm: true,           // no confirmation email
       user_metadata: { role: 'map_user' },
     });
 
     if (!createError && created?.user) {
-      // New user created — make their profile
+      // Brand new user — create profile
       await admin.from('profiles').upsert({
         id: created.user.id,
         full_name: email.trim().split('@')[0],
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
         joined_at: new Date().toISOString(),
       }, { onConflict: 'id' });
     }
-    // If createError — user already exists, that's fine, continue to sign in
+    // If createError = user already exists, that's fine — fall through to sign in
 
     // Step 2: Sign in (works for both new and existing users)
     const { data: session, error: signInError } = await anon.auth.signInWithPassword({
@@ -49,18 +49,25 @@ export async function POST(req: NextRequest) {
     });
 
     if (signInError || !session?.session) {
-      // Only way sign-in fails now is genuinely wrong password
       return NextResponse.json({ error: 'Incorrect password. Please try again.' }, { status: 401 });
     }
 
-    // Make sure metadata has role
-    await admin.auth.admin.updateUserById(session.user.id, {
-      user_metadata: { role: 'map_user' },
-    });
+    // Step 3: Read the user's EXISTING role — NEVER overwrite a member's role
+    const existingRole = session.user?.user_metadata?.role;
+
+    // Only stamp map_user role if they have no role yet (brand new account)
+    // Never touch existing members or admins
+    if (!existingRole) {
+      await admin.auth.admin.updateUserById(session.user.id, {
+        user_metadata: { role: 'map_user' },
+      });
+    }
+
+    const finalRole = existingRole || 'map_user';
 
     return NextResponse.json({
       ok: true,
-      role: 'map_user',
+      role: finalRole,
       access_token: session.session.access_token,
       refresh_token: session.session.refresh_token,
     });

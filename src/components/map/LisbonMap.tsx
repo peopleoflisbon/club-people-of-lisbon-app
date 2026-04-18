@@ -7,7 +7,7 @@ import { getYouTubeVideoId } from '@/lib/utils';
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 const LISBON_CENTER: [number, number] = [-9.1393, 38.7223];
 
-interface Props { pins: MapPin[]; }
+interface Props { pins: MapPin[]; isMapUser?: boolean; }
 
 function getThumbnail(pin: MapPin): string {
   if (pin.thumbnail_url) return pin.thumbnail_url;
@@ -18,7 +18,7 @@ function getThumbnail(pin: MapPin): string {
   return '';
 }
 
-export default function LisbonMap({ pins }: Props) {
+export default function LisbonMap({ pins, isMapUser = false }: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
@@ -134,22 +134,15 @@ export default function LisbonMap({ pins }: Props) {
         </div>
       </div>
 
-      {/* Join the Club pill — top right */}
+      {/* Top right — Join the Club (map_users only) + stories pill */}
       <div className="absolute top-4 right-4 z-10 flex flex-col items-end gap-2">
-        <a
-          href="https://www.peopleoflisbon.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-all"
-          style={{
-            background: '#2F6DA5', color: 'white',
-            boxShadow: '0 2px 12px rgba(47,109,165,0.35)',
-            textDecoration: 'none', letterSpacing: '0.02em',
-          }}
-        >
-          Join the Club ↗
-        </a>
-        {/* Stories pill below */}
+        {isMapUser && (
+          <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold"
+            style={{ background: '#2F6DA5', color: 'white', boxShadow: '0 2px 12px rgba(47,109,165,0.35)', textDecoration: 'none' }}>
+            Join the Club ↗
+          </a>
+        )}
         {pins.length > 0 && (
           <div className="rounded-full px-3 py-1.5 flex items-center gap-1.5" style={{ background:'rgba(250,248,244,0.93)', backdropFilter:'blur(12px)', boxShadow:'0 2px 12px rgba(0,0,0,0.08)' }}>
             <span className="w-1.5 h-1.5 rounded-full" style={{ background:'#2F6DA5' }} />
@@ -157,6 +150,21 @@ export default function LisbonMap({ pins }: Props) {
           </div>
         )}
       </div>
+
+      {/* Logout — map_users only, bottom left subtle */}
+      {isMapUser && (
+        <div className="absolute z-20" style={{ bottom: 'max(env(safe-area-inset-bottom), 16px)', left: 16 }}>
+          <button
+            onClick={async () => {
+              const { createClient } = await import('@/lib/supabase');
+              await createClient().auth.signOut();
+              window.location.href = '/auth/login';
+            }}
+            style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 20, padding: '5px 12px', cursor: 'pointer' }}>
+            Sign out
+          </button>
+        </div>
+      )}
 
       {/* Soft gradients */}
       <div className="absolute top-0 left-0 right-0 h-24 pointer-events-none z-[5]"
@@ -170,9 +178,10 @@ export default function LisbonMap({ pins }: Props) {
         </div>
       )}
 
-      {/* Bottom discovery card */}
+      {/* Bottom discovery card — sits above nav on member app */}
       {!selectedPin && featuredPin && (
-        <div className="absolute bottom-6 left-4 right-4 z-20 animate-fade-in">
+        <div className="absolute left-4 right-4 z-20 animate-fade-in"
+          style={{ bottom: isMapUser ? 'max(env(safe-area-inset-bottom), 24px)' : 'calc(env(safe-area-inset-bottom) + 80px)' }}>
           <button onClick={() => { setSelectedPin(featuredPin); setPlayingVideo(false); }} className="w-full text-left group">
             <div className="rounded-2xl overflow-hidden flex items-center gap-3 p-3" style={{ background:'rgba(255,255,255,0.96)', backdropFilter:'blur(16px)', boxShadow:'0 8px 32px rgba(0,0,0,0.12)' }}>
               <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-stone-100">
@@ -203,7 +212,8 @@ export default function LisbonMap({ pins }: Props) {
         <>
           <div className="fixed inset-0 z-20 lg:hidden" style={{ background:'rgba(0,0,0,0.25)', backdropFilter:'blur(2px)' }}
             onClick={() => { setSelectedPin(null); setPlayingVideo(false); }} />
-          <div className="fixed bottom-0 left-0 right-0 z-30 animate-slide-up lg:absolute lg:bottom-6 lg:top-auto lg:right-4 lg:left-auto lg:w-80 lg:animate-fade-in">
+          <div className="fixed left-0 right-0 z-30 animate-slide-up lg:absolute lg:bottom-6 lg:top-auto lg:right-4 lg:left-auto lg:w-80 lg:animate-fade-in"
+          style={{ bottom: isMapUser ? 0 : 'calc(env(safe-area-inset-bottom) + 72px)' }}>
             <div className="overflow-hidden lg:rounded-2xl" style={{ background:'rgba(250,248,244,0.97)', backdropFilter:'blur(20px)', borderRadius:'20px 20px 0 0', boxShadow:'0 -8px 40px rgba(0,0,0,0.15)' }}>
               <div className="lg:hidden flex justify-center pt-3 pb-1">
                 <div className="w-10 h-1 rounded-full" style={{ background:'#E0D9CE' }} />
