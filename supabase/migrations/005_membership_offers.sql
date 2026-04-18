@@ -42,3 +42,7 @@ select * from (values
   ('Co-working Day Pass', 'One free day pass per month at the LX Factory co-working space. Great light, great coffee, great people.', '1 free day/month', 'LX Factory Workspace', '', 'Present your digital membership card at reception', 3)
 ) as v(title, description, discount, partner_name, partner_url, how_to_redeem, display_order)
 where not exists (select 1 from membership_offers limit 1);
+
+-- Add contact fields (safe to run even if columns exist)
+alter table membership_offers add column if not exists partner_phone text default '';
+alter table membership_offers add column if not exists partner_email text default '';

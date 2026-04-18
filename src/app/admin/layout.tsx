@@ -5,12 +5,12 @@ import Link from 'next/link';
 
 const ADMIN_NAV = [
   { href: '/admin', label: 'Dashboard', emoji: '▦' },
+  { href: '/admin/updates', label: "Stephen's Update", emoji: '✍️' },
   { href: '/admin/members', label: 'Members & Invites', emoji: '👥' },
   { href: '/admin/events', label: 'Events', emoji: '📅' },
   { href: '/admin/photos', label: "Rita's Photos", emoji: '📷' },
   { href: '/admin/pins', label: 'Map Pins', emoji: '📍' },
   { href: '/admin/sponsors', label: 'Sponsors', emoji: '⭐' },
-  { href: '/admin/updates', label: 'Updates from Stephen', emoji: '✍️' },
   { href: '/admin/good-news', label: 'Good News', emoji: '🎉' },
   { href: '/admin/board', label: 'Message Board', emoji: '📋' },
   { href: '/admin/offers', label: 'Member Offers', emoji: '🎁' },
@@ -50,7 +50,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </header>
 
       <div className="flex">
-        {/* Sidebar */}
+        {/* Desktop Sidebar */}
         <nav className="w-56 min-h-screen bg-white border-r border-stone-200 p-3 space-y-0.5 hidden md:block flex-shrink-0 sticky top-[53px] self-start h-[calc(100vh-53px)] overflow-y-auto">
           {ADMIN_NAV.map((item) => (
             <Link
@@ -64,22 +64,26 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           ))}
         </nav>
 
-        {/* Mobile nav strip */}
-        <div className="md:hidden w-full px-4 pt-3 pb-1 flex gap-2 overflow-x-auto no-scrollbar border-b border-stone-100 bg-white sticky top-[53px] z-10">
-          {ADMIN_NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium text-stone-600 bg-white border border-stone-200 hover:border-brand hover:text-brand transition-colors"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
+        {/* Mobile: full-width stacked layout */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Mobile nav — scrollable pill row */}
+          <div className="md:hidden w-full px-3 pt-3 pb-2 flex gap-2 overflow-x-auto no-scrollbar border-b border-stone-100 bg-white sticky top-[53px] z-10">
+            {ADMIN_NAV.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-stone-600 bg-stone-50 border border-stone-200 hover:border-stone-400 transition-colors whitespace-nowrap"
+              >
+                <span>{item.emoji}</span>
+                {item.label}
+              </Link>
+            ))}
+          </div>
 
-        <main className="flex-1 p-4 lg:p-8 min-w-0">
-          {children}
-        </main>
+          <main className="flex-1 p-4 lg:p-8 min-w-0">
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   );

@@ -257,10 +257,10 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
         <div style={{ padding: pad, marginBottom: gap }}>
           <Eye t="Explore the club" color={MUTED} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
-            <Mod href="/recommendations" eye="Curated by POL" title="Recommendations" sub="Restaurants, cafés & experiences" />
-            <Mod href="/leaderboard"     eye="Club"           title="Leaderboard"      sub="Totally pointless, just for fun" />
-            <Mod href="/board"           eye="Community"      title="Message Board"    sub="Post a thought or happening" />
-            <Mod href="/membership-card" eye="Members only"   title="Membership Card"  sub="Your Club People Of Lisbon card" />
+            <Mod href="/recommendations" eye="Curated by POL"  title="Recommendations"          sub="Restaurants, cafés & experiences" />
+            <Mod href="/board"           eye="Community"        title="Message Board"             sub="Post a thought or happening" />
+            <Mod href="/membership-card" eye="Members only"     title="Membership Card + Offers"  sub="Your card and member discounts" />
+            <Mod href="/leaderboard"     eye="Club"             title="Leaderboard"               sub="Totally pointless, just for fun" />
           </div>
         </div>
 

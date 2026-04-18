@@ -10,6 +10,8 @@ interface Offer {
   discount: string;
   partner_name: string;
   partner_url: string;
+  partner_phone: string;
+  partner_email: string;
   how_to_redeem: string;
   is_active: boolean;
   display_order: number;
@@ -17,7 +19,8 @@ interface Offer {
 
 const EMPTY: Offer = {
   title: '', description: '', discount: '', partner_name: '',
-  partner_url: '', how_to_redeem: 'Mention People Of Lisbon',
+  partner_url: '', partner_phone: '', partner_email: '',
+  how_to_redeem: 'Mention People Of Lisbon',
   is_active: true, display_order: 0,
 };
 
@@ -147,6 +150,20 @@ export default function AdminOffersPage() {
               <input style={iStyle} value={editing.partner_url}
                 onChange={e => updateField('partner_url', e.target.value)}
                 placeholder="https://..." onFocus={onFocus} onBlur={onBlur} />
+            </div>
+
+            <div className="mb-4">
+              <label style={lStyle}>Partner phone (optional)</label>
+              <input style={iStyle} value={editing.partner_phone}
+                onChange={e => updateField('partner_phone', e.target.value)}
+                placeholder="+351 912 345 678" onFocus={onFocus} onBlur={onBlur} />
+            </div>
+
+            <div className="mb-4">
+              <label style={lStyle}>Partner email (optional)</label>
+              <input style={iStyle} value={editing.partner_email}
+                onChange={e => updateField('partner_email', e.target.value)}
+                placeholder="hello@example.com" onFocus={onFocus} onBlur={onBlur} />
             </div>
 
             <div className="mb-4">

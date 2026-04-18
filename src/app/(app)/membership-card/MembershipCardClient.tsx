@@ -10,6 +10,8 @@ interface Offer {
   discount: string;
   partner_name: string;
   partner_url?: string;
+  partner_phone?: string;
+  partner_email?: string;
   how_to_redeem: string;
 }
 
@@ -324,6 +326,20 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear, 
                           className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg"
                           style={{ background: '#EEF4FA', color: '#2F6DA5' }}>
                           Visit →
+                        </a>
+                      )}
+                      {offer.partner_phone && (
+                        <a href={`tel:${offer.partner_phone}`}
+                          className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg"
+                          style={{ background: '#F0EBE2', color: '#6B5E52' }}>
+                          📞 Call
+                        </a>
+                      )}
+                      {offer.partner_email && (
+                        <a href={`mailto:${offer.partner_email}`}
+                          className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg"
+                          style={{ background: '#F0EBE2', color: '#6B5E52' }}>
+                          ✉️ Email
                         </a>
                       )}
                     </div>

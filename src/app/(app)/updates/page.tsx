@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { createServerClient } from '@/lib/supabase-server';
 import Image from 'next/image';
 import EmptyState from '@/components/ui/EmptyState';

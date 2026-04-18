@@ -51,15 +51,15 @@ export default function AdminUpdatesClient({ updates: initial }: { updates: Upda
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-3xl text-ink">Updates from Stephen</h1>
-        <button onClick={startCreate} className="pol-btn-primary">+ New Update</button>
+        <h1 className="font-display text-3xl text-ink">Stephen's Update</h1>
+        <button onClick={startCreate} className="pol-btn-primary">+ New Stephen's Update</button>
       </div>
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div className="bg-white rounded-2xl w-full max-w-2xl p-6 space-y-4 max-h-screen overflow-y-auto">
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-xl text-ink">{editingId ? 'Edit Update' : 'New Update'}</h2>
+              <h2 className="font-display text-xl text-ink">{editingId ? 'Edit Update' : 'New Stephen's Update'}</h2>
               <button onClick={() => setShowForm(false)} className="text-stone-400 hover:text-ink">✕</button>
             </div>
 
@@ -71,7 +71,7 @@ export default function AdminUpdatesClient({ updates: initial }: { updates: Upda
               <label className="pol-label">Content</label>
               <textarea
                 className="pol-textarea"
-                rows={12}
+                rows={20}
                 value={form.content}
                 onChange={(e) => setForm({ ...form, content: e.target.value })}
                 placeholder="Write your update here. Use blank lines to separate paragraphs."

@@ -125,7 +125,11 @@ export default function MessagesClient({ conversations, userId, initialConversat
               return (
               <button
                 key={conv.id}
-                onClick={() => setSelectedId(conv.id)}
+                onClick={() => {
+                  setSelectedId(conv.id);
+                  // Mark read immediately — clears the unread dot
+                  localStorage.setItem('pol_messages_last_read', new Date().toISOString());
+                }}
                 className={cn(
                   'w-full flex items-start gap-3 px-4 py-3.5 border-b border-stone-50 text-left',
                   'hover:bg-stone-50 transition-colors',
@@ -241,13 +245,13 @@ export default function MessagesClient({ conversations, userId, initialConversat
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
+                    // Enter always adds a new line — send via button only
+                    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                       e.preventDefault();
                       sendMessage();
                     }
-                    // Shift+Enter adds a new line naturally
                   }}
-                  placeholder="Write a message… (Shift+Enter for new line)"
+                  placeholder="Write a message…"
                   rows={1}
                   className="flex-1 resize-none px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 text-sm text-ink placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all max-h-32 overflow-y-auto"
                 />

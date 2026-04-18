@@ -124,5 +124,12 @@ export const LISBON_NEIGHBORHOODS = [
   'Sintra',
   'Telheiras',
   'Xabregas',
+  'Anjos',
+  'Amoreiras',
+  'Estoril',
+  'LX Factory area',
+  'Prazeres',
+  'Sapadores',
+  'Alto de São João',
   'Other',
 ];

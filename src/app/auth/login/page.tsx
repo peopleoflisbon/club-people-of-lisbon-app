@@ -90,7 +90,7 @@ export default function LoginPage() {
         />
         {/* LP-style soft gradient — bottom-weighted for readability, not heavy */}
         <div className="absolute inset-0" style={{
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.12) 40%, rgba(0,0,0,0.65) 75%, rgba(0,0,0,0.80) 100%)'
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.1) 35%, rgba(0,0,0,0.75) 70%, rgba(0,0,0,0.92) 100%)'
         }} />
       </div>
 
@@ -128,20 +128,21 @@ export default function LoginPage() {
           </h1>
         </div>
 
-        {/* Glass form panel */}
-        <div className="w-full rounded-2xl overflow-hidden"
+        {/* Cinematic form panel — no heavy box */}
+        <div className="w-full lg:rounded-2xl"
           style={{
-            background: 'rgba(250, 248, 244, 0.92)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            boxShadow: '0 24px 64px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.3)',
+            background: 'rgba(10, 10, 10, 0.6)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            borderTop: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '20px 20px 0 0',
           }}>
           <div className="p-7 lg:p-8">
             {!showForgot ? (
               <>
                 <div className="mb-6">
-                  <h2 className="text-xl font-semibold mb-0.5" style={{ color: '#1C1C1C' }}>Sign in</h2>
-                  <p className="text-sm" style={{ color: '#A89A8C' }}>Private members only.</p>
+                  <h2 className="text-lg font-semibold mb-0.5" style={{ color: 'rgba(255,255,255,0.9)' }}>Sign in</h2>
+                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>Private members only.</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-4" noValidate>
@@ -158,16 +159,16 @@ export default function LoginPage() {
                       style={{
                         width: '100%', padding: '12px 16px',
                         borderRadius: '10px',
-                        border: '1.5px solid #E8E0D4',
-                        background: '#FFFFFF',
-                        color: '#1C1C1C',
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        background: 'rgba(255,255,255,0.06)',
+                        color: '#FFFFFF',
                         fontSize: '15px',
                         outline: 'none',
                         transition: 'border-color 0.2s, box-shadow 0.2s',
                       }}
                       placeholder="your@email.com"
-                      onFocus={e => { e.target.style.borderColor = '#2F6DA5'; e.target.style.boxShadow = '0 0 0 3px rgba(47,109,165,0.12)'; }}
-                      onBlur={e => { e.target.style.borderColor = '#E8E0D4'; e.target.style.boxShadow = 'none'; }}
+                      onFocus={e => { e.target.style.borderColor = 'rgba(255,255,255,0.35)'; e.target.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.1)'; }}
+                      onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.boxShadow = 'none'; }}
                       required
                     />
                   </div>
@@ -184,22 +185,22 @@ export default function LoginPage() {
                       style={{
                         width: '100%', padding: '12px 16px',
                         borderRadius: '10px',
-                        border: '1.5px solid #E8E0D4',
-                        background: '#FFFFFF',
-                        color: '#1C1C1C',
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        background: 'rgba(255,255,255,0.06)',
+                        color: '#FFFFFF',
                         fontSize: '15px',
                         outline: 'none',
                         transition: 'border-color 0.2s, box-shadow 0.2s',
                       }}
                       placeholder="••••••••"
-                      onFocus={e => { e.target.style.borderColor = '#2F6DA5'; e.target.style.boxShadow = '0 0 0 3px rgba(47,109,165,0.12)'; }}
-                      onBlur={e => { e.target.style.borderColor = '#E8E0D4'; e.target.style.boxShadow = 'none'; }}
+                      onFocus={e => { e.target.style.borderColor = 'rgba(255,255,255,0.35)'; e.target.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.1)'; }}
+                      onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.boxShadow = 'none'; }}
                       required
                     />
                   </div>
 
                   {error && (
-                    <div className="text-sm px-4 py-3 rounded-lg" style={{ background: '#FEF2F2', color: '#B91C1C', border: '1px solid #FECACA' }}>
+                    <div className="text-sm px-4 py-3 rounded-lg" style={{ background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.3)' }}>
                       {error}
                     </div>
                   )}
@@ -243,23 +244,23 @@ export default function LoginPage() {
                 <button
                   onClick={() => { setShowForgot(false); setForgotSent(false); }}
                   className="flex items-center gap-1.5 text-sm font-medium mb-5 transition-colors"
-                  style={{ color: '#A89A8C' }}
+                  style={{ color: 'rgba(255,255,255,0.5)' }}
                 >
                   ← Back
                 </button>
-                <h2 className="text-xl font-semibold mb-1" style={{ color: '#1C1C1C' }}>Reset password</h2>
-                <p className="text-sm mb-6" style={{ color: '#A89A8C' }}>We'll send a link to your email.</p>
+                <h2 className="text-xl font-semibold mb-1" style={{ color: 'rgba(255,255,255,0.9)' }}>Reset password</h2>
+                <p className="text-sm mb-6" style={{ color: 'rgba(255,255,255,0.45)' }}>We'll send a link to your email.</p>
 
                 {forgotSent ? (
                   <div className="text-center py-6">
                     <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
-                      style={{ background: '#EEF4FA' }}>
-                      <svg className="w-6 h-6" style={{ color: '#2F6DA5' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      style={{ background: 'rgba(255,255,255,0.08)' }}>
+                      <svg className="w-6 h-6" style={{ color: 'rgba(255,255,255,0.7)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
-                    <p className="font-semibold mb-1" style={{ color: '#1C1C1C' }}>Check your email</p>
-                    <p className="text-xs" style={{ color: '#A89A8C' }}>Reset link sent to {forgotEmail}</p>
+                    <p className="font-semibold mb-1" style={{ color: 'rgba(255,255,255,0.9)' }}>Check your email</p>
+                    <p className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>Reset link sent to {forgotEmail}</p>
                   </div>
                 ) : (
                   <form onSubmit={handleForgot} className="space-y-4" noValidate>
@@ -277,8 +278,8 @@ export default function LoginPage() {
                         outline: 'none',
                       }}
                       placeholder="your@email.com"
-                      onFocus={e => { e.target.style.borderColor = '#2F6DA5'; e.target.style.boxShadow = '0 0 0 3px rgba(47,109,165,0.12)'; }}
-                      onBlur={e => { e.target.style.borderColor = '#E8E0D4'; e.target.style.boxShadow = 'none'; }}
+                      onFocus={e => { e.target.style.borderColor = 'rgba(255,255,255,0.35)'; e.target.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.1)'; }}
+                      onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.boxShadow = 'none'; }}
                       required
                     />
                     <button
@@ -306,7 +307,7 @@ export default function LoginPage() {
 
           {/* Bottom note */}
           <div className="px-7 pb-5 lg:px-8">
-            <p className="text-xs text-center" style={{ color: '#C8BEB2' }}>By invitation only · People Of Lisbon</p>
+            <p className="text-xs text-center" style={{ color: 'rgba(255,255,255,0.25)' }}>By invitation only · People Of Lisbon</p>
           </div>
         </div>
       </div>
