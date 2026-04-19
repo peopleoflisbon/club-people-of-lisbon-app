@@ -13,7 +13,7 @@ interface Props { pins: MapPin[]; isMapUser?: boolean; }
 function getThumbnail(pin: MapPin): string {
   if (pin.thumbnail_url) return pin.thumbnail_url;
   if (pin.youtube_url) {
-    const id = pin.youtube_url.match(/(?:v=|youtu\\.be\\/)([a-zA-Z0-9_-]{11})/)?.[1];
+    const id = pin.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
     if (id) return `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
   }
   return '';
