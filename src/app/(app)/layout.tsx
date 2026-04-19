@@ -1,4 +1,5 @@
 import { createServerClient } from '@/lib/supabase-server';
+import { createClient } from '@supabase/supabase-js';
 import { redirect } from 'next/navigation';
 import AppShell from '@/components/layout/AppShell';
 
@@ -8,11 +9,23 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!session) redirect('/auth/login');
 
-  // Read role from session metadata — same source as middleware, always consistent
-  const role = session.user.user_metadata?.role;
+  // Read role from profiles table — most reliable source
+  const admin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
 
-  // map_user — full screen map, no shell whatsoever
-  if (role === 'map_user') {
+  const { data: profileRaw } = await admin
+    .from('profiles')
+    .select('*')
+    .eq('id', session.user.id)
+    .single();
+
+  const profile = profileRaw as any;
+
+  // map_user — full screen, no shell
+  if (profile?.role === 'map_user') {
     return (
       <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         {children}
@@ -20,17 +33,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     );
   }
 
-  // Full member — load profile and render app shell
-  const [{ data: profileRaw }, { data: settings }] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', session.user.id).single(),
-    supabase.from('app_settings').select('key, value').in('key', [
-      'brand_square_image_url',
-      'login_background_image_url',
-    ]),
-  ]);
-
-  const profile = profileRaw as any;
+  // Full member — needs active account
   if (!profile?.is_active) redirect('/auth/login');
+
+  const { data: settings } = await supabase
+    .from('app_settings')
+    .select('key, value')
+    .in('key', ['brand_square_image_url', 'login_background_image_url']);
 
   const settingsMap: Record<string, string> = {};
   (settings || []).forEach((s: { key: string; value: string }) => {

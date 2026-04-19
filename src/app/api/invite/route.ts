@@ -34,10 +34,22 @@ async function generateInviteLink(email: string): Promise<{ link?: string; error
       email,
       password: crypto.randomUUID() + 'Aa1!', // strong random password they'll replace
       email_confirm: true, // CRITICAL: makes user fully active, not pending
+      user_metadata: { role: 'member' }, // set role so middleware works correctly
     });
 
     if (createError) {
       return { error: createError.message };
+    }
+
+    // Explicitly ensure profile exists with role=member
+    if (created?.user) {
+      await admin.from('profiles').upsert({
+        id: created.user.id,
+        email,
+        role: 'member',
+        is_active: true,
+        joined_at: new Date().toISOString(),
+      }, { onConflict: 'id' });
     }
   }
 

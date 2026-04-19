@@ -10,6 +10,7 @@ const ADMIN_NAV = [
   { href: '/admin/events', label: 'Events', emoji: '📅' },
   { href: '/admin/photos', label: "Rita's Photos", emoji: '📷' },
   { href: '/admin/pins', label: 'Map Pins', emoji: '📍' },
+  { href: '/admin/categories', label: 'Categories', emoji: '🏷️' },
   { href: '/admin/sponsors', label: 'Sponsors', emoji: '⭐' },
   { href: '/admin/good-news', label: 'Good News', emoji: '🎉' },
   { href: '/admin/board', label: 'Message Board', emoji: '📋' },

@@ -187,7 +187,12 @@ export default function AdminMembersClient({ members, invitations }: Props) {
 
   async function toggleAdmin(id: string, currentRole: string) {
     const newRole = currentRole === 'admin' ? 'member' : 'admin';
-    await supabase.from('profiles').update({ role: newRole }).eq('id', id);
+    // Call API to update both profiles.role AND user_metadata.role atomically
+    await fetch('/api/admin-set-role', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: id, role: newRole }),
+    });
     setLocalMembers(prev => prev.map(m => m.id === id ? { ...m, role: newRole } : m));
   }
 

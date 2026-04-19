@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase';
 import { getYouTubeThumbnail, cn } from '@/lib/utils';
-import type { MapPin, MapPinFormData } from '@/types';
+import type { MapPin, MapPinFormData, Category } from '@/types';
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 const LISBON_CENTER: [number, number] = [-9.1393, 38.7223];
@@ -16,6 +16,7 @@ const NEIGHBORHOODS = [
 const EMPTY: MapPinFormData = {
   title: '', featured_person: '', neighborhood: '', description: '',
   youtube_url: '', latitude: 38.7223, longitude: -9.1393, thumbnail_url: '',
+  category_ids: [], filmed_address: '',
 };
 
 async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
@@ -87,6 +88,7 @@ function PinMapPicker({ lat, lng, onChange }: { lat: number; lng: number; onChan
 
 export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
   const [pins, setPins] = useState(initial);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<MapPinFormData>(EMPTY);
@@ -96,6 +98,12 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
   const [importing, setImporting] = useState(false);
   const [importMsg, setImportMsg] = useState('');
   const supabase = createClient();
+
+  // Load categories from DB
+  useEffect(() => {
+    (supabase as any).from('categories').select('*').eq('is_active', true).order('sort_order')
+      .then(({ data }: any) => { if (data) setCategories(data); });
+  }, []); // eslint-disable-line
 
   async function importFromYouTube() {
     setImporting(true);
@@ -109,7 +117,6 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
         setImportMsg('All videos already imported.');
       } else {
         setImportMsg(`✓ Imported ${data.imported} videos. Now add locations to each one below.`);
-        // Reload page to show new pins
         window.location.reload();
       }
     } catch {
@@ -119,11 +126,19 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
   }
 
   function startCreate() { setForm(EMPTY); setAddress(''); setEditingId(null); setShowForm(true); }
-  function startEdit(p: MapPin) {
+
+  async function startEdit(p: MapPin) {
+    // Load current categories for this pin from join table
+    const { data: pinCats } = await (supabase as any)
+      .from('map_pin_categories').select('category_id').eq('pin_id', p.id);
+    const category_ids = (pinCats || []).map((pc: any) => pc.category_id);
+
     setForm({
       title: p.title, featured_person: p.featured_person, neighborhood: p.neighborhood,
       description: p.description, youtube_url: p.youtube_url,
       latitude: p.latitude, longitude: p.longitude, thumbnail_url: p.thumbnail_url,
+      filmed_address: p.filmed_address || '',
+      category_ids,
     });
     setAddress('');
     setEditingId(p.id);
@@ -144,14 +159,29 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
 
   async function save() {
     setSaving(true);
-    const payload = { ...form, thumbnail_url: form.thumbnail_url || getYouTubeThumbnail(form.youtube_url) };
+    // Save pin without category_ids (they go to join table)
+    const { category_ids, ...pinData } = form;
+    const payload = { ...pinData, thumbnail_url: pinData.thumbnail_url || getYouTubeThumbnail(pinData.youtube_url) };
+
+    let pinId = editingId;
     if (editingId) {
       const { data } = await (supabase as any).from('map_pins').update(payload).eq('id', editingId).select().single();
-      if (data) setPins((p) => p.map((pin) => pin.id === editingId ? data : pin));
+      if (data) setPins((p) => p.map((pin) => pin.id === editingId ? { ...data, category_ids } : pin));
     } else {
       const { data } = await (supabase as any).from('map_pins').insert(payload).select().single();
-      if (data) setPins((p) => [data, ...p]);
+      if (data) { pinId = data.id; setPins((p) => [{ ...data, category_ids }, ...p]); }
     }
+
+    // Sync join table
+    if (pinId) {
+      await (supabase as any).from('map_pin_categories').delete().eq('pin_id', pinId);
+      if (category_ids.length > 0) {
+        await (supabase as any).from('map_pin_categories').insert(
+          category_ids.map((cid: string) => ({ pin_id: pinId, category_id: cid }))
+        );
+      }
+    }
+
     setSaving(false);
     setShowForm(false);
   }
@@ -222,6 +252,36 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
             <div>
               <label className="pol-label">Description</label>
               <textarea className="pol-textarea" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="A short description of this person's story…" />
+            </div>
+
+            <div>
+              <label className="pol-label">Filmed at (address shown in pin detail)</label>
+              <input className="pol-input" value={form.filmed_address} onChange={(e) => setForm({ ...form, filmed_address: e.target.value })} placeholder="Rua Augusta 123, Lisbon" />
+              <p className="text-xs text-stone-400 mt-1">This appears in the pin card with a link to Google Maps</p>
+            </div>
+
+            <div>
+              <label className="pol-label">Categories</label>
+              {categories.length === 0 ? (
+                <p className="text-xs text-stone-400 mt-1">No categories yet. Add them in Admin → Categories.</p>
+              ) : (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 6 }}>
+                  {categories.map(cat => {
+                    const active = form.category_ids.includes(cat.id);
+                    return (
+                      <button key={cat.id} type="button"
+                        onClick={() => setForm({ ...form, category_ids: active ? form.category_ids.filter(id => id !== cat.id) : [...form.category_ids, cat.id] })}
+                        style={{
+                          padding: '6px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                          border: '1.5px solid', borderColor: active ? '#2F6DA5' : '#E0D9CE',
+                          background: active ? '#2F6DA5' : 'white', color: active ? 'white' : '#6B5E52',
+                        }}>
+                        {cat.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <div>

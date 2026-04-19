@@ -13,148 +13,125 @@ export default function SetPasswordPage() {
   const [error, setError] = useState('');
   const [ready, setReady] = useState(false);
   const [done, setDone] = useState(false);
-  const [bgImage, setBgImage] = useState('https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=85');
-  const [bgLoaded, setBgLoaded] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+    // Listen for PASSWORD_RECOVERY event — fired when user clicks reset link
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
         setReady(true);
-      } else {
-        // No session - send back to login
-        router.replace('/auth/login');
+      }
+      if (event === 'SIGNED_IN' && session) {
+        setReady(true);
       }
     });
-    supabase.from('app_settings').select('key, value').then(({ data }) => {
-      (data || []).forEach((row: any) => {
-        if (row.key === 'login_background_image_url' && row.value) setBgImage(row.value);
-      });
+
+    // Also check if session already exists (e.g. page refresh)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true);
     });
+
+    return () => subscription.unsubscribe();
   }, []); // eslint-disable-line
 
-  async function handleSubmit() {
-    if (password.length < 8) { setError('Password must be at least 8 characters.'); return; }
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (password.length < 6) { setError('Password must be at least 6 characters.'); return; }
     if (password !== confirm) { setError('Passwords do not match.'); return; }
     setSaving(true);
     setError('');
+
     const { error: updateError } = await supabase.auth.updateUser({ password });
     if (updateError) {
       setError(updateError.message);
       setSaving(false);
     } else {
       setDone(true);
+      // Sign out so they sign in fresh with new password
+      setTimeout(async () => {
+        await supabase.auth.signOut();
+        router.push('/auth/member-login');
+      }, 2500);
     }
   }
 
-  if (!ready) {
-    return (
-      <div className="min-h-screen bg-sand flex items-center justify-center">
-        <img src="/pol-logo.png" alt="People Of Lisbon" className="w-16 h-16 object-contain opacity-50" />
-      </div>
-    );
-  }
+  const inp: React.CSSProperties = {
+    width: '100%', padding: '13px 16px', borderRadius: 10,
+    border: '1px solid rgba(255,255,255,0.15)',
+    background: 'rgba(255,255,255,0.07)',
+    color: '#fff', fontSize: 15, outline: 'none', fontFamily: 'inherit',
+  };
 
   return (
-    <div className="relative min-h-screen w-full flex items-stretch overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 z-0 bg-sand">
-        <img
-          src={bgImage}
-          alt=""
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${bgLoaded ? 'opacity-100' : 'opacity-0'}`}
-          onLoad={() => setBgLoaded(true)}
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/60 to-ink/30" />
-      </div>
+    <div className="relative min-h-screen w-full overflow-hidden flex flex-col items-center justify-center"
+      style={{ background: '#0a0a0f' }}>
+      <div className="absolute inset-0 opacity-30"
+        style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(47,109,165,0.4), transparent 70%)' }} />
 
-      {/* Left branding — desktop */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 relative z-10 p-12">
-        <div>
-          <img src="/pol-logo.png" alt="People Of Lisbon" className="w-16 h-16 object-contain" />
-        </div>
-        <div>
-          <h1 className="font-display text-white leading-none tracking-tight mb-4" style={{ fontSize: 'clamp(3.5rem, 6vw, 5rem)', lineHeight: 0.95 }}>
-            People<br />Of<br />Lisbon
-          </h1>
-          <p className="text-white/70 text-lg font-semibold">Lisbon's most interesting people,<br />all in one place.</p>
-        </div>
-        <div className="h-px bg-stone-700" />
-      </div>
-
-      {/* Right panel */}
-      <div className="flex-1 flex items-center justify-center relative z-10 p-6">
-        <div className="w-full max-w-sm">
-
-          {/* Mobile logo */}
-          <div className="flex justify-center mb-8 lg:hidden">
-            <img src="/pol-logo.png" alt="People Of Lisbon" className="w-20 h-20 object-contain" />
-          </div>
-
-          {!done ? (
-            <div className="bg-white/[0.06] backdrop-blur-md border border-white/10 p-8 shadow-2xl">
-              <h2 className="font-display text-white text-3xl leading-tight mb-1">Welcome to<br />People Of Lisbon</h2>
-              <p className="text-stone-400 text-sm mb-6">Choose a password to access the club.</p>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-stone-300 uppercase tracking-widest mb-2">Password</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                    placeholder="At least 8 characters"
-                    autoFocus
-                    className="w-full px-4 py-3.5 text-sm text-white placeholder-stone-600 bg-white/[0.06] border border-white/15 focus:outline-none focus:ring-2 focus:ring-brand/40 transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-stone-300 uppercase tracking-widest mb-2">Confirm Password</label>
-                  <input
-                    type="password"
-                    value={confirm}
-                    onChange={(e) => { setConfirm(e.target.value); setError(''); }}
-                    placeholder="Repeat your password"
-                    onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-                    className="w-full px-4 py-3.5 text-sm text-white placeholder-stone-600 bg-white/[0.06] border border-white/15 focus:outline-none focus:ring-2 focus:ring-brand/40 transition-all"
-                  />
-                </div>
-
-                {error && (
-                  <div className="text-brand text-sm bg-brand/10 border border-brand/20 px-4 py-3">{error}</div>
-                )}
-
-                <button
-                  onClick={handleSubmit}
-                  disabled={saving || !password || !confirm}
-                  className="w-full py-4 font-bold text-sm text-white active:scale-[0.98] transition-all disabled:opacity-40" style={{ background: "#2F6DA5" }}
-                >
-                  {saving ? 'Creating your account…' : 'Create Password & Join'}
-                </button>
-              </div>
-            </div>
-          ) : (
-            /* Congratulations screen */
-            <div className="bg-white/[0.06] backdrop-blur-md border border-white/10 p-8 shadow-2xl text-center">
-              <div className="w-16 h-16 bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h2 className="font-display text-white text-3xl leading-tight mb-3">Congratulations!</h2>
-              <p className="text-stone-300 text-sm leading-relaxed mb-2">You're now a member of People Of Lisbon.</p>
-              <p className="text-stone-500 text-xs mb-8">Let's set up your profile so other members can find you.</p>
-              <button
-                onClick={() => router.push('/profile')}
-                className="w-full py-4 font-bold text-sm text-white active:scale-[0.98] transition-all" style={{ background: "#2F6DA5" }}
-              >
-                Set Up My Profile →
-              </button>
-            </div>
+      <div className="relative z-10 w-full max-w-sm px-6">
+        <div className="text-center mb-8">
+          <img src="/pol-logo.png" alt="People Of Lisbon" style={{ width: 44, height: 44, objectFit: 'contain', margin: '0 auto 16px' }} />
+          {!done && (
+            <>
+              <h1 style={{ fontSize: 24, fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>Set new password</h1>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', margin: 0 }}>Choose a new password for your account.</p>
+            </>
           )}
-
-          <p className="text-center text-stone-600 text-xs mt-6">By invitation only · People Of Lisbon</p>
         </div>
+
+        {!ready && !done && (
+          <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>
+            <div style={{ width: 24, height: 24, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#2F6DA5', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
+            Verifying reset link…
+          </div>
+        )}
+
+        {ready && !done && (
+          <form onSubmit={handleSubmit}
+            style={{ background: 'rgba(6,6,10,0.8)', backdropFilter: 'blur(20px)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.08)', padding: '28px 24px' }}>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>
+                New password
+              </label>
+              <input type="password" value={password} required minLength={6}
+                onChange={e => { setPassword(e.target.value); setError(''); }}
+                placeholder="At least 6 characters" style={inp}
+                onFocus={e => { e.target.style.borderColor = 'rgba(255,255,255,0.4)'; }}
+                onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; }}
+                autoFocus />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>
+                Confirm password
+              </label>
+              <input type="password" value={confirm} required minLength={6}
+                onChange={e => { setConfirm(e.target.value); setError(''); }}
+                placeholder="Repeat your password" style={inp}
+                onFocus={e => { e.target.style.borderColor = 'rgba(255,255,255,0.4)'; }}
+                onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; }} />
+            </div>
+
+            {error && (
+              <div style={{ fontSize: 13, padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.25)', marginBottom: 14 }}>
+                {error}
+              </div>
+            )}
+
+            <button type="submit" disabled={saving || !password || !confirm}
+              style={{ width: '100%', padding: 14, background: saving ? 'rgba(47,109,165,0.4)' : '#2F6DA5', color: 'white', fontSize: 15, fontWeight: 700, borderRadius: 10, border: 'none', cursor: saving ? 'not-allowed' : 'pointer' }}>
+              {saving ? 'Updating…' : 'Set New Password →'}
+            </button>
+          </form>
+        )}
+
+        {done && (
+          <div style={{ textAlign: 'center', background: 'rgba(6,6,10,0.8)', backdropFilter: 'blur(20px)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.08)', padding: '32px 24px' }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>✓</div>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#fff', margin: '0 0 8px' }}>Password updated</h2>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', margin: 0 }}>Redirecting you to sign in…</p>
+          </div>
+        )}
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
