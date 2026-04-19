@@ -107,14 +107,11 @@ export default function GatewayPage() {
 
       {/* ── Logo ── */}
       <div className="relative z-10 px-6 pt-10 lg:px-12 lg:pt-12">
-        <img src={logoUrl} alt="People Of Lisbon"
-          style={{ width: 42, height: 42, objectFit: 'contain', display: 'block' }}
-          onError={(e) => {
-            const img = e.target as HTMLImageElement;
-            if (img.src !== window.location.origin + '/pol-logo.png') {
-              img.src = '/pol-logo.png';
-            }
-          }} />
+        <img
+          src="/pol-logo.png"
+          alt="People Of Lisbon"
+          style={{ width: 48, height: 48, objectFit: 'contain', display: 'block' }}
+        />
       </div>
 
       {/* ── Tagline — left side on desktop, above panel on mobile ── */}
