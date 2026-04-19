@@ -34,8 +34,7 @@ export default function LisbonMap({ pins, isMapUser = false }: Props) {
 
   useEffect(() => {
     if (!isMapUser) return;
-    const done = localStorage.getItem(FIRST_VISIT_KEY);
-    if (!done) setShowOverlay(true);
+    if (!localStorage.getItem(FIRST_VISIT_KEY)) setShowOverlay(true);
   }, [isMapUser]);
 
   function dismissOverlay() {
@@ -103,29 +102,21 @@ export default function LisbonMap({ pins, isMapUser = false }: Props) {
       el.addEventListener('mouseenter', (e: MouseEvent) => {
         inner.style.transform = 'scale(1.12)';
         inner.style.boxShadow = '0 6px 20px rgba(47,109,165,0.5),0 2px 8px rgba(0,0,0,0.25)';
-        setHoverPin(pin);
-        setHoverPos({ x: e.clientX, y: e.clientY });
+        setHoverPin(pin); setHoverPos({ x: e.clientX, y: e.clientY });
       });
-      el.addEventListener('mousemove', (e: MouseEvent) => {
-        setHoverPos({ x: e.clientX, y: e.clientY });
-      });
+      el.addEventListener('mousemove', (e: MouseEvent) => setHoverPos({ x: e.clientX, y: e.clientY }));
       el.addEventListener('mouseleave', () => {
         inner.style.transform = 'scale(1)';
         inner.style.boxShadow = '0 3px 14px rgba(47,109,165,0.35),0 1px 4px rgba(0,0,0,0.2)';
         setHoverPin(null);
       });
       el.addEventListener('click', () => {
-        setHoverPin(null);
-        setSelectedPin(pin);
-        setPlayingVideo(false);
+        setHoverPin(null); setSelectedPin(pin); setPlayingVideo(false);
         map.flyTo({ center: [lng, lat], zoom: 14.5, speed: 0.8, curve: 1.2 });
       });
 
       el.appendChild(inner);
-
-      const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
-        .setLngLat([lng, lat])
-        .addTo(map);
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat([lng, lat]).addTo(map);
       markersRef.current.push(marker);
     });
   }, [mapReady, pins]); // eslint-disable-line
@@ -239,15 +230,17 @@ export default function LisbonMap({ pins, isMapUser = false }: Props) {
                       className="w-full h-full object-cover"
                       onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                     <div className="absolute inset-0" style={{ background:'linear-gradient(to top,rgba(0,0,0,0.45) 0%,transparent 55%)' }} />
-                    <button onClick={() => setPlayingVideo(true)}
-                      className="absolute inset-0 flex items-center justify-center group">
-                      <div className="w-14 h-14 rounded-full flex items-center justify-center transition-all group-hover:scale-110"
-                        style={{ background:'rgba(255,255,255,0.92)', boxShadow:'0 4px 20px rgba(0,0,0,0.2)' }}>
-                        <svg className="w-6 h-6 ml-1" style={{ color:'#2F6DA5' }} viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
-                      </div>
-                    </button>
+                    {selectedPin.youtube_url && (
+                      <button onClick={() => setPlayingVideo(true)}
+                        className="absolute inset-0 flex items-center justify-center group">
+                        <div className="w-14 h-14 rounded-full flex items-center justify-center transition-all group-hover:scale-110"
+                          style={{ background:'rgba(255,255,255,0.92)', boxShadow:'0 4px 20px rgba(0,0,0,0.2)' }}>
+                          <svg className="w-6 h-6 ml-1" style={{ color:'#2F6DA5' }} viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z"/>
+                          </svg>
+                        </div>
+                      </button>
+                    )}
                     {selectedPin.neighborhood && (
                       <div className="absolute top-3 left-3">
                         <span className="text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wide"
@@ -299,20 +292,14 @@ export default function LisbonMap({ pins, isMapUser = false }: Props) {
           <div style={{
             background:'rgba(10,10,15,0.92)', backdropFilter:'blur(24px)',
             borderRadius:'20px 20px 0 0', padding:'28px 24px 32px',
-            width:'100%', maxWidth:420,
-            border:'1px solid rgba(255,255,255,0.1)',
+            width:'100%', maxWidth:420, border:'1px solid rgba(255,255,255,0.1)',
           }} className="lg:rounded-2xl lg:mx-4">
-            <p style={{ fontSize:10, fontWeight:700, letterSpacing:'0.14em', textTransform:'uppercase', color:'rgba(255,255,255,0.4)', marginBottom:10 }}>
-              People Of Lisbon
-            </p>
-            <h2 style={{ fontSize:22, fontWeight:700, color:'#fff', margin:'0 0 10px', lineHeight:1.2 }}>
-              This is just the beginning.
-            </h2>
+            <p style={{ fontSize:10, fontWeight:700, letterSpacing:'0.14em', textTransform:'uppercase', color:'rgba(255,255,255,0.4)', marginBottom:10 }}>People Of Lisbon</p>
+            <h2 style={{ fontSize:22, fontWeight:700, color:'#fff', margin:'0 0 10px', lineHeight:1.2 }}>This is just the beginning.</h2>
             <p style={{ fontSize:14, color:'rgba(255,255,255,0.55)', lineHeight:1.65, margin:'0 0 22px' }}>
               Meet the people behind the stories. Join the club to unlock events, members, and the full Lisbon network.
             </p>
-            <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer"
-              onClick={dismissOverlay}
+            <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer" onClick={dismissOverlay}
               style={{ display:'block', width:'100%', padding:'13px', background:'#2F6DA5', color:'white', fontSize:15, fontWeight:700, borderRadius:10, textAlign:'center', textDecoration:'none', marginBottom:10 }}>
               Join the Club ↗
             </a>
