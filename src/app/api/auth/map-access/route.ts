@@ -22,53 +22,54 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    // Try sign in first (returning user)
-    const { data: signIn, error: signInError } = await anon.auth.signInWithPassword({
+    // Step 1: Try to create account (new users only)
+    const { data: created, error: createError } = await admin.auth.admin.createUser({
+      email: email.trim(),
+      password,
+      email_confirm: true,           // no confirmation email
+      user_metadata: { role: 'map_user' },
+    });
+
+    if (!createError && created?.user) {
+      // Brand new user — create profile
+      await admin.from('profiles').upsert({
+        id: created.user.id,
+        full_name: email.trim().split('@')[0],
+        role: 'map_user',
+        is_active: true,
+        joined_at: new Date().toISOString(),
+      }, { onConflict: 'id' });
+    }
+    // If createError = user already exists, that's fine — fall through to sign in
+
+    // Step 2: Sign in (works for both new and existing users)
+    const { data: session, error: signInError } = await anon.auth.signInWithPassword({
       email: email.trim(),
       password,
     });
 
-    if (!signInError && signIn?.session) {
-      const { data: profile } = await admin
-        .from('profiles').select('role').eq('id', signIn.user.id).single();
-      const role = (profile as any)?.role || 'member';
-      return NextResponse.json({
-        ok: true, role,
-        access_token: signIn.session.access_token,
-        refresh_token: signIn.session.refresh_token,
+    if (signInError || !session?.session) {
+      return NextResponse.json({ error: 'Incorrect password. Please try again.' }, { status: 401 });
+    }
+
+    // Step 3: Read the user's EXISTING role — NEVER overwrite a member's role
+    const existingRole = session.user?.user_metadata?.role;
+
+    // Only stamp map_user role if they have no role yet (brand new account)
+    // Never touch existing members or admins
+    if (!existingRole) {
+      await admin.auth.admin.updateUserById(session.user.id, {
+        user_metadata: { role: 'map_user' },
       });
     }
 
-    // Sign in failed — try standard signUp (email confirmation is OFF in Supabase settings)
-    const { data: signUp, error: signUpError } = await anon.auth.signUp({
-      email: email.trim(),
-      password,
-      options: {
-        data: { role: 'map_user' },
-      },
-    });
-
-    if (signUpError) {
-      // User already exists but wrong password
-      if (signUpError.message?.toLowerCase().includes('already')) {
-        return NextResponse.json({ error: 'Incorrect password. Please try again.' }, { status: 401 });
-      }
-      return NextResponse.json({ error: signUpError.message || 'Could not create account.' }, { status: 400 });
-    }
-
-    if (!signUp?.session) {
-      // Email confirmation still required — shouldn't happen but handle it
-      return NextResponse.json({ error: 'Please check your email to confirm your account.' }, { status: 200 });
-    }
-
-    // Update profile role to map_user
-    await admin.from('profiles').update({ role: 'map_user' }).eq('id', signUp.user!.id);
+    const finalRole = existingRole || 'map_user';
 
     return NextResponse.json({
       ok: true,
-      role: 'map_user',
-      access_token: signUp.session.access_token,
-      refresh_token: signUp.session.refresh_token,
+      role: finalRole,
+      access_token: session.session.access_token,
+      refresh_token: session.session.refresh_token,
     });
 
   } catch (err: any) {
