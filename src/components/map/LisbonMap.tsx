@@ -241,13 +241,12 @@ export default function LisbonMap({ pins, isMapUser = false }: Props) {
                 <div style={{ width:36, height:4, borderRadius:2, background:'#E0D9CE' }} />
               </div>
 
-              {selectedThumbnail && (
-                <div className="relative bg-stone-100" style={{ height:180 }}>
+              <div className="relative bg-stone-100" style={{ height:180 }}>
                   {playingVideo && selectedPin.youtube_url ? (
                     <iframe
-                      src={`https://www.youtube.com/embed/${getYouTubeVideoId(selectedPin.youtube_url)}?autoplay=1&rel=0`}
+                      src={`https://www.youtube.com/embed/${getYouTubeVideoId(selectedPin.youtube_url)}?rel=0&playsinline=1&modestbranding=1`}
                       className="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allow="fullscreen; picture-in-picture; web-share"
                       allowFullScreen />
                   ) : (
                     <>
@@ -275,7 +274,6 @@ export default function LisbonMap({ pins, isMapUser = false }: Props) {
                     </>
                   )}
                 </div>
-              )}
 
               <div style={{ padding:'16px 20px 20px' }}>
                 <h3 style={{ fontSize:18, fontWeight:700, color:'#1C1C1C', margin:'0 0 4px', lineHeight:1.2 }}>{selectedPin.title}</h3>
