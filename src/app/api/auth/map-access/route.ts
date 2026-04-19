@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    // Step 1: Try sign in first (returning user)
+    // Try sign in first (returning user)
     const { data: signIn, error: signInError } = await anon.auth.signInWithPassword({
       email: email.trim(),
       password,
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     if (!signInError && signIn?.session) {
       const { data: profile } = await admin
         .from('profiles').select('role').eq('id', signIn.user.id).single();
-      const role = (profile as any)?.role || 'map_user';
+      const role = (profile as any)?.role || 'member';
       return NextResponse.json({
         ok: true, role,
         access_token: signIn.session.access_token,
@@ -39,46 +39,36 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Wrong password for existing user
-    if (signInError?.message?.toLowerCase().includes('invalid login')) {
-      // Check if user actually exists
-      const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 });
-      const exists = users?.some((u: any) => u.email?.toLowerCase() === email.trim().toLowerCase());
-      if (exists) {
+    // Sign in failed — try standard signUp (email confirmation is OFF in Supabase settings)
+    const { data: signUp, error: signUpError } = await anon.auth.signUp({
+      email: email.trim(),
+      password,
+      options: {
+        data: { role: 'map_user' },
+      },
+    });
+
+    if (signUpError) {
+      // User already exists but wrong password
+      if (signUpError.message?.toLowerCase().includes('already')) {
         return NextResponse.json({ error: 'Incorrect password. Please try again.' }, { status: 401 });
       }
+      return NextResponse.json({ error: signUpError.message || 'Could not create account.' }, { status: 400 });
     }
 
-    // Step 2: New user — create account
-    // Trigger will auto-create profile with map_user role from metadata
-    const { data: created, error: createError } = await admin.auth.admin.createUser({
-      email: email.trim(),
-      password,
-      email_confirm: true,
-      user_metadata: { role: 'map_user' },
-    });
-
-    if (createError) {
-      console.error('createUser error:', createError.message);
-      return NextResponse.json({ error: 'Could not create account. Please try again.' }, { status: 400 });
+    if (!signUp?.session) {
+      // Email confirmation still required — shouldn't happen but handle it
+      return NextResponse.json({ error: 'Please check your email to confirm your account.' }, { status: 200 });
     }
 
-    // Step 3: Sign in the new user
-    const { data: newSignIn, error: newSignInError } = await anon.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
-
-    if (newSignInError || !newSignIn?.session) {
-      console.error('post-create signin error:', newSignInError?.message);
-      return NextResponse.json({ error: 'Account created. Please use "Sign in" to continue.' }, { status: 200 });
-    }
+    // Update profile role to map_user
+    await admin.from('profiles').update({ role: 'map_user' }).eq('id', signUp.user!.id);
 
     return NextResponse.json({
       ok: true,
       role: 'map_user',
-      access_token: newSignIn.session.access_token,
-      refresh_token: newSignIn.session.refresh_token,
+      access_token: signUp.session.access_token,
+      refresh_token: signUp.session.refresh_token,
     });
 
   } catch (err: any) {
