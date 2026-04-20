@@ -19,7 +19,7 @@ async function verifyAdmin() {
   return (profile as any)?.role === 'admin';
 }
 
-async function generateInviteLink(email: string): Promise<{ link?: string; error?: string }> {
+async function generateInviteLink(email: string): Promise<{ link?: string; userId?: string; error?: string }> {
   const admin = adminClient();
   const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL}/auth/confirm`;
 
@@ -27,22 +27,20 @@ async function generateInviteLink(email: string): Promise<{ link?: string; error
   const { data: { users } } = await admin.auth.admin.listUsers();
   const existing = users.find((u: any) => u.email?.toLowerCase() === email.toLowerCase());
 
+  let userId = existing?.id;
+
   if (!existing) {
-    // Create user as FULLY CONFIRMED with a random temp password
-    // email_confirm: true means they are active immediately — no pending state
     const { data: created, error: createError } = await admin.auth.admin.createUser({
       email,
-      password: crypto.randomUUID() + 'Aa1!', // strong random password they'll replace
-      email_confirm: true, // CRITICAL: makes user fully active, not pending
-      user_metadata: { role: 'member' }, // set role so middleware works correctly
+      password: crypto.randomUUID() + 'Aa1!',
+      email_confirm: true,
+      user_metadata: { role: 'member' },
     });
 
-    if (createError) {
-      return { error: createError.message };
-    }
+    if (createError) return { error: createError.message };
 
-    // Explicitly ensure profile exists with role=member
     if (created?.user) {
+      userId = created.user.id;
       await admin.from('profiles').upsert({
         id: created.user.id,
         email,
@@ -53,7 +51,7 @@ async function generateInviteLink(email: string): Promise<{ link?: string; error
     }
   }
 
-  // Generate a recovery link — works for fully confirmed users, lets them set password
+  // Generate a recovery link — lets them set their own password
   const { data, error } = await admin.auth.admin.generateLink({
     type: 'recovery',
     email,
@@ -65,49 +63,44 @@ async function generateInviteLink(email: string): Promise<{ link?: string; error
   let link = (data as any)?.properties?.action_link;
   if (!link) return { error: 'Could not generate link' };
 
-  // Extract just the token and build a short /join/TOKEN link
   try {
     const supabaseUrl = new URL(link);
     const token = supabaseUrl.searchParams.get('token');
-    if (token) {
-      link = `${process.env.NEXT_PUBLIC_APP_URL}/join/${token}`;
-    }
+    if (token) link = `${process.env.NEXT_PUBLIC_APP_URL}/join/${token}`;
   } catch {}
 
-  return { link };
+  return { link, userId };
 }
 
-// Generate invite link (POST)
+// POST — Generate invite link
 export async function POST(request: Request) {
   try {
     if (!(await verifyAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const { email } = await request.json();
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
-
     const result = await generateInviteLink(email.trim().toLowerCase());
     if (result.error) return NextResponse.json({ error: result.error }, { status: 400 });
-    return NextResponse.json({ success: true, link: result.link });
+    return NextResponse.json({ success: true, link: result.link, userId: result.userId });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
-// Regenerate invite link (PUT)
+// PUT — Regenerate invite link
 export async function PUT(request: Request) {
   try {
     if (!(await verifyAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const { email } = await request.json();
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
-
     const result = await generateInviteLink(email.trim().toLowerCase());
     if (result.error) return NextResponse.json({ error: result.error }, { status: 400 });
-    return NextResponse.json({ success: true, link: result.link });
+    return NextResponse.json({ success: true, link: result.link, userId: result.userId });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
-// Delete user (DELETE)
+// DELETE — Remove user
 export async function DELETE(request: Request) {
   try {
     if (!(await verifyAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

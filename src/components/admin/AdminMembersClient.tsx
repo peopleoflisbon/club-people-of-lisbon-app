@@ -114,15 +114,16 @@ export default function AdminMembersClient({ members, invitations }: Props) {
         setGeneratedLink(data.link);
         setGeneratedFor(inviteEmail.trim());
         const email = inviteEmail.trim();
+        const realUserId = data.userId || '';
         // Add to invites tab
         setLocalInvites(prev => {
           if (prev.find(i => i.email === email)) return prev;
           return [{ id: Date.now().toString(), email, status: 'pending', created_at: new Date().toISOString() }, ...prev];
         });
-        // Also add to Members tab immediately so they appear right away
+        // Add to Members tab with real userId so Set Password works immediately
         setLocalMembers(prev => {
           if (prev.find(m => m.email === email)) return prev;
-          return [{ id: '', email, full_name: '', headline: '', neighborhood: '', role: 'member', is_active: true, joined_at: new Date().toISOString(), avatar_url: '' } as any, ...prev];
+          return [{ id: realUserId, email, full_name: '', headline: '', neighborhood: '', role: 'member', is_active: true, joined_at: new Date().toISOString(), avatar_url: '' } as any, ...prev];
         });
         setInviteEmail('');
       }
@@ -202,7 +203,8 @@ export default function AdminMembersClient({ members, invitations }: Props) {
     if (res.ok) {
       setLocalMembers(prev => prev.map(m => m.id === id ? { ...m, role: newRole } : m));
       if (newRole === 'admin') {
-        alert('Admin rights granted. Ask them to sign out and sign back in on all devices for the change to take effect.');
+        // Reload so the promoted user's next page visit picks up fresh role from DB
+        alert('Admin rights granted. Ask them to refresh the app or tap any link — they will see Admin access immediately.');
       }
     }
   }
