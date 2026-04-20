@@ -86,14 +86,6 @@ export interface Sponsor {
   updated_at: string;
 }
 
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  sort_order: number;
-  is_active: boolean;
-}
-
 export interface MapPin {
   id: string;
   title: string;
@@ -105,8 +97,6 @@ export interface MapPin {
   latitude: number;
   longitude: number;
   is_published: boolean;
-  filmed_address: string;
-  category_ids: string[]; // populated from join table
   created_at: string;
   updated_at: string;
 }
@@ -181,8 +171,6 @@ export interface MapPinFormData {
   latitude: number;
   longitude: number;
   thumbnail_url: string;
-  filmed_address: string;
-  category_ids: string[];
 }
 
 export interface UpdateFormData {
