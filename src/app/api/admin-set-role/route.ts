@@ -21,9 +21,9 @@ export async function POST(request: Request) {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Update BOTH profiles table AND user_metadata so middleware + layout stay in sync
+    // Update BOTH profiles table AND user_metadata using service role — bypasses RLS entirely
     await Promise.all([
-      supabase.from('profiles').update({ role }).eq('id', userId),
+      admin.from('profiles').update({ role }).eq('id', userId),
       admin.auth.admin.updateUserById(userId, { user_metadata: { role } }),
     ]);
 
