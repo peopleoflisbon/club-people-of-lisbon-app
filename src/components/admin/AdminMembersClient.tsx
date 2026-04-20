@@ -113,9 +113,16 @@ export default function AdminMembersClient({ members, invitations }: Props) {
       } else {
         setGeneratedLink(data.link);
         setGeneratedFor(inviteEmail.trim());
+        const email = inviteEmail.trim();
+        // Add to invites tab
         setLocalInvites(prev => {
-          if (prev.find(i => i.email === inviteEmail.trim())) return prev;
-          return [{ id: Date.now().toString(), email: inviteEmail.trim(), status: 'pending', created_at: new Date().toISOString() }, ...prev];
+          if (prev.find(i => i.email === email)) return prev;
+          return [{ id: Date.now().toString(), email, status: 'pending', created_at: new Date().toISOString() }, ...prev];
+        });
+        // Also add to Members tab immediately so they appear right away
+        setLocalMembers(prev => {
+          if (prev.find(m => m.email === email)) return prev;
+          return [{ id: '', email, full_name: '', headline: '', neighborhood: '', role: 'member', is_active: true, joined_at: new Date().toISOString(), avatar_url: '' } as any, ...prev];
         });
         setInviteEmail('');
       }
@@ -187,13 +194,17 @@ export default function AdminMembersClient({ members, invitations }: Props) {
 
   async function toggleAdmin(id: string, currentRole: string) {
     const newRole = currentRole === 'admin' ? 'member' : 'admin';
-    // Call API to update both profiles.role AND user_metadata.role atomically
-    await fetch('/api/admin-set-role', {
+    const res = await fetch('/api/admin-set-role', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId: id, role: newRole }),
     });
-    setLocalMembers(prev => prev.map(m => m.id === id ? { ...m, role: newRole } : m));
+    if (res.ok) {
+      setLocalMembers(prev => prev.map(m => m.id === id ? { ...m, role: newRole } : m));
+      if (newRole === 'admin') {
+        alert('Admin rights granted. Ask them to sign out and sign back in on all devices for the change to take effect.');
+      }
+    }
   }
 
   function exportEmails() {
