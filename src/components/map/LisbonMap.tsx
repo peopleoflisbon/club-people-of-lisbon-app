@@ -150,48 +150,55 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
       <div ref={mapContainer} style={{ position: 'absolute', inset: 0 }} />
 
-      {/* ── Top left ── */}
-      <div className="absolute left-4 z-10" style={{ top: safeTop }}>
-        <button
-          onClick={() => isMapUser ? handleSignOut() : undefined}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 7,
-            padding: '10px 16px', borderRadius: 12,
-            background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)', border: 'none',
-            cursor: isMapUser ? 'pointer' : 'default',
-            fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
-          }}>
-          {isMapUser && (
+      {/* ── Top-left: Exit / Explore label ── */}
+      <div className="absolute left-4 z-10" style={{ top: safeTop, pointerEvents: 'none' }}>
+        {isMapUser ? (
+          <button
+            onClick={handleSignOut}
+            style={{
+              pointerEvents: 'auto',
+              display: 'flex', alignItems: 'center', gap: 7,
+              padding: '10px 16px', borderRadius: 12,
+              background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)', border: 'none', cursor: 'pointer',
+              fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+            }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2F6DA5" strokeWidth="2.5">
               <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>
-          )}
-          <div>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#2F6DA5' }}>
-              {isMapUser ? 'Exit map' : 'Explore Lisbon'}
-            </p>
-            {!isMapUser && (
-              <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: '#1C1C1C', lineHeight: 1.3, maxWidth: 200 }}>
-                Explore Lisbon through the people we've filmed.
-              </p>
-            )}
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#2F6DA5' }}>Exit map</span>
+          </button>
+        ) : (
+          <div style={{
+            pointerEvents: 'none',
+            padding: '8px 14px', borderRadius: 12,
+            background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+          }}>
+            <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#2F6DA5' }}>Explore Lisbon</p>
           </div>
-        </button>
+        )}
       </div>
 
-      {/* ── Top right ── */}
-      <div className="absolute right-4 z-10 flex flex-col items-end gap-2" style={{ top: safeTop }}>
+      {/* ── Top-right: Join + Filter + Count ── */}
+      <div className="absolute right-4 z-10" style={{ top: safeTop, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
         {isMapUser && (
           <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer"
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px', background: '#2F6DA5', color: 'white', borderRadius: 999, fontSize: 13, fontWeight: 700, textDecoration: 'none', boxShadow: '0 2px 12px rgba(47,109,165,0.45)', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+            style={{
+              pointerEvents: 'auto',
+              display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px',
+              background: '#2F6DA5', color: 'white', borderRadius: 999, fontSize: 13,
+              fontWeight: 700, textDecoration: 'none', boxShadow: '0 2px 12px rgba(47,109,165,0.45)',
+              fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+            }}>
             Join the Club ↗
           </a>
         )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* Filter button — bigger, red-accented */}
           {categories.length > 0 && (
             <button onClick={() => setShowFilters(true)} style={{
+              pointerEvents: 'auto',
               display: 'flex', alignItems: 'center', gap: 7,
               padding: '10px 16px', borderRadius: 12,
               background: hasFilters ? '#C8102E' : 'rgba(250,248,244,0.93)',
@@ -208,9 +215,13 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
               </span>
             </button>
           )}
-          {/* Stories count */}
           {pins.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+            <div style={{
+              pointerEvents: 'none',
+              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px',
+              background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)',
+              borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2F6DA5', flexShrink: 0 }} />
               <span style={{ fontSize: 11, fontWeight: 600, color: '#1C1C1C', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
                 {filteredPins.length}{hasFilters ? `/${pins.length}` : ''} {filteredPins.length === 1 ? 'story' : 'stories'}
@@ -219,6 +230,24 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
           )}
         </div>
       </div>
+
+      {/* ── Intro blurb — non-mapUser only, below controls, pointer-events none ── */}
+      {!isMapUser && (
+        <div style={{
+          position: 'absolute', left: 16, right: 16, zIndex: 9, pointerEvents: 'none',
+          top: `calc(${safeTop} + 52px)`,
+        }}>
+          <p style={{
+            margin: 0, fontSize: 12, fontWeight: 600, color: '#1C1C1C',
+            background: 'rgba(250,248,244,0.88)', backdropFilter: 'blur(8px)',
+            padding: '6px 12px', borderRadius: 8, display: 'inline-block',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+          }}>
+            Explore Lisbon through the people we've filmed.
+          </p>
+        </div>
+      )}
 
       {/* ── Hover tooltip (desktop) ── */}
       {hoverPin && !selectedPin && (
@@ -323,30 +352,18 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
                   </div>
                 )}
 
-                {/* Action buttons — compact on desktop, touch-friendly on mobile */}
+                {/* Action buttons */}
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {!playingVideo && selectedPin.youtube_url && (
-                    <button onClick={() => setPlayingVideo(true)}
-                      className="flex-1 flex items-center justify-center gap-2 rounded-xl font-semibold text-white lg:py-2 py-3 lg:text-xs text-sm"
-                      style={{ background: '#2F6DA5', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#1E4E7A'; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#2F6DA5'; }}>
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                      Watch episode
-                    </button>
-                  )}
-
                   {getVisitUrl(selectedPin) && (
                     <a href={getVisitUrl(selectedPin)!} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 rounded-xl font-semibold lg:px-3 lg:py-2 px-4 py-3 lg:text-xs text-sm"
-                      style={{ background: '#EEF4FA', color: '#2F6DA5', textDecoration: 'none', flexShrink: 0, fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-xl font-semibold lg:px-3 lg:py-2 px-4 py-3 lg:text-xs text-sm"
+                      style={{ background: '#EEF4FA', color: '#2F6DA5', textDecoration: 'none', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                       </svg>
                       Visit location
                     </a>
                   )}
-
                   <button onClick={() => { setSelectedPin(null); setPlayingVideo(false); }}
                     className="flex items-center justify-center lg:px-2 lg:py-2 px-3 py-3 rounded-xl"
                     style={{ background: '#EDE7DC', color: '#6B5E52', flexShrink: 0 }}

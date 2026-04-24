@@ -178,44 +178,23 @@ export default function GatewayPage() {
 
             {/* PATH 2 — Join the Club */}
             <div style={{
-              borderTop: '4px solid rgba(255,255,255,0.8)',
-              background: 'rgba(255,255,255,0.07)',
+              borderTop: '4px solid #E6B75C',
+              background: 'rgba(230,183,92,0.08)',
               padding: '20px 20px',
-              marginBottom: 12,
+              marginBottom: 20,
             }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 6 }}>
-                <p style={{ margin: 0, fontSize: 10, fontWeight: 900, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'white' }}>
+                <p style={{ margin: 0, fontSize: 10, fontWeight: 900, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#E6B75C' }}>
                   Join the Club
                 </p>
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>€10 / month</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>€10 / month</span>
               </div>
-              <p style={{ margin: '0 0 16px', fontSize: 14, color: 'rgba(255,255,255,0.88)', lineHeight: 1.6 }}>
+              <p style={{ margin: '0 0 16px', fontSize: 14, color: 'rgba(255,255,255,0.88)', lineHeight: 1.65 }}>
+                100+ members already inside.<br />
                 Events. Community. Perks.<br />
-                Membership card. Exclusive discounts across Lisbon.<br />
+                Membership card.<br />
+                Exclusive discounts across Lisbon.<br />
                 Access to the People Of Lisbon network.
-              </p>
-              <a href="/auth/member-login" style={{
-                display: 'block', width: '100%', padding: '15px',
-                border: '2px solid rgba(255,255,255,0.6)', borderRadius: 2,
-                color: 'white', textDecoration: 'none', textAlign: 'center',
-                fontSize: 13, fontWeight: 900, letterSpacing: '0.16em', textTransform: 'uppercase',
-                boxSizing: 'border-box',
-              }}>
-                Member Sign In →
-              </a>
-            </div>
-
-            {/* JOIN THE CLUB — prominent third block */}
-            <div style={{
-              borderTop: '4px solid #E6B75C',
-              background: 'rgba(230,183,92,0.1)',
-              padding: '20px 20px',
-            }}>
-              <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 900, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#E6B75C' }}>
-                Want to join the club?
-              </p>
-              <p style={{ margin: '0 0 16px', fontSize: 14, color: 'rgba(255,255,255,0.88)', lineHeight: 1.5 }}>
-                100+ members already inside.
               </p>
               <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer" style={{
                 display: 'block', width: '100%', padding: '15px',
@@ -224,6 +203,19 @@ export default function GatewayPage() {
                 boxSizing: 'border-box',
               }}>
                 Join → peopleoflisbon.com
+              </a>
+            </div>
+
+            {/* Bottom — member sign-in link */}
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ margin: '0 0 8px', fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Already a member?</p>
+              <a href="/auth/member-login" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                fontSize: 13, fontWeight: 800, color: 'white', textDecoration: 'none',
+                letterSpacing: '0.1em', textTransform: 'uppercase',
+                padding: '10px 20px', border: '1.5px solid rgba(255,255,255,0.3)', borderRadius: 4,
+              }}>
+                Member Sign In →
               </a>
             </div>
 
