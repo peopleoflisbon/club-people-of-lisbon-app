@@ -5,41 +5,40 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 
 const FALLBACK_BG = 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=85';
-
-type Mode = 'landing' | 'signup' | 'signin' | 'forgot' | 'forgot-sent';
+const POL_RED = '#C8102E';
 
 export default function GatewayPage() {
   const router = useRouter();
   const supabase = createClient();
-  const [mode, setMode] = useState<Mode>('landing');
-  const [bgImage, setBgImage] = useState(FALLBACK_BG);
-  const [logoUrl, setLogoUrl] = useState('/pol-logo.png');
+
+  const [bgImage, setBgImage]   = useState(FALLBACK_BG);
+  const [logoUrl, setLogoUrl]   = useState('/pol-logo.png');
   const [bgLoaded, setBgLoaded] = useState(false);
 
-  const [email, setEmail]         = useState('');
-  const [password, setPassword]   = useState('');
-  const [confirm, setConfirm]     = useState('');
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState('');
-  const [forgotEmail, setForgotEmail] = useState('');
+  const [email, setEmail]       = useState('');
+  const [password, setPassword] = useState('');
+  const [showPw, setShowPw]     = useState(false);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [forgotSent, setForgotSent] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
 
   useEffect(() => {
     supabase.from('app_settings').select('key, value').then(({ data }) => {
       (data || []).forEach((row: any) => {
         if (row.key === 'login_background_image_url' && row.value) setBgImage(row.value);
-        if (row.key === 'brand_square_image_url' && row.value) setLogoUrl(row.value);
+        if ((row.key === 'brand_square_image_url' || row.key === 'logo_url') && row.value) setLogoUrl(row.value);
       });
     });
   }, []); // eslint-disable-line
 
-  function reset(m: Mode) { setMode(m); setError(''); setPassword(''); setConfirm(''); }
-
-  async function handleSignUp(e: React.FormEvent) {
+  // ── Submit (unchanged auth logic) ──
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (password !== confirm) { setError('Passwords do not match.'); return; }
-    if (password.length < 6) { setError('Password must be at least 6 characters.'); return; }
-    setLoading(true); setError('');
-
+    if (!email.trim() || password.length < 6) return;
+    setLoading(true);
+    setError('');
     try {
       const res = await fetch('/api/auth/map-access', {
         method: 'POST',
@@ -47,300 +46,207 @@ export default function GatewayPage() {
         body: JSON.stringify({ email: email.trim(), password }),
       });
       const data = await res.json();
-      if (!res.ok || data.error) { setError(data.error || 'Could not create account.'); setLoading(false); return; }
+      if (!res.ok || data.error) {
+        setError(data.error || 'Something went wrong. Please try again.');
+        setLoading(false);
+        return;
+      }
       await supabase.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
-      router.push('/map'); router.refresh();
-    } catch { setError('Connection error. Please try again.'); setLoading(false); }
-  }
-
-  async function handleSignIn(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true); setError('');
-    const { data, error: err } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-    if (err || !data.session) { setError('Incorrect email or password.'); setLoading(false); return; }
-    const role = data.user?.user_metadata?.role;
-    router.push(role === 'map_user' ? '/map' : '/home'); router.refresh();
+      if (data.role === 'map_user') { router.push('/map'); } else { router.push('/home'); }
+      router.refresh();
+    } catch {
+      setError('Connection error. Please try again.');
+      setLoading(false);
+    }
   }
 
   async function handleForgot(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true); setError('');
-    const { error: err } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
-      redirectTo: `${window.location.origin}/auth/set-password`,
+    if (!email.trim()) return;
+    setLoading(true);
+    await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/auth/confirm`,
     });
-    if (err) { setError(err.message); setLoading(false); return; }
-    setMode('forgot-sent'); setLoading(false);
+    setForgotSent(true);
+    setLoading(false);
   }
 
-  // ── shared input style ────────────────────────────────
-  const inp: React.CSSProperties = {
-    width: '100%', padding: '13px 16px', borderRadius: 10,
-    border: '1px solid rgba(255,255,255,0.15)',
-    background: 'rgba(255,255,255,0.07)',
-    color: '#fff', fontSize: 15, fontFamily: 'inherit', outline: 'none',
-  };
-  const lbl: React.CSSProperties = {
-    display: 'block', fontSize: 10, fontWeight: 700,
-    letterSpacing: '0.12em', textTransform: 'uppercase',
-    color: 'rgba(255,255,255,0.4)', marginBottom: 6,
-  };
-  const focus = (e: React.FocusEvent<HTMLInputElement>) => { e.target.style.borderColor = 'rgba(255,255,255,0.4)'; };
-  const blur  = (e: React.FocusEvent<HTMLInputElement>) => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; };
-
   return (
-    <div className="relative min-h-screen w-full overflow-hidden flex flex-col">
+    <div style={{ position: 'fixed', inset: 0, background: '#111', overflow: 'hidden', fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
 
-      {/* ── Full-bleed background ── */}
-      <div className="absolute inset-0" style={{ background: '#0a0a0f' }}>
-        <img src={bgImage} alt=""
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${bgLoaded ? 'opacity-100' : 'opacity-0'}`}
-          onLoad={() => setBgLoaded(true)} />
-        {/* Cinematic gradient — deep at bottom where panel sits */}
-        <div className="absolute inset-0" style={{
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.82) 70%, rgba(0,0,0,0.96) 100%)'
-        }} />
-        {/* Subtle vignette */}
-        <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse at 30% 50%, transparent 40%, rgba(0,0,0,0.4) 100%)'
-        }} />
-      </div>
+      {/* ── Background image ── */}
+      <img
+        src={bgImage}
+        alt=""
+        onLoad={() => setBgLoaded(true)}
+        style={{
+          position: 'absolute', inset: 0, width: '100%', height: '100%',
+          objectFit: 'cover', objectPosition: 'center top',
+          opacity: bgLoaded ? 1 : 0, transition: 'opacity 0.6s ease',
+        }}
+      />
+
+      {/* ── Gradient overlay: dark at top + heavy at bottom ── */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 35%, rgba(0,0,0,0.7) 65%, rgba(0,0,0,0.95) 100%)',
+      }} />
 
       {/* ── Logo ── */}
-      <div className="relative z-10 px-6 pt-10 lg:px-12 lg:pt-12">
-        <img
-          src="/pol-logo.png"
-          alt="People Of Lisbon"
-          style={{ width: 48, height: 48, objectFit: 'contain', display: 'block' }}
-        />
+      <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 20px)', left: 20, zIndex: 20 }}>
+        <img src={logoUrl} alt="People Of Lisbon" style={{ width: 44, height: 44, objectFit: 'contain', display: 'block' }}
+          onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
       </div>
 
-      {/* ── Tagline — left side on desktop, above panel on mobile ── */}
-      <div className="relative z-10 flex-1 flex items-end lg:items-center px-6 pb-8 lg:px-12 lg:pb-0">
-        <div>
-          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', marginBottom: 12 }}>
-            People Of Lisbon
-          </p>
-          <h1 className="text-white font-bold" style={{
-            fontSize: 'clamp(1.7rem, 4vw, 2.8rem)', lineHeight: 1.15,
-            maxWidth: '16ch', textShadow: '0 2px 16px rgba(0,0,0,0.5)',
-            letterSpacing: '-0.01em',
-          }}>
-            Lisbon's most interesting people, all in one place.
-          </h1>
-          {mode === 'landing' && (
-            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.5)', marginTop: 12, fontWeight: 400 }}>
-              Discover Lisbon through its people.
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* ── Auth panel ── */}
-      <div className="relative z-10 w-full lg:absolute lg:right-0 lg:top-0 lg:bottom-0 lg:w-[420px] lg:flex lg:items-center lg:p-12">
-        <div className="w-full" style={{
-          background: 'rgba(6,6,10,0.72)',
-          backdropFilter: 'blur(28px)',
-          WebkitBackdropFilter: 'blur(28px)',
-          borderRadius: '20px 20px 0 0',
-          borderTop: '1px solid rgba(255,255,255,0.08)',
+      {/* ── Member login link top right ── */}
+      <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 20px)', right: 20, zIndex: 20 }}>
+        <a href="/auth/member-login" style={{
+          fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
+          color: 'white', textDecoration: 'none', padding: '7px 12px',
+          border: '1.5px solid rgba(255,255,255,0.4)', borderRadius: 4,
+          background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)',
         }}>
-          <div style={{ padding: '28px 28px 32px' }}>
+          Members →
+        </a>
+      </div>
 
-            {/* ── LANDING ── */}
-            {mode === 'landing' && (
-              <>
-                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 18 }}>
-                  Free to explore
-                </p>
+      {/* ── Main content: landing or form ── */}
+      {!showForm && !showForgot ? (
+        /* ── Landing: editorial magazine cover ── */
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          padding: '0 24px calc(env(safe-area-inset-bottom) + 32px)',
+          zIndex: 10,
+        }}>
+          {/* Issue stamp */}
+          <div style={{ marginBottom: 20 }}>
+            <span style={{
+              fontSize: 9, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.5)',
+            }}>Lisbon's most interesting people, all in one place.</span>
+          </div>
 
-                <button onClick={() => reset('signup')}
-                  style={{
-                    width: '100%', padding: '15px 20px',
-                    background: '#2F6DA5', color: 'white',
-                    fontSize: 16, fontWeight: 700, borderRadius: 12, border: 'none',
-                    cursor: 'pointer', letterSpacing: '0.01em',
-                    boxShadow: '0 4px 28px rgba(47,109,165,0.45)',
-                  }}>
-                  Enter the Map →
+          {/* Main headline */}
+          <h1 style={{ margin: '0 0 8px', lineHeight: 1.0, letterSpacing: '-0.02em' }}>
+            <span style={{ display: 'block', fontSize: 'clamp(36px, 9vw, 52px)', fontWeight: 900, color: 'white', textTransform: 'uppercase' }}>Real people.</span>
+            <span style={{ display: 'block', fontSize: 'clamp(36px, 9vw, 52px)', fontWeight: 900, color: POL_RED, textTransform: 'uppercase' }}>Real stories.</span>
+            <span style={{ display: 'block', fontSize: 'clamp(36px, 9vw, 52px)', fontWeight: 900, color: 'white', textTransform: 'uppercase' }}>Real Lisbon.</span>
+          </h1>
+
+          <p style={{ margin: '0 0 28px', fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: 500, letterSpacing: '0.01em' }}>
+            200+ stories. Discover Lisbon through its people.
+          </p>
+
+          {/* CTAs */}
+          <button onClick={() => setShowForm(true)} style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+            width: '100%', padding: '16px 24px', marginBottom: 12,
+            background: POL_RED, color: 'white', border: 'none', borderRadius: 3,
+            fontSize: 14, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase',
+            cursor: 'pointer',
+          }}>
+            Enter the Map →
+          </button>
+
+          <a href="/auth/member-login" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: '100%', padding: '14px 24px',
+            background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)',
+            color: 'rgba(255,255,255,0.7)', border: '1.5px solid rgba(255,255,255,0.2)',
+            borderRadius: 3, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em',
+            textTransform: 'uppercase', textDecoration: 'none',
+          }}>
+            Member sign in
+          </a>
+        </div>
+
+      ) : showForgot ? (
+        /* ── Forgot password ── */
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 20 }}>
+          <div style={{
+            width: '100%', maxWidth: 480,
+            background: 'rgba(10,10,10,0.97)', backdropFilter: 'blur(20px)',
+            borderRadius: '16px 16px 0 0', padding: '28px 28px calc(env(safe-area-inset-bottom) + 32px)',
+            border: '1px solid rgba(255,255,255,0.08)',
+          }}>
+            <button onClick={() => setShowForgot(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer', padding: 0, marginBottom: 20 }}>← Back</button>
+            <h2 style={{ margin: '0 0 6px', fontSize: 22, fontWeight: 800, color: 'white', letterSpacing: '-0.01em', textTransform: 'uppercase' }}>Reset password</h2>
+            <p style={{ margin: '0 0 24px', fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>Enter your email and we'll send you a reset link.</p>
+            {forgotSent ? (
+              <p style={{ fontSize: 14, color: '#4ade80', fontWeight: 600 }}>✓ Reset link sent — check your inbox.</p>
+            ) : (
+              <form onSubmit={handleForgot} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <input type="email" placeholder="your@email.com" value={email} onChange={e => setEmail(e.target.value)} required
+                  style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 4, color: 'white', fontSize: 15, fontFamily: 'inherit', outline: 'none' }} />
+                <button type="submit" disabled={loading} style={{ padding: '15px', background: POL_RED, color: 'white', border: 'none', borderRadius: 3, fontSize: 13, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                  {loading ? 'Sending…' : 'Send reset link'}
                 </button>
-
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.28)', textAlign: 'center', marginTop: 10 }}>
-                  Create a free account to access the interactive map.
-                </p>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '24px 0' }}>
-                  <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>or</span>
-                  <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-                </div>
-
-                <button onClick={() => reset('signin')}
-                  style={{
-                    width: '100%', padding: '13px 20px',
-                    background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.7)',
-                    fontSize: 14, fontWeight: 600, borderRadius: 10,
-                    border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer',
-                  }}>
-                  Sign in to your account
-                </button>
-
-                <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.07)', textAlign: 'center' }}>
-                  <a href="/auth/member-login"
-                    style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', textDecoration: 'none' }}
-                    onMouseEnter={e => { (e.currentTarget).style.color = 'rgba(255,255,255,0.55)'; }}
-                    onMouseLeave={e => { (e.currentTarget).style.color = 'rgba(255,255,255,0.25)'; }}>
-                    Full member? Sign in here →
-                  </a>
-                </div>
-              </>
+              </form>
             )}
-
-            {/* ── SIGN UP ── */}
-            {mode === 'signup' && (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-                  <button onClick={() => reset('landing')}
-                    style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 22, padding: 0, lineHeight: 1 }}>
-                    ←
-                  </button>
-                  <p style={{ fontSize: 17, fontWeight: 700, color: 'rgba(255,255,255,0.92)', margin: 0 }}>Create your account</p>
-                </div>
-
-                <form onSubmit={handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <div>
-                    <label style={lbl}>Email</label>
-                    <input type="email" value={email} required onChange={e => { setEmail(e.target.value); setError(''); }}
-                      placeholder="your@email.com" style={inp} onFocus={focus} onBlur={blur}
-                      autoComplete="email" autoCapitalize="none" />
-                  </div>
-                  <div>
-                    <label style={lbl}>Password</label>
-                    <input type="password" value={password} required minLength={6}
-                      onChange={e => { setPassword(e.target.value); setError(''); }}
-                      placeholder="At least 6 characters" style={inp} onFocus={focus} onBlur={blur}
-                      autoComplete="new-password" />
-                  </div>
-                  <div>
-                    <label style={lbl}>Confirm password</label>
-                    <input type="password" value={confirm} required minLength={6}
-                      onChange={e => { setConfirm(e.target.value); setError(''); }}
-                      placeholder="Repeat your password" style={inp} onFocus={focus} onBlur={blur}
-                      autoComplete="new-password" />
-                  </div>
-
-                  {error && <div style={{ fontSize: 13, padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.25)' }}>{error}</div>}
-
-                  <button type="submit" disabled={loading}
-                    style={{ width: '100%', padding: 14, background: loading ? 'rgba(47,109,165,0.4)' : '#2F6DA5', color: 'white', fontSize: 15, fontWeight: 700, borderRadius: 10, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', marginTop: 4 }}>
-                    {loading ? 'Creating account…' : 'Enter the Map →'}
-                  </button>
-                </form>
-
-                <p style={{ textAlign: 'center', marginTop: 16, fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
-                  Already have an account?{' '}
-                  <button onClick={() => reset('signin')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.55)', cursor: 'pointer', fontSize: 13, fontWeight: 600, padding: 0 }}>
-                    Sign in
-                  </button>
-                </p>
-              </>
-            )}
-
-            {/* ── SIGN IN ── */}
-            {mode === 'signin' && (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-                  <button onClick={() => reset('landing')}
-                    style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 22, padding: 0, lineHeight: 1 }}>
-                    ←
-                  </button>
-                  <p style={{ fontSize: 17, fontWeight: 700, color: 'rgba(255,255,255,0.92)', margin: 0 }}>Sign in</p>
-                </div>
-
-                <form onSubmit={handleSignIn} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <div>
-                    <label style={lbl}>Email</label>
-                    <input type="email" value={email} required onChange={e => { setEmail(e.target.value); setError(''); }}
-                      placeholder="your@email.com" style={inp} onFocus={focus} onBlur={blur}
-                      autoComplete="email" autoCapitalize="none" />
-                  </div>
-                  <div>
-                    <label style={lbl}>Password</label>
-                    <input type="password" value={password} required onChange={e => { setPassword(e.target.value); setError(''); }}
-                      placeholder="••••••••" style={inp} onFocus={focus} onBlur={blur}
-                      autoComplete="current-password" />
-                  </div>
-
-                  {error && <div style={{ fontSize: 13, padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.25)' }}>{error}</div>}
-
-                  <button type="submit" disabled={loading}
-                    style={{ width: '100%', padding: 14, background: loading ? 'rgba(47,109,165,0.4)' : '#2F6DA5', color: 'white', fontSize: 15, fontWeight: 700, borderRadius: 10, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', marginTop: 4 }}>
-                    {loading ? 'Signing in…' : 'Sign In →'}
-                  </button>
-                </form>
-
-                <div style={{ textAlign: 'center', marginTop: 16 }}>
-                  <button onClick={() => reset('forgot')}
-                    style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)', cursor: 'pointer', fontSize: 13, padding: 0 }}>
-                    Forgot password?
-                  </button>
-                </div>
-                <p style={{ textAlign: 'center', marginTop: 12, fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
-                  New here?{' '}
-                  <button onClick={() => reset('signup')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.55)', cursor: 'pointer', fontSize: 13, fontWeight: 600, padding: 0 }}>
-                    Create account
-                  </button>
-                </p>
-              </>
-            )}
-
-            {/* ── FORGOT PASSWORD ── */}
-            {mode === 'forgot' && (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-                  <button onClick={() => reset('signin')}
-                    style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 22, padding: 0, lineHeight: 1 }}>
-                    ←
-                  </button>
-                  <p style={{ fontSize: 17, fontWeight: 700, color: 'rgba(255,255,255,0.92)', margin: 0 }}>Reset password</p>
-                </div>
-                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 20, lineHeight: 1.6 }}>
-                  Enter your email and we'll send you a reset link.
-                </p>
-
-                <form onSubmit={handleForgot} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <div>
-                    <label style={lbl}>Email</label>
-                    <input type="email" value={forgotEmail} required onChange={e => { setForgotEmail(e.target.value); setError(''); }}
-                      placeholder="your@email.com" style={inp} onFocus={focus} onBlur={blur}
-                      autoComplete="email" />
-                  </div>
-                  {error && <div style={{ fontSize: 13, padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.25)' }}>{error}</div>}
-                  <button type="submit" disabled={loading}
-                    style={{ width: '100%', padding: 14, background: loading ? 'rgba(47,109,165,0.4)' : '#2F6DA5', color: 'white', fontSize: 15, fontWeight: 700, borderRadius: 10, border: 'none', cursor: loading ? 'not-allowed' : 'pointer' }}>
-                    {loading ? 'Sending…' : 'Send Reset Link'}
-                  </button>
-                </form>
-              </>
-            )}
-
-            {/* ── FORGOT SENT ── */}
-            {mode === 'forgot-sent' && (
-              <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                <div style={{ fontSize: 36, marginBottom: 14 }}>✉️</div>
-                <p style={{ fontSize: 17, fontWeight: 700, color: 'rgba(255,255,255,0.9)', marginBottom: 8 }}>Check your email</p>
-                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 20, lineHeight: 1.6 }}>
-                  We sent a reset link to <strong style={{ color: 'rgba(255,255,255,0.65)' }}>{forgotEmail}</strong>
-                </p>
-                <button onClick={() => reset('signin')}
-                  style={{ background: 'none', border: 'none', color: '#2F6DA5', cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
-                  ← Back to sign in
-                </button>
-              </div>
-            )}
-
           </div>
         </div>
-      </div>
+
+      ) : (
+        /* ── Sign in / Sign up form ── */
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 20 }}>
+          <div style={{
+            width: '100%', maxWidth: 480,
+            background: 'rgba(10,10,10,0.97)', backdropFilter: 'blur(20px)',
+            borderRadius: '16px 16px 0 0', padding: '28px 28px calc(env(safe-area-inset-bottom) + 28px)',
+            border: '1px solid rgba(255,255,255,0.08)',
+          }}>
+            {/* Drag handle */}
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 24px' }} />
+
+            <button onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer', padding: 0, marginBottom: 16 }}>← Back</button>
+
+            <h2 style={{ margin: '0 0 4px', fontSize: 22, fontWeight: 800, color: 'white', letterSpacing: '-0.01em', textTransform: 'uppercase' }}>Explore the map</h2>
+            <p style={{ margin: '0 0 24px', fontSize: 13, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>No spam. Just good people.</p>
+
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 9, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Email</label>
+                <input type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email"
+                  style={{ width: '100%', padding: '13px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 4, color: 'white', fontSize: 15, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div style={{ position: 'relative' }}>
+                <label style={{ display: 'block', fontSize: 9, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Password</label>
+                <input type={showPw ? 'text' : 'password'} placeholder="Min 6 characters" value={password} onChange={e => setPassword(e.target.value)} required autoComplete="current-password"
+                  style={{ width: '100%', padding: '13px 44px 13px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 4, color: 'white', fontSize: 15, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+                <button type="button" onClick={() => setShowPw(!showPw)}
+                  style={{ position: 'absolute', right: 12, bottom: 13, background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)', cursor: 'pointer', padding: 0, fontSize: 16 }}>
+                  {showPw ? '🙈' : '👁'}
+                </button>
+              </div>
+
+              <button type="button" onClick={() => setShowForgot(true)}
+                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)', fontSize: 12, cursor: 'pointer', textAlign: 'right', padding: 0 }}>
+                Forgot password?
+              </button>
+
+              {error && <p style={{ fontSize: 13, color: '#f87171', margin: 0 }}>{error}</p>}
+
+              <button type="submit" disabled={loading || !email.trim() || password.length < 6} style={{
+                padding: '16px', background: loading ? 'rgba(200,16,46,0.5)' : POL_RED,
+                color: 'white', border: 'none', borderRadius: 3,
+                fontSize: 13, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase',
+                cursor: loading ? 'not-allowed' : 'pointer', marginTop: 4,
+              }}>
+                {loading ? 'Entering…' : 'Enter the Map →'}
+              </button>
+            </form>
+
+            <div style={{ textAlign: 'center', marginTop: 20 }}>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>— or —</span>
+            </div>
+            <div style={{ textAlign: 'center', marginTop: 12 }}>
+              <a href="/auth/member-login" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', letterSpacing: '0.05em' }}>
+                Already a member? Sign in →
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

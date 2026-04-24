@@ -3,312 +3,213 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
-import { cn } from '@/lib/utils';
 
-const FALLBACK_BG = 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=85';
+const POL_RED = '#C8102E';
+const CREAM   = '#F2EDE4';
 
-export default function LoginPage() {
+export default function MemberLoginPage() {
   const router = useRouter();
   const supabase = createClient();
-  const [email, setEmail] = useState('');
+
+  const [logoUrl, setLogoUrl]   = useState('/pol-logo.png');
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [bgImage, setBgImage] = useState(FALLBACK_BG);
-  const [logoUrl, setLogoUrl] = useState('/pol-logo.png');
-  const [bgLoaded, setBgLoaded] = useState(false);
-  const [showForgot, setShowForgot] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
+  const [showPw, setShowPw]     = useState(false);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState('');
   const [forgotSent, setForgotSent] = useState(false);
-  const [forgotLoading, setForgotLoading] = useState(false);
-  const [welcomeName, setWelcomeName] = useState('');
+  const [showForgot, setShowForgot] = useState(false);
 
   useEffect(() => {
     supabase.from('app_settings').select('key, value').then(({ data }) => {
       (data || []).forEach((row: any) => {
-        if (row.key === 'login_background_image_url' && row.value) setBgImage(row.value);
         if ((row.key === 'brand_square_image_url' || row.key === 'logo_url') && row.value) setLogoUrl(row.value);
       });
     });
   }, []); // eslint-disable-line
 
-  async function handleLogin(e: React.FormEvent) {
+  // ── Submit (unchanged auth logic) ──
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim() || !password) return;
     setLoading(true);
     setError('');
-    const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-    if (error) {
-      setError('Incorrect email or password.');
-      setLoading(false);
-    } else {
-      const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', data.user.id).single();
-      const firstName = (profile as any)?.full_name?.split(' ')[0] || '';
-      setWelcomeName(firstName);
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (signInError || !data.session) {
+        setError('Incorrect email or password.');
+        setLoading(false);
+        return;
+      }
       setTimeout(() => { router.push('/home'); router.refresh(); }, 1400);
+    } catch {
+      setError('Connection error. Please try again.');
+      setLoading(false);
     }
   }
 
   async function handleForgot(e: React.FormEvent) {
     e.preventDefault();
-    if (!forgotEmail.trim()) return;
-    setForgotLoading(true);
-    await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
+    if (!email.trim()) return;
+    setLoading(true);
+    await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: `${window.location.origin}/auth/confirm`,
     });
     setForgotSent(true);
-    setForgotLoading(false);
+    setLoading(false);
   }
 
-  // Welcome flash screen
-  if (welcomeName) {
-    return (
-      <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <img src={bgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.55))' }} />
-        <div className="relative z-10 text-center px-6">
-          <img src={logoUrl} alt="People Of Lisbon" className="w-14 h-14 object-contain mx-auto mb-5 opacity-90"
-            onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
-          <p className="text-white/60 text-xs uppercase tracking-widest mb-2 font-medium">Welcome back</p>
-          <h1 className="font-display text-white" style={{ fontSize: 'clamp(3rem, 10vw, 5rem)', letterSpacing: '0.02em' }}>{welcomeName}</h1>
-          <p className="text-white/50 text-sm mt-3 italic">(Bem-vindo de volta)</p>
-        </div>
-      </div>
-    );
-  }
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '0 0 12px', background: 'none',
+    border: 'none', borderBottom: `2px solid #1C1C1C`,
+    color: '#1C1C1C', fontSize: 16, fontFamily: 'inherit',
+    outline: 'none', boxSizing: 'border-box',
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: 'block', fontSize: 9, fontWeight: 700,
+    letterSpacing: '0.18em', textTransform: 'uppercase',
+    color: '#1C1C1C', marginBottom: 8,
+  };
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden flex flex-col">
+    <div style={{ minHeight: '100dvh', background: CREAM, fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif", display: 'flex', flexDirection: 'column' }}>
 
-      {/* ── Full-bleed background image ── */}
-      <div className="absolute inset-0 z-0" style={{ background: '#1a1a18' }}>
-        <img
-          src={bgImage}
-          alt=""
-          className={cn('absolute inset-0 w-full h-full object-cover transition-opacity duration-1500', bgLoaded ? 'opacity-100' : 'opacity-0')}
-          onLoad={() => setBgLoaded(true)}
-        />
-        {/* LP-style soft gradient — bottom-weighted for readability, not heavy */}
-        <div className="absolute inset-0" style={{
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.1) 35%, rgba(0,0,0,0.75) 70%, rgba(0,0,0,0.92) 100%)'
-        }} />
-      </div>
+      {/* ── Header ── */}
+      <div style={{ padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <img src={logoUrl} alt="People Of Lisbon" style={{ width: 44, height: 44, objectFit: 'contain', display: 'block' }}
+          onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
 
-      {/* ── Top: Logo + location pill ── */}
-      <div className="relative z-10 flex items-start justify-between px-6 pt-12 pb-0 lg:px-12 lg:pt-14">
-        <img
-          src={logoUrl}
-          alt="People Of Lisbon"
-          className="w-11 h-11 object-contain"
-          onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }}
-        />
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-          style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}>
-          <span style={{ color: '#E6B75C', fontSize: '8px' }}>●</span>
-          <span className="text-white text-xs font-semibold tracking-wide">LISBON</span>
+        {/* MEMBERS ONLY stamp */}
+        <div style={{
+          border: `2.5px solid #1C1C1C`, borderRadius: 3,
+          padding: '5px 9px', textAlign: 'center',
+          transform: 'rotate(2deg)',
+        }}>
+          <p style={{ margin: 0, fontSize: 8, fontWeight: 900, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1C1C1C', lineHeight: 1.3 }}>Members</p>
+          <p style={{ margin: 0, fontSize: 8, fontWeight: 900, letterSpacing: '0.12em', textTransform: 'uppercase', color: POL_RED, lineHeight: 1.3 }}>Only</p>
         </div>
       </div>
 
-      {/* ── Middle: Tagline only ── */}
-      <div className="relative z-10 flex-1 flex items-end lg:items-center px-6 lg:px-12 pb-8 lg:pb-0">
-        <div className="hidden lg:block">
-          <h1 className="text-white font-bold" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', lineHeight: 1.2, maxWidth: '18ch', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
-            Lisbon's most interesting people, all in one place.
-          </h1>
-        </div>
-      </div>
+      {/* ── Main content ── */}
+      <div style={{ flex: 1, padding: '8px 28px 0', display: 'flex', flexDirection: 'column' }}>
 
-      {/* ── Bottom: Form panel ── */}
-      <div className="relative z-10 w-full px-4 pb-10 pt-6 lg:absolute lg:right-0 lg:top-0 lg:bottom-0 lg:w-[420px] lg:flex lg:items-center lg:p-12">
+        {!showForgot ? (
+          <>
+            {/* Headline */}
+            <div style={{ marginBottom: 36 }}>
+              <h1 style={{ margin: '0 0 6px', fontSize: 'clamp(32px, 8vw, 44px)', fontWeight: 900, color: '#1C1C1C', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1.0 }}>
+                Welcome<br />back.
+              </h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+                <div style={{ height: 3, width: 32, background: POL_RED, borderRadius: 2, marginRight: 10 }} />
+                <p style={{ margin: 0, fontSize: 13, color: '#1C1C1C', fontStyle: 'italic', fontWeight: 600, letterSpacing: '0.02em' }}>
+                  Good people only.
+                </p>
+              </div>
+            </div>
 
-        {/* Mobile: tagline above form */}
-        <div className="lg:hidden text-center mb-8">
-          <h1 className="text-white font-bold" style={{ fontSize: '1.6rem', lineHeight: 1.25, textShadow: '0 2px 8px rgba(0,0,0,0.35)' }}>
-            Lisbon's most interesting people, all in one place.
-          </h1>
-        </div>
-
-        {/* Cinematic form panel — no heavy box */}
-        <div className="w-full lg:rounded-2xl"
-          style={{
-            background: 'rgba(10, 10, 10, 0.6)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            borderTop: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: '20px 20px 0 0',
-          }}>
-          <div className="p-7 lg:p-8">
-            {!showForgot ? (
-              <>
-                <div className="mb-6">
-                  <h2 className="text-lg font-semibold mb-0.5" style={{ color: 'rgba(255,255,255,0.9)' }}>Sign in</h2>
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>Private members only.</p>
+            {/* Form */}
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+              <div>
+                <label style={labelStyle}>Email</label>
+                <div style={{ position: 'relative' }}>
+                  <input type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email"
+                    style={{ ...inputStyle, paddingRight: 32 }} />
+                  <span style={{ position: 'absolute', right: 0, bottom: 14, color: '#999', fontSize: 16 }}>⌾</span>
                 </div>
+              </div>
 
-                <form onSubmit={handleLogin} className="space-y-4" noValidate>
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#A89A8C' }}>
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => { setEmail(e.target.value); setError(''); }}
-                      autoComplete="email"
-                      autoCapitalize="none"
-                      style={{
-                        width: '100%', padding: '12px 16px',
-                        borderRadius: '10px',
-                        border: '1px solid rgba(255,255,255,0.12)',
-                        background: 'rgba(255,255,255,0.06)',
-                        color: '#FFFFFF',
-                        fontSize: '15px',
-                        outline: 'none',
-                        transition: 'border-color 0.2s, box-shadow 0.2s',
-                      }}
-                      placeholder="your@email.com"
-                      onFocus={e => { e.target.style.borderColor = 'rgba(255,255,255,0.35)'; e.target.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.1)'; }}
-                      onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.boxShadow = 'none'; }}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#A89A8C' }}>
-                      Password
-                    </label>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                      autoComplete="current-password"
-                      style={{
-                        width: '100%', padding: '12px 16px',
-                        borderRadius: '10px',
-                        border: '1px solid rgba(255,255,255,0.12)',
-                        background: 'rgba(255,255,255,0.06)',
-                        color: '#FFFFFF',
-                        fontSize: '15px',
-                        outline: 'none',
-                        transition: 'border-color 0.2s, box-shadow 0.2s',
-                      }}
-                      placeholder="••••••••"
-                      onFocus={e => { e.target.style.borderColor = 'rgba(255,255,255,0.35)'; e.target.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.1)'; }}
-                      onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.boxShadow = 'none'; }}
-                      required
-                    />
-                  </div>
-
-                  {error && (
-                    <div className="text-sm px-4 py-3 rounded-lg" style={{ background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.3)' }}>
-                      {error}
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={loading || !email || !password}
-                    style={{
-                      width: '100%', padding: '13px',
-                      borderRadius: '10px',
-                      background: loading || !email || !password ? '#93B5D4' : '#2F6DA5',
-                      color: 'white',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      letterSpacing: '0.04em',
-                      border: 'none',
-                      cursor: loading || !email || !password ? 'not-allowed' : 'pointer',
-                      transition: 'background 0.2s, transform 0.1s',
-                      marginTop: '4px',
-                    }}
-                    onMouseEnter={e => { if (!loading && email && password) (e.target as HTMLElement).style.background = '#1E4E7A'; }}
-                    onMouseLeave={e => { if (!loading && email && password) (e.target as HTMLElement).style.background = '#2F6DA5'; }}
-                  >
-                    {loading ? 'Signing in…' : 'Enter'}
+              <div>
+                <label style={labelStyle}>Password</label>
+                <div style={{ position: 'relative' }}>
+                  <input type={showPw ? 'text' : 'password'} placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required autoComplete="current-password"
+                    style={{ ...inputStyle, paddingRight: 32 }} />
+                  <button type="button" onClick={() => setShowPw(!showPw)}
+                    style={{ position: 'absolute', right: 0, bottom: 12, background: 'none', border: 'none', color: '#999', cursor: 'pointer', padding: 0, fontSize: 15 }}>
+                    {showPw ? '🙈' : '👁'}
                   </button>
+                </div>
+              </div>
 
-                  <button
-                    type="button"
-                    onClick={() => { setShowForgot(true); setForgotEmail(email); }}
-                    className="w-full text-center text-sm font-medium mt-1 py-1 transition-colors"
-                    style={{ color: '#A89A8C' }}
-                    onMouseEnter={e => { (e.target as HTMLElement).style.color = '#2F6DA5'; }}
-                    onMouseLeave={e => { (e.target as HTMLElement).style.color = '#A89A8C'; }}
-                  >
-                    Forgot password?
-                  </button>
-                </form>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => { setShowForgot(false); setForgotSent(false); }}
-                  className="flex items-center gap-1.5 text-sm font-medium mb-5 transition-colors"
-                  style={{ color: 'rgba(255,255,255,0.5)' }}
-                >
-                  ← Back
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginTop: -16 }}>
+                <button type="button" onClick={() => setShowForgot(true)}
+                  style={{ background: 'none', border: 'none', fontSize: 12, color: '#666', cursor: 'pointer', padding: 0, fontWeight: 600 }}>
+                  Forgot password?
                 </button>
-                <h2 className="text-xl font-semibold mb-1" style={{ color: 'rgba(255,255,255,0.9)' }}>Reset password</h2>
-                <p className="text-sm mb-6" style={{ color: 'rgba(255,255,255,0.45)' }}>We'll send a link to your email.</p>
+              </div>
 
-                {forgotSent ? (
-                  <div className="text-center py-6">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
-                      style={{ background: 'rgba(255,255,255,0.08)' }}>
-                      <svg className="w-6 h-6" style={{ color: 'rgba(255,255,255,0.7)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <p className="font-semibold mb-1" style={{ color: 'rgba(255,255,255,0.9)' }}>Check your email</p>
-                    <p className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>Reset link sent to {forgotEmail}</p>
-                  </div>
-                ) : (
-                  <form onSubmit={handleForgot} className="space-y-4" noValidate>
-                    <input
-                      type="email"
-                      value={forgotEmail}
-                      onChange={(e) => setForgotEmail(e.target.value)}
-                      style={{
-                        width: '100%', padding: '12px 16px',
-                        borderRadius: '10px',
-                        border: '1.5px solid #E8E0D4',
-                        background: '#FFFFFF',
-                        color: '#1C1C1C',
-                        fontSize: '15px',
-                        outline: 'none',
-                      }}
-                      placeholder="your@email.com"
-                      onFocus={e => { e.target.style.borderColor = 'rgba(255,255,255,0.35)'; e.target.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.1)'; }}
-                      onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.boxShadow = 'none'; }}
-                      required
-                    />
-                    <button
-                      type="submit"
-                      disabled={forgotLoading || !forgotEmail}
-                      style={{
-                        width: '100%', padding: '13px',
-                        borderRadius: '10px',
-                        background: '#2F6DA5',
-                        color: 'white',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        border: 'none',
-                        cursor: 'pointer',
-                        opacity: forgotLoading || !forgotEmail ? 0.5 : 1,
-                      }}
-                    >
-                      {forgotLoading ? 'Sending…' : 'Send reset link'}
-                    </button>
-                  </form>
-                )}
-              </>
+              {error && <p style={{ fontSize: 13, color: POL_RED, margin: '-16px 0 0', fontWeight: 600 }}>{error}</p>}
+
+              <button type="submit" disabled={loading} style={{
+                padding: '17px', background: POL_RED, color: 'white', border: 'none', borderRadius: 3,
+                fontSize: 13, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase',
+                cursor: loading ? 'not-allowed' : 'pointer',
+              }}>
+                {loading ? 'Signing in…' : 'Sign in →'}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '24px 0' }}>
+              <div style={{ flex: 1, height: 1, background: '#D4C9BC' }} />
+              <span style={{ fontSize: 11, color: '#999', letterSpacing: '0.1em', textTransform: 'uppercase' }}>or</span>
+              <div style={{ flex: 1, height: 1, background: '#D4C9BC' }} />
+            </div>
+
+            {/* Explore as guest */}
+            <a href="/auth/login" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              padding: '15px', border: `2px solid #1C1C1C`, borderRadius: 3,
+              color: '#1C1C1C', textDecoration: 'none',
+              fontSize: 12, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase',
+            }}>
+              Explore the map as a guest →
+            </a>
+          </>
+        ) : (
+          /* ── Forgot password ── */
+          <>
+            <button onClick={() => setShowForgot(false)} style={{ background: 'none', border: 'none', fontSize: 13, color: '#666', cursor: 'pointer', padding: 0, marginBottom: 24, textAlign: 'left' }}>← Back</button>
+
+            <h2 style={{ margin: '0 0 6px', fontSize: 28, fontWeight: 900, color: '#1C1C1C', letterSpacing: '-0.01em', textTransform: 'uppercase' }}>Reset password</h2>
+            <p style={{ margin: '0 0 28px', fontSize: 13, color: '#666', lineHeight: 1.6 }}>Enter your email and we'll send a reset link.</p>
+
+            {forgotSent ? (
+              <div style={{ padding: '16px', background: 'rgba(200,16,46,0.08)', borderRadius: 4, border: `1px solid rgba(200,16,46,0.2)` }}>
+                <p style={{ margin: 0, fontSize: 14, color: POL_RED, fontWeight: 700 }}>✓ Check your inbox — reset link sent.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleForgot} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                <div>
+                  <label style={labelStyle}>Email</label>
+                  <input type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required
+                    style={inputStyle} />
+                </div>
+                <button type="submit" disabled={loading} style={{
+                  padding: '16px', background: POL_RED, color: 'white', border: 'none', borderRadius: 3,
+                  fontSize: 13, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer',
+                }}>
+                  {loading ? 'Sending…' : 'Send reset link'}
+                </button>
+              </form>
             )}
-          </div>
+          </>
+        )}
+      </div>
 
-          {/* Bottom note */}
-          <div className="px-7 pb-5 lg:px-8">
-            <p className="text-xs text-center" style={{ color: 'rgba(255,255,255,0.25)' }}>By invitation only · People Of Lisbon</p>
-          </div>
+      {/* ── Bottom note ── */}
+      <div style={{ padding: '24px 28px calc(env(safe-area-inset-bottom) + 24px)', flexShrink: 0 }}>
+        <div style={{
+          background: '#E8DFD0', borderRadius: 6, padding: '14px 16px',
+          transform: 'rotate(-0.5deg)',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        }}>
+          <p style={{ margin: 0, fontSize: 13, color: '#1C1C1C', fontStyle: 'italic', fontWeight: 600 }}>
+            No spam. Just good people. <span style={{ color: POL_RED }}>:)</span>
+          </p>
         </div>
       </div>
     </div>
