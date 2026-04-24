@@ -57,6 +57,14 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
     ? pins
     : pins.filter(p => activeCategories.some(id => (p.category_ids || []).includes(id)));
 
+  // If the selected pin is no longer visible after filtering, clear it
+  useEffect(() => {
+    if (selectedPin && !filteredPins.find(p => p.id === selectedPin.id)) {
+      setSelectedPin(null);
+      setPlayingVideo(false);
+    }
+  }, [filteredPins]); // eslint-disable-line
+
   function toggleCategory(id: string) {
     setActiveCategories(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
   }
@@ -152,6 +160,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)',
             boxShadow: '0 4px 20px rgba(0,0,0,0.1)', border: 'none',
             cursor: isMapUser ? 'pointer' : 'default',
+            fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
           }}>
           {isMapUser && (
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2F6DA5" strokeWidth="2.5">
@@ -162,7 +171,11 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#2F6DA5' }}>
               {isMapUser ? 'Exit map' : 'Explore Lisbon'}
             </p>
-            {!isMapUser && <p style={{ margin: 0, fontSize: 10, color: '#A89A8C' }}>Through the people we've filmed</p>}
+            {!isMapUser && (
+              <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: '#1C1C1C', lineHeight: 1.3, maxWidth: 200 }}>
+                Explore Lisbon through the people we've filmed.
+              </p>
+            )}
           </div>
         </button>
       </div>
@@ -171,31 +184,35 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
       <div className="absolute right-4 z-10 flex flex-col items-end gap-2" style={{ top: safeTop }}>
         {isMapUser && (
           <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer"
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px', background: '#2F6DA5', color: 'white', borderRadius: 999, fontSize: 13, fontWeight: 700, textDecoration: 'none', boxShadow: '0 2px 12px rgba(47,109,165,0.45)' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px', background: '#2F6DA5', color: 'white', borderRadius: 999, fontSize: 13, fontWeight: 700, textDecoration: 'none', boxShadow: '0 2px 12px rgba(47,109,165,0.45)', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
             Join the Club ↗
           </a>
         )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* Filter button — only show if categories exist */}
+          {/* Filter button — bigger, red-accented */}
           {categories.length > 0 && (
             <button onClick={() => setShowFilters(true)} style={{
-              display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 999,
-              background: hasFilters ? '#2F6DA5' : 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 7,
+              padding: '10px 16px', borderRadius: 12,
+              background: hasFilters ? '#C8102E' : 'rgba(250,248,244,0.93)',
+              backdropFilter: 'blur(12px)',
+              boxShadow: hasFilters ? '0 4px 16px rgba(200,16,46,0.35)' : '0 4px 20px rgba(0,0,0,0.1)',
+              border: 'none', cursor: 'pointer',
+              fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
             }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={hasFilters ? 'white' : '#2F6DA5'} strokeWidth="2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={hasFilters ? 'white' : '#C8102E'} strokeWidth="2.5">
                 <path d="M22 3H2l8 9.46V19l4 2v-9.54z"/>
               </svg>
-              <span style={{ fontSize: 11, fontWeight: 600, color: hasFilters ? 'white' : '#1C1C1C' }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: hasFilters ? 'white' : '#1C1C1C' }}>
                 {hasFilters ? `${activeCategories.length} filter${activeCategories.length > 1 ? 's' : ''}` : 'Filter'}
               </span>
             </button>
           )}
           {/* Stories count */}
           {pins.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 12px', background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)', borderRadius: 999, boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2F6DA5', flexShrink: 0 }} />
-              <span style={{ fontSize: 11, fontWeight: 600, color: '#1C1C1C' }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#1C1C1C', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
                 {filteredPins.length}{hasFilters ? `/${pins.length}` : ''} {filteredPins.length === 1 ? 'story' : 'stories'}
               </span>
             </div>
@@ -248,8 +265,8 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
               <div className="relative bg-stone-100" style={{ height: 190 }}>
                 {playingVideo && selectedPin.youtube_url ? (
                   <iframe
-                    src={`https://www.youtube.com/embed/${getYouTubeVideoId(selectedPin.youtube_url)}?rel=0&playsinline=1&modestbranding=1`}
-                    className="w-full h-full" allow="fullscreen; picture-in-picture; web-share" allowFullScreen />
+                    src={`https://www.youtube.com/embed/${getYouTubeVideoId(selectedPin.youtube_url)}?rel=0&autoplay=1&playsinline=1&modestbranding=1`}
+                    className="w-full h-full" allow="autoplay; fullscreen; picture-in-picture; web-share" allowFullScreen />
                 ) : (
                   <>
                     {selectedThumbnail && (
@@ -278,8 +295,8 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
               </div>
 
               {/* Content */}
-              <div style={{ padding: '14px 18px 18px' }}>
-                <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1C1C1C', margin: '0 0 2px', lineHeight: 1.2 }}>{selectedPin.title}</h3>
+              <div style={{ padding: '14px 18px 18px', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1C1C1C', margin: '0 0 2px', lineHeight: 1.2, fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>{selectedPin.title}</h3>
                 {selectedPin.featured_person && selectedPin.featured_person !== selectedPin.title && (
                   <p style={{ fontSize: 13, color: '#2F6DA5', fontWeight: 600, margin: '0 0 4px' }}>{selectedPin.featured_person}</p>
                 )}
@@ -306,12 +323,12 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
                   </div>
                 )}
 
-                {/* Action buttons */}
+                {/* Action buttons — compact on desktop, touch-friendly on mobile */}
                 <div style={{ display: 'flex', gap: 8 }}>
                   {!playingVideo && selectedPin.youtube_url && (
                     <button onClick={() => setPlayingVideo(true)}
-                      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white"
-                      style={{ background: '#2F6DA5' }}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl font-semibold text-white lg:py-2 py-3 lg:text-xs text-sm"
+                      style={{ background: '#2F6DA5', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}
                       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#1E4E7A'; }}
                       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#2F6DA5'; }}>
                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
@@ -319,12 +336,11 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
                     </button>
                   )}
 
-                  {/* Visit location — only if address or URL exists */}
                   {getVisitUrl(selectedPin) && (
                     <a href={getVisitUrl(selectedPin)!} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl text-sm font-semibold"
-                      style={{ background: '#EEF4FA', color: '#2F6DA5', textDecoration: 'none', flexShrink: 0 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      className="flex items-center justify-center gap-1.5 rounded-xl font-semibold lg:px-3 lg:py-2 px-4 py-3 lg:text-xs text-sm"
+                      style={{ background: '#EEF4FA', color: '#2F6DA5', textDecoration: 'none', flexShrink: 0, fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                       </svg>
                       Visit location
@@ -332,7 +348,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
                   )}
 
                   <button onClick={() => { setSelectedPin(null); setPlayingVideo(false); }}
-                    className="flex items-center justify-center px-3 py-3 rounded-xl"
+                    className="flex items-center justify-center lg:px-2 lg:py-2 px-3 py-3 rounded-xl"
                     style={{ background: '#EDE7DC', color: '#6B5E52', flexShrink: 0 }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#E0D9CE'; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#EDE7DC'; }}>
