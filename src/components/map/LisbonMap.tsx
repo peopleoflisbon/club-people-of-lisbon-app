@@ -29,7 +29,8 @@ function getThumbnail(pin: MapPin): string {
 export default function LisbonMap({ pins, isMapUser = false, categories = [] }: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef       = useRef<any>(null);
-  const markersRef   = useRef<any[]>([]);
+  // Store { marker, pin, el } so we can show/hide without recreating
+  const markersRef   = useRef<{ marker: any; pin: MapPin; el: HTMLElement }[]>([]);
 
   const [selectedPin,      setSelectedPin]      = useState<MapPin | null>(null);
   const [mapReady,         setMapReady]         = useState(false);
@@ -53,23 +54,18 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
     window.location.href = '/auth/login';
   }
 
-  const filteredPins = activeCategories.length === 0
-    ? pins
-    : pins.filter(p => activeCategories.some(id => (p.category_ids || []).includes(id)));
-
-  // If the selected pin is no longer visible after filtering, clear it
-  useEffect(() => {
-    if (selectedPin && !filteredPins.find(p => p.id === selectedPin.id)) {
-      setSelectedPin(null);
-      setPlayingVideo(false);
-    }
-  }, [filteredPins]); // eslint-disable-line
-
   function toggleCategory(id: string) {
     setActiveCategories(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
   }
 
-  // Init map once
+  // Derived counts — safe to compute every render, no DOM side effects
+  const visiblePins = activeCategories.length === 0
+    ? pins
+    : pins.filter(p => activeCategories.some(id => (p.category_ids || []).includes(id)));
+
+  const visibleIds = new Set(visiblePins.map(p => p.id));
+
+  // Init map ONCE
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
     import('mapbox-gl').then((mapboxgl) => {
@@ -86,23 +82,28 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
     return () => { mapRef.current?.map?.remove(); mapRef.current = null; };
   }, []); // eslint-disable-line
 
-  // Markers
+  // Create ALL markers once when map is ready — never recreate on filter change
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
     const { map, mapboxgl } = mapRef.current;
-    markersRef.current.forEach(m => m.remove());
+
+    // Clean up any existing markers first
+    markersRef.current.forEach(({ marker }) => marker.remove());
     markersRef.current = [];
 
-    filteredPins.forEach((pin) => {
+    pins.forEach((pin) => {
       const lng = Number(pin.longitude), lat = Number(pin.latitude);
       if (isNaN(lng) || isNaN(lat)) return;
+
       const thumbnail = getThumbnail(pin);
       const el = document.createElement('div');
       el.style.cssText = 'width:48px;height:48px;cursor:pointer;';
+
       const inner = document.createElement('div');
       inner.style.cssText = `width:48px;height:48px;border-radius:50%;border:2.5px solid white;
         box-shadow:0 3px 14px rgba(47,109,165,0.35),0 1px 4px rgba(0,0,0,0.2);
         overflow:hidden;background:#2F6DA5;transition:transform 0.2s,box-shadow 0.2s;`;
+
       if (thumbnail) {
         const img = document.createElement('img');
         img.src = thumbnail;
@@ -112,6 +113,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
       } else {
         inner.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div>`;
       }
+
       el.addEventListener('mouseenter', (e: MouseEvent) => {
         inner.style.transform = 'scale(1.12)';
         inner.style.boxShadow = '0 6px 20px rgba(47,109,165,0.5),0 2px 8px rgba(0,0,0,0.25)';
@@ -127,10 +129,27 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
         setHoverPin(null); setSelectedPin(pin); setPlayingVideo(false);
         map.flyTo({ center: [lng, lat], zoom: 14.5, speed: 0.8, curve: 1.2 });
       });
+
       el.appendChild(inner);
-      markersRef.current.push(new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat([lng, lat]).addTo(map));
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat([lng, lat]).addTo(map);
+      markersRef.current.push({ marker, pin, el });
     });
-  }, [mapReady, filteredPins]); // eslint-disable-line
+  }, [mapReady, pins]); // eslint-disable-line — only recreate if pins data changes, NOT on filter
+
+  // Show/hide markers by CSS only — no DOM destruction, no click-handler loss
+  useEffect(() => {
+    markersRef.current.forEach(({ pin, el }) => {
+      el.style.display = visibleIds.has(pin.id) ? 'block' : 'none';
+    });
+  }, [visibleIds]); // eslint-disable-line
+
+  // If selected pin is now filtered out, clear it
+  useEffect(() => {
+    if (selectedPin && !visibleIds.has(selectedPin.id)) {
+      setSelectedPin(null);
+      setPlayingVideo(false);
+    }
+  }, [visibleIds]); // eslint-disable-line
 
   const safeTop = 'max(env(safe-area-inset-top), 16px)';
   const hasFilters = activeCategories.length > 0;
@@ -224,7 +243,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2F6DA5', flexShrink: 0 }} />
               <span style={{ fontSize: 11, fontWeight: 600, color: '#1C1C1C', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
-                {filteredPins.length}{hasFilters ? `/${pins.length}` : ''} {filteredPins.length === 1 ? 'story' : 'stories'}
+                {visiblePins.length}{hasFilters ? `/${pins.length}` : ''} {visiblePins.length === 1 ? 'story' : 'stories'}
               </span>
             </div>
           )}
@@ -418,7 +437,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
               )}
               <button onClick={() => setShowFilters(false)}
                 style={{ flex: 1, padding: '12px', borderRadius: 10, background: '#2F6DA5', color: 'white', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
-                {activeCategories.length > 0 ? `Show ${filteredPins.length} ${filteredPins.length === 1 ? 'story' : 'stories'}` : 'Close'}
+                {activeCategories.length > 0 ? `Show ${visiblePins.length} ${visiblePins.length === 1 ? 'story' : 'stories'}` : 'Close'}
               </button>
             </div>
           </div>
