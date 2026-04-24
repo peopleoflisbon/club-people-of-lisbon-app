@@ -76,8 +76,8 @@ export default function GatewayPage() {
       <div style={{
         position: 'absolute', inset: 0,
         background: screen === 'splash'
-          ? 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.0) 30%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.92) 100%)'
-          : 'rgba(0,0,0,0.78)',
+          ? 'linear-gradient(to bottom, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.0) 28%, rgba(0,0,0,0.42) 58%, rgba(0,0,0,0.88) 100%)'
+          : 'rgba(0,0,0,0.70)',
         transition: 'background 0.35s ease',
       }} />
 
@@ -137,7 +137,7 @@ export default function GatewayPage() {
           display: 'flex', flexDirection: 'column', justifyContent: 'center',
           alignItems: 'center', overflowY: 'auto',
         }}>
-          <div style={{ width: '100%', maxWidth: 520, padding: '80px 28px calc(env(safe-area-inset-bottom) + 32px)' }}>
+          <div style={{ width: '100%', maxWidth: 500, padding: '72px 24px calc(env(safe-area-inset-bottom) + 24px)' }}>
 
             {/* Logo + back */}
             <div style={{ position: 'fixed', top: 'max(env(safe-area-inset-top), 20px)', left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 28px', zIndex: 20 }}>
@@ -149,22 +149,25 @@ export default function GatewayPage() {
               </button>
             </div>
 
-            {/* PATH 1 — Explore the map */}
+            {/* PATH 1 — Explore Lisbon (free) */}
             <div style={{
               borderTop: `4px solid ${POL_RED}`,
               background: 'rgba(255,255,255,0.07)',
-              padding: '28px 24px',
-              marginBottom: 16,
+              padding: '20px 20px',
+              marginBottom: 12,
             }}>
-              <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 900, letterSpacing: '0.25em', textTransform: 'uppercase', color: POL_RED }}>
-                Explore the map
-              </p>
-              <p style={{ margin: '0 0 20px', fontSize: 15, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
-                Discover 200+ real stories and videos across Lisbon.<br />
-                Tap into the city through the people who live it.
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
+                <p style={{ margin: 0, fontSize: 10, fontWeight: 900, letterSpacing: '0.25em', textTransform: 'uppercase', color: POL_RED }}>
+                  Explore Lisbon
+                </p>
+                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 2, padding: '1px 5px' }}>Free</span>
+              </div>
+              <p style={{ margin: '0 0 16px', fontSize: 14, color: 'rgba(255,255,255,0.88)', lineHeight: 1.55 }}>
+                Discover 200+ real stories and videos across the city.<br />
+                Explore Lisbon through its people.
               </p>
               <button onClick={() => setScreen('form')} style={{
-                width: '100%', padding: '17px',
+                width: '100%', padding: '15px',
                 background: POL_RED, color: 'white', border: 'none', borderRadius: 2,
                 fontSize: 13, fontWeight: 900, letterSpacing: '0.16em', textTransform: 'uppercase',
                 cursor: 'pointer', boxShadow: '0 4px 20px rgba(200,16,46,0.4)',
@@ -173,25 +176,27 @@ export default function GatewayPage() {
               </button>
             </div>
 
-            {/* PATH 2 — Members */}
+            {/* PATH 2 — Join the Club */}
             <div style={{
-              borderTop: '4px solid rgba(255,255,255,0.7)',
+              borderTop: '4px solid rgba(255,255,255,0.8)',
               background: 'rgba(255,255,255,0.07)',
-              padding: '28px 24px',
-              marginBottom: 20,
+              padding: '20px 20px',
+              marginBottom: 12,
             }}>
-              <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 900, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'white' }}>
-                Members
-              </p>
-              <p style={{ margin: '0 0 20px', fontSize: 15, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 6 }}>
+                <p style={{ margin: 0, fontSize: 10, fontWeight: 900, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'white' }}>
+                  Join the Club
+                </p>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>€10 / month</span>
+              </div>
+              <p style={{ margin: '0 0 16px', fontSize: 14, color: 'rgba(255,255,255,0.88)', lineHeight: 1.6 }}>
                 Events. Community. Perks.<br />
-                Membership card.<br />
-                Exclusive discounts across Lisbon.<br />
+                Membership card. Exclusive discounts across Lisbon.<br />
                 Access to the People Of Lisbon network.
               </p>
               <a href="/auth/member-login" style={{
-                display: 'block', width: '100%', padding: '17px',
-                border: '2px solid rgba(255,255,255,0.55)', borderRadius: 2,
+                display: 'block', width: '100%', padding: '15px',
+                border: '2px solid rgba(255,255,255,0.6)', borderRadius: 2,
                 color: 'white', textDecoration: 'none', textAlign: 'center',
                 fontSize: 13, fontWeight: 900, letterSpacing: '0.16em', textTransform: 'uppercase',
                 boxSizing: 'border-box',
@@ -204,16 +209,16 @@ export default function GatewayPage() {
             <div style={{
               borderTop: '4px solid #E6B75C',
               background: 'rgba(230,183,92,0.1)',
-              padding: '28px 24px',
+              padding: '20px 20px',
             }}>
               <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 900, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#E6B75C' }}>
                 Want to join the club?
               </p>
-              <p style={{ margin: '0 0 20px', fontSize: 15, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
+              <p style={{ margin: '0 0 16px', fontSize: 14, color: 'rgba(255,255,255,0.88)', lineHeight: 1.5 }}>
                 100+ members already inside.
               </p>
               <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer" style={{
-                display: 'block', width: '100%', padding: '17px',
+                display: 'block', width: '100%', padding: '15px',
                 background: '#E6B75C', color: '#1C1C1C', textDecoration: 'none', textAlign: 'center',
                 borderRadius: 2, fontSize: 13, fontWeight: 900, letterSpacing: '0.16em', textTransform: 'uppercase',
                 boxSizing: 'border-box',

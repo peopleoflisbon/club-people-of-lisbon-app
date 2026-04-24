@@ -93,7 +93,7 @@ export default function MemberLoginPage() {
               </h1>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ height: 3, width: 28, background: POL_RED, borderRadius: 2, marginRight: 10, flexShrink: 0 }} />
-                <p style={{ margin: 0, fontSize: 13, color: '#555', fontStyle: 'italic', fontWeight: 500, lineHeight: 1.4 }}>
+                <p style={{ margin: 0, fontSize: 13, color: '#444', fontStyle: 'italic', fontWeight: 500, lineHeight: 1.4 }}>
                   Lisbon's most interesting people, all in one place.
                 </p>
               </div>
