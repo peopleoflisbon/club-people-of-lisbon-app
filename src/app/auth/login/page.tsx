@@ -114,36 +114,71 @@ export default function GatewayPage() {
       {!showForm && !showForgot ? (
         /* ── Landing: editorial magazine cover ── */
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0,
-          padding: '0 24px calc(env(safe-area-inset-bottom) + 32px)',
-          zIndex: 10,
+          position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
+          justifyContent: 'flex-end', zIndex: 10,
+          padding: '0 20px calc(env(safe-area-inset-bottom) + 28px)',
         }}>
-          {/* Issue stamp */}
-          <div style={{ marginBottom: 20 }}>
-            <span style={{
-              fontSize: 9, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase',
-              color: 'rgba(255,255,255,0.5)',
-            }}>Lisbon's most interesting people, all in one place.</span>
+
+          {/* ── Top label sticker — positioned in upper area ── */}
+          <div style={{
+            position: 'absolute', top: 'max(env(safe-area-inset-top), 20px)', left: 20, right: 20,
+            display: 'flex', justifyContent: 'center', pointerEvents: 'none',
+          }}>
+            <div style={{
+              background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(4px)',
+              padding: '5px 12px', borderRadius: 2,
+              transform: 'rotate(-0.8deg)',
+            }}>
+              <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#111' }}>
+                Lisbon's most interesting people, all in one place.
+              </span>
+            </div>
           </div>
 
-          {/* Main headline */}
-          <h1 style={{ margin: '0 0 8px', lineHeight: 1.0, letterSpacing: '-0.02em' }}>
-            <span style={{ display: 'block', fontSize: 'clamp(36px, 9vw, 52px)', fontWeight: 900, color: 'white', textTransform: 'uppercase' }}>Real people.</span>
-            <span style={{ display: 'block', fontSize: 'clamp(36px, 9vw, 52px)', fontWeight: 900, color: POL_RED, textTransform: 'uppercase' }}>Real stories.</span>
-            <span style={{ display: 'block', fontSize: 'clamp(36px, 9vw, 52px)', fontWeight: 900, color: 'white', textTransform: 'uppercase' }}>Real Lisbon.</span>
+          {/* ── Map feature sticker ── */}
+          <div style={{
+            background: 'white', padding: '10px 14px', marginBottom: 14,
+            transform: 'rotate(-0.5deg)', alignSelf: 'flex-start',
+            boxShadow: '0 3px 12px rgba(0,0,0,0.35)',
+            borderLeft: `5px solid ${POL_RED}`,
+            maxWidth: 260,
+          }}>
+            <p style={{ margin: 0, fontSize: 9, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', color: POL_RED, lineHeight: 1.4 }}>Explore the map</p>
+            <p style={{ margin: '2px 0 0', fontSize: 13, fontWeight: 900, color: '#111', textTransform: 'uppercase', letterSpacing: '-0.01em', lineHeight: 1.1 }}>200+ stories<br />& video</p>
+            <p style={{ margin: '4px 0 0', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#555' }}>Discover Lisbon through its people</p>
+          </div>
+
+          {/* ── Main headline ── */}
+          <h1 style={{ margin: '0 0 4px', lineHeight: 0.92, letterSpacing: '-0.03em' }}>
+            <span style={{ display: 'block', fontSize: 'clamp(44px, 11vw, 62px)', fontWeight: 900, color: 'white', textTransform: 'uppercase' }}>Real people.</span>
+            <span style={{ display: 'inline-block', fontSize: 'clamp(44px, 11vw, 62px)', fontWeight: 900, color: 'white', textTransform: 'uppercase', background: POL_RED, padding: '0 6px', marginBottom: 2 }}>Real stories.</span>
+            <span style={{ display: 'block', fontSize: 'clamp(44px, 11vw, 62px)', fontWeight: 900, color: 'white', textTransform: 'uppercase' }}>Real Lisbon.</span>
           </h1>
 
-          <p style={{ margin: '0 0 28px', fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: 500, letterSpacing: '0.01em' }}>
-            200+ stories. Discover Lisbon through its people.
-          </p>
+          {/* ── Club feature sticker ── */}
+          <div style={{
+            background: '#F5F1E8', padding: '10px 14px', margin: '18px 0 16px',
+            transform: 'rotate(0.4deg)', alignSelf: 'flex-end',
+            boxShadow: '0 3px 12px rgba(0,0,0,0.3)',
+            borderLeft: `5px solid #1C1C1C`,
+            maxWidth: 240,
+          }}>
+            <p style={{ margin: 0, fontSize: 9, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#111', lineHeight: 1.4 }}>Join the club</p>
+            <p style={{ margin: '2px 0 0', fontSize: 13, fontWeight: 900, color: '#111', textTransform: 'uppercase', letterSpacing: '-0.01em', lineHeight: 1.1 }}>100+ Members</p>
+            <p style={{ margin: '4px 0 0', fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#555' }}>Events · Discounts · Membership card</p>
+            <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer"
+              style={{ display: 'inline-block', marginTop: 6, fontSize: 9, fontWeight: 800, color: POL_RED, textDecoration: 'none', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              Want to join? peopleoflisbon.com →
+            </a>
+          </div>
 
-          {/* CTAs */}
+          {/* ── CTAs ── */}
           <button onClick={() => setShowForm(true)} style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-            width: '100%', padding: '16px 24px', marginBottom: 12,
-            background: POL_RED, color: 'white', border: 'none', borderRadius: 3,
-            fontSize: 14, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase',
-            cursor: 'pointer',
+            width: '100%', padding: '17px 24px', marginBottom: 10,
+            background: POL_RED, color: 'white', border: 'none', borderRadius: 2,
+            fontSize: 14, fontWeight: 900, letterSpacing: '0.14em', textTransform: 'uppercase',
+            cursor: 'pointer', boxShadow: '0 4px 20px rgba(200,16,46,0.5)',
           }}>
             Enter the Map →
           </button>
@@ -151,9 +186,9 @@ export default function GatewayPage() {
           <a href="/auth/member-login" style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             width: '100%', padding: '14px 24px',
-            background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)',
-            color: 'rgba(255,255,255,0.7)', border: '1.5px solid rgba(255,255,255,0.2)',
-            borderRadius: 3, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em',
+            background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)',
+            color: 'rgba(255,255,255,0.75)', border: '1.5px solid rgba(255,255,255,0.25)',
+            borderRadius: 2, fontSize: 11, fontWeight: 700, letterSpacing: '0.12em',
             textTransform: 'uppercase', textDecoration: 'none',
           }}>
             Member sign in
