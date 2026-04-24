@@ -1,21 +1,21 @@
-import { createServerClient } from '@/lib/supabase-server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-
+import { createServerClient } from '@/lib/supabase-server';
+import { createClient } from '@supabase/supabase-js';
 
 const ADMIN_NAV = [
-  { href: '/admin', label: 'Dashboard', emoji: '▦' },
-  { href: '/admin/updates', label: "Stephen's Update", emoji: '✍️' },
+  { href: '/admin', label: 'Dashboard', emoji: '⊞' },
   { href: '/admin/members', label: 'Members & Invites', emoji: '👥' },
   { href: '/admin/events', label: 'Events', emoji: '📅' },
   { href: '/admin/photos', label: "Rita's Photos", emoji: '📷' },
   { href: '/admin/pins', label: 'Map Pins', emoji: '📍' },
+  { href: '/admin/categories', label: 'Categories', emoji: '🏷️' },
   { href: '/admin/sponsors', label: 'Sponsors', emoji: '⭐' },
+  { href: '/admin/updates', label: 'Updates from Stephen', emoji: '✍️' },
   { href: '/admin/good-news', label: 'Good News', emoji: '🎉' },
   { href: '/admin/board', label: 'Message Board', emoji: '📋' },
-  { href: '/admin/offers', label: 'Member Offers', emoji: '🎁' },
-  { href: '/admin/recommendations', label: 'Recommendations', emoji: '🗺️' },
-  { href: '/admin/setup', label: 'DB Setup', emoji: '🔧' },
+  { href: '/admin/recommendations', label: 'Recommendations', emoji: '💡' },
+  { href: '/admin/offers', label: 'Offers', emoji: '🎁' },
   { href: '/admin/settings', label: 'Settings', emoji: '⚙️' },
 ];
 
@@ -24,67 +24,34 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) redirect('/auth/login');
 
-  const [{ data: profile }, { data: settings }] = await Promise.all([
-    (supabase as any).from('profiles').select('role').eq('id', session.user.id).maybeSingle(),
-    (supabase as any).from('app_settings').select('key, value').eq('key', 'brand_square_image_url').maybeSingle(),
-  ]);
-
-  if (profile?.role !== 'admin') redirect('/home');
-
-  const brandLogoUrl = (settings as any)?.value || '/pol-logo.png';
+  const admin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+  const { data: profile } = await admin.from('profiles').select('role').eq('id', session.user.id).maybeSingle();
+  if ((profile as any)?.role !== 'admin') redirect('/home');
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      {/* Header */}
-      <header className="bg-ink border-b border-stone-800 px-4 lg:px-8 py-3 flex items-center justify-between sticky top-0 z-20">
-        <div className="flex items-center gap-3">
-          <img src={brandLogoUrl || '/pol-logo.png'} width={32} height={32} alt="POL" className="rounded shadow-md" />
-          <div>
-            <p className="text-white font-display text-sm">People Of Lisbon</p>
-            <p className="text-stone-500 text-xs">Admin Panel</p>
-          </div>
-        </div>
-        <Link href="/home" className="text-stone-400 hover:text-white text-xs font-medium transition-colors">
-          ← Back to App
-        </Link>
-      </header>
-
-      <div className="flex">
-        {/* Desktop Sidebar */}
-        <nav className="w-56 min-h-screen bg-white border-r border-stone-200 p-3 space-y-0.5 hidden md:block flex-shrink-0 sticky top-[53px] self-start h-[calc(100vh-53px)] overflow-y-auto">
-          {ADMIN_NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-stone-600 hover:text-ink hover:bg-stone-100 transition-all"
-            >
-              <span className="text-base leading-none w-5 flex-shrink-0">{item.emoji}</span>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Mobile: full-width stacked layout */}
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* Mobile nav — scrollable pill row */}
-          <div className="md:hidden w-full px-3 pt-3 pb-2 flex gap-2 overflow-x-auto no-scrollbar border-b border-stone-100 bg-white sticky top-[53px] z-10">
-            {ADMIN_NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-stone-600 bg-stone-50 border border-stone-200 hover:border-stone-400 transition-colors whitespace-nowrap"
-              >
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#F5F1EA' }}>
+      <aside style={{ width: 240, flexShrink: 0, background: 'white', borderRight: '1px solid #EDE7DC', display: 'flex', flexDirection: 'column', position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
+        <div style={{ padding: '24px 20px 16px' }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#A89A8C', margin: '0 0 16px' }}>Admin</p>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {ADMIN_NAV.map(item => (
+              <Link key={item.href} href={item.href}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 8, fontSize: 13, fontWeight: 500, color: '#1C1C1C', textDecoration: 'none' }}
+                className="hover:bg-stone-100">
                 <span>{item.emoji}</span>
-                {item.label}
+                <span>{item.label}</span>
               </Link>
             ))}
-          </div>
-
-          <main className="flex-1 p-4 lg:p-8 min-w-0">
-            {children}
-          </main>
+          </nav>
         </div>
-      </div>
+      </aside>
+      <main style={{ flex: 1, padding: '36px 40px', overflowY: 'auto' }}>
+        {children}
+      </main>
     </div>
   );
 }

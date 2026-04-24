@@ -13,23 +13,34 @@ export default async function MapPage() {
     { auth: { autoRefreshToken: false, persistSession: false } }
   );
 
-  const { data: pins } = await admin
-    .from('map_pins')
-    .select('*')
-    .eq('is_published', true)
-    .order('created_at', { ascending: true });
+  const [{ data: rawPins }, { data: categories }, { data: pinCategories }] = await Promise.all([
+    admin.from('map_pins').select('*').eq('is_published', true).order('created_at', { ascending: true }),
+    admin.from('categories').select('*').eq('is_active', true).order('sort_order'),
+    admin.from('map_pin_categories').select('pin_id, category_id'),
+  ]);
+
+  // Merge category_ids into each pin
+  const pins = (rawPins || []).map((pin: any) => ({
+    ...pin,
+    filmed_address: pin.filmed_address || '',
+    google_maps_url: pin.google_maps_url || '',
+    category_ids: (pinCategories || [])
+      .filter((pc: any) => pc.pin_id === pin.id)
+      .map((pc: any) => pc.category_id),
+  }));
 
   const supabase = createServerClient();
   const { data: { session } } = await supabase.auth.getSession();
   let isMapUser = false;
   if (session?.user?.id) {
-    const { data: profile } = await admin.from('profiles').select('role').eq('id', session.user.id).single();
+    const { data: profile } = await admin
+      .from('profiles').select('role').eq('id', session.user.id).single();
     isMapUser = (profile as any)?.role === 'map_user';
   }
 
   return (
     <div style={{ position: 'absolute', inset: 0 }}>
-      <LisbonMap pins={pins || []} isMapUser={isMapUser} />
+      <LisbonMap pins={pins} isMapUser={isMapUser} categories={categories || []} />
     </div>
   );
 }
