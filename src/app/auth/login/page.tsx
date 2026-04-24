@@ -13,16 +13,15 @@ export default function GatewayPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [bgImage, setBgImage]   = useState(FALLBACK_BG);
-  const [logoUrl, setLogoUrl]   = useState('/pol-logo.png');
-  const [bgLoaded, setBgLoaded] = useState(false);
-  const [screen, setScreen]     = useState<Screen>('splash');
-
-  const [email, setEmail]       = useState('');
-  const [password, setPassword] = useState('');
-  const [showPw, setShowPw]     = useState(false);
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState('');
+  const [bgImage, setBgImage]       = useState(FALLBACK_BG);
+  const [logoUrl, setLogoUrl]       = useState('/pol-logo.png');
+  const [bgLoaded, setBgLoaded]     = useState(false);
+  const [screen, setScreen]         = useState<Screen>('splash');
+  const [email, setEmail]           = useState('');
+  const [password, setPassword]     = useState('');
+  const [showPw, setShowPw]         = useState(false);
+  const [loading, setLoading]       = useState(false);
+  const [error, setError]           = useState('');
   const [forgotSent, setForgotSent] = useState(false);
 
   useEffect(() => {
@@ -38,8 +37,7 @@ export default function GatewayPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim() || password.length < 6) return;
-    setLoading(true);
-    setError('');
+    setLoading(true); setError('');
     try {
       const res = await fetch('/api/auth/map-access', {
         method: 'POST',
@@ -47,258 +45,251 @@ export default function GatewayPage() {
         body: JSON.stringify({ email: email.trim(), password }),
       });
       const data = await res.json();
-      if (!res.ok || data.error) {
-        setError(data.error || 'Something went wrong. Please try again.');
-        setLoading(false);
-        return;
-      }
+      if (!res.ok || data.error) { setError(data.error || 'Something went wrong.'); setLoading(false); return; }
       await supabase.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
       if (data.role === 'map_user') { router.push('/map'); } else { router.push('/home'); }
       router.refresh();
-    } catch {
-      setError('Connection error. Please try again.');
-      setLoading(false);
-    }
+    } catch { setError('Connection error. Please try again.'); setLoading(false); }
   }
 
   async function handleForgot(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim()) return;
     setLoading(true);
-    await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/auth/confirm`,
-    });
-    setForgotSent(true);
-    setLoading(false);
+    await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/auth/confirm` });
+    setForgotSent(true); setLoading(false);
   }
 
+  const ff = "'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif";
+
   return (
-    <div style={{
-      position: 'fixed', inset: 0, background: '#111', overflow: 'hidden',
-      fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
-    }}>
-      {/* ── Background image — dynamic, changeable via app_settings ── */}
+    <div style={{ position: 'fixed', inset: 0, background: '#0a0a0a', overflow: 'hidden', fontFamily: ff }}>
+
+      {/* ── Background — dynamic via app_settings ── */}
       <img src={bgImage} alt="" onLoad={() => setBgLoaded(true)} style={{
         position: 'absolute', inset: 0, width: '100%', height: '100%',
         objectFit: 'cover', objectPosition: 'center top',
-        opacity: bgLoaded ? 1 : 0, transition: 'opacity 0.6s ease',
+        opacity: bgLoaded ? 1 : 0, transition: 'opacity 0.7s ease',
       }} />
 
-      {/* ── Overlay ── */}
+      {/* ── Cinematic overlay — lighter than before ── */}
       <div style={{
         position: 'absolute', inset: 0,
         background: screen === 'splash'
-          ? 'linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.0) 35%, rgba(0,0,0,0.7) 65%, rgba(0,0,0,0.97) 100%)'
-          : 'rgba(0,0,0,0.91)',
-        transition: 'background 0.3s ease',
+          ? 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.0) 30%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.92) 100%)'
+          : 'rgba(0,0,0,0.78)',
+        transition: 'background 0.35s ease',
       }} />
 
-      {/* ══════════════════════════════════
-          SCREEN 1 — SPLASH / COVER
-      ══════════════════════════════════ */}
+      {/* ════════════════════════════════════════
+          SCREEN 1 — SPLASH
+      ════════════════════════════════════════ */}
       {screen === 'splash' && (
         <div style={{
           position: 'absolute', inset: 0, zIndex: 10,
           display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-          padding: '0 28px calc(env(safe-area-inset-bottom) + 44px)',
+          alignItems: 'center',
         }}>
-          {/* Logo */}
-          <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 24px)', left: 24 }}>
-            <img src={logoUrl} alt="People Of Lisbon"
-              style={{ width: 46, height: 46, objectFit: 'contain', display: 'block' }}
-              onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
+          {/* Inner container — max width for desktop */}
+          <div style={{ width: '100%', maxWidth: 560, padding: '0 32px calc(env(safe-area-inset-bottom) + 48px)' }}>
+
+            {/* Logo */}
+            <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 24px)', left: 32 }}>
+              <img src={logoUrl} alt="People Of Lisbon"
+                style={{ width: 46, height: 46, objectFit: 'contain', display: 'block' }}
+                onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
+            </div>
+
+            {/* Main headline — new copy */}
+            <h1 style={{ margin: '0 0 32px', lineHeight: 0.95, letterSpacing: '-0.03em' }}>
+              <span style={{ display: 'block', fontSize: 'clamp(46px, 11vw, 66px)', fontWeight: 900, color: 'white' }}>
+                Lisbon's most
+              </span>
+              <span style={{ display: 'block', fontSize: 'clamp(46px, 11vw, 66px)', fontWeight: 900 }}>
+                <span style={{ background: POL_RED, color: 'white', padding: '0 8px 5px', display: 'inline-block' }}>interesting</span>
+              </span>
+              <span style={{ display: 'block', fontSize: 'clamp(46px, 11vw, 66px)', fontWeight: 900, color: 'white' }}>
+                people, all in
+              </span>
+              <span style={{ display: 'block', fontSize: 'clamp(46px, 11vw, 66px)', fontWeight: 900, color: 'white' }}>
+                one place.
+              </span>
+            </h1>
+
+            <button onClick={() => setScreen('choice')} style={{
+              width: '100%', padding: '18px 24px',
+              background: POL_RED, color: 'white', border: 'none', borderRadius: 2,
+              fontSize: 15, fontWeight: 900, letterSpacing: '0.18em', textTransform: 'uppercase',
+              cursor: 'pointer', boxShadow: '0 6px 32px rgba(200,16,46,0.5)',
+            }}>
+              Enter →
+            </button>
           </div>
-
-          {/* Supporting line */}
-          <p style={{
-            margin: '0 0 20px', fontSize: 11, fontWeight: 600,
-            letterSpacing: '0.16em', textTransform: 'uppercase',
-            color: 'rgba(255,255,255,0.45)',
-          }}>
-            Lisbon's most interesting people, all in one place.
-          </p>
-
-          {/* Main headline */}
-          <h1 style={{ margin: '0 0 36px', lineHeight: 0.92, letterSpacing: '-0.03em' }}>
-            <span style={{ display: 'block', fontSize: 'clamp(50px, 13vw, 70px)', fontWeight: 900, color: 'white', textTransform: 'uppercase' }}>
-              Real people.
-            </span>
-            <span style={{ display: 'block', fontSize: 'clamp(50px, 13vw, 70px)', fontWeight: 900, textTransform: 'uppercase', margin: '6px 0' }}>
-              <span style={{ background: POL_RED, color: 'white', padding: '0 8px 4px', display: 'inline-block' }}>Real stories.</span>
-            </span>
-            <span style={{ display: 'block', fontSize: 'clamp(50px, 13vw, 70px)', fontWeight: 900, color: 'white', textTransform: 'uppercase' }}>
-              Real Lisbon.
-            </span>
-          </h1>
-
-          {/* Single CTA */}
-          <button onClick={() => setScreen('choice')} style={{
-            width: '100%', padding: '18px 24px',
-            background: POL_RED, color: 'white', border: 'none', borderRadius: 2,
-            fontSize: 15, fontWeight: 900, letterSpacing: '0.18em', textTransform: 'uppercase',
-            cursor: 'pointer', boxShadow: '0 4px 28px rgba(200,16,46,0.55)',
-          }}>
-            Enter →
-          </button>
         </div>
       )}
 
-      {/* ══════════════════════════════════
+      {/* ════════════════════════════════════════
           SCREEN 2 — CHOICE
-      ══════════════════════════════════ */}
+      ════════════════════════════════════════ */}
       {screen === 'choice' && (
         <div style={{
           position: 'absolute', inset: 0, zIndex: 10,
-          display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-          padding: '0 24px calc(env(safe-area-inset-bottom) + 32px)',
+          display: 'flex', flexDirection: 'column', justifyContent: 'center',
+          alignItems: 'center', overflowY: 'auto',
         }}>
-          {/* Logo */}
-          <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 24px)', left: 24 }}>
-            <img src={logoUrl} alt="People Of Lisbon"
-              style={{ width: 40, height: 40, objectFit: 'contain', display: 'block' }}
-              onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
-          </div>
-          <button onClick={() => setScreen('splash')} style={{
-            position: 'absolute', top: 'max(env(safe-area-inset-top), 28px)', right: 24,
-            background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)',
-            fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0,
-          }}>← Back</button>
+          <div style={{ width: '100%', maxWidth: 520, padding: '80px 28px calc(env(safe-area-inset-bottom) + 32px)' }}>
 
-          {/* PATH 1 — Map */}
-          <div style={{
-            padding: '22px 22px',
-            borderTop: `3px solid ${POL_RED}`,
-            background: 'rgba(255,255,255,0.05)',
-            marginBottom: 12,
-          }}>
-            <p style={{ margin: '0 0 3px', fontSize: 10, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: POL_RED }}>
-              Explore the map
-            </p>
-            <p style={{ margin: '0 0 16px', fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.55 }}>
-              200+ stories and video.<br />Discover Lisbon through its people.
-            </p>
-            <button onClick={() => setScreen('form')} style={{
-              width: '100%', padding: '15px',
-              background: POL_RED, color: 'white', border: 'none', borderRadius: 2,
-              fontSize: 12, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase',
-              cursor: 'pointer',
+            {/* Logo + back */}
+            <div style={{ position: 'fixed', top: 'max(env(safe-area-inset-top), 20px)', left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 28px', zIndex: 20 }}>
+              <img src={logoUrl} alt="People Of Lisbon"
+                style={{ width: 40, height: 40, objectFit: 'contain', display: 'block' }}
+                onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
+              <button onClick={() => setScreen('splash')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.45)', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0 }}>
+                ← Back
+              </button>
+            </div>
+
+            {/* PATH 1 — Explore the map */}
+            <div style={{
+              borderTop: `4px solid ${POL_RED}`,
+              background: 'rgba(255,255,255,0.07)',
+              padding: '28px 24px',
+              marginBottom: 16,
             }}>
-              Enter the Map →
-            </button>
-          </div>
+              <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 900, letterSpacing: '0.25em', textTransform: 'uppercase', color: POL_RED }}>
+                Explore the map
+              </p>
+              <p style={{ margin: '0 0 20px', fontSize: 15, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
+                Discover 200+ real stories and videos across Lisbon.<br />
+                Tap into the city through the people who live it.
+              </p>
+              <button onClick={() => setScreen('form')} style={{
+                width: '100%', padding: '17px',
+                background: POL_RED, color: 'white', border: 'none', borderRadius: 2,
+                fontSize: 13, fontWeight: 900, letterSpacing: '0.16em', textTransform: 'uppercase',
+                cursor: 'pointer', boxShadow: '0 4px 20px rgba(200,16,46,0.4)',
+              }}>
+                Enter the Map →
+              </button>
+            </div>
 
-          {/* PATH 2 — Members */}
-          <div style={{
-            padding: '22px 22px',
-            borderTop: '3px solid rgba(255,255,255,0.7)',
-            background: 'rgba(255,255,255,0.05)',
-            marginBottom: 24,
-          }}>
-            <p style={{ margin: '0 0 3px', fontSize: 10, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'white' }}>
-              Members
-            </p>
-            <p style={{ margin: '0 0 16px', fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.55 }}>
-              Events, perks, membership card, discounts.
-            </p>
-            <a href="/auth/member-login" style={{
-              display: 'block', width: '100%', padding: '15px',
-              border: '2px solid rgba(255,255,255,0.5)', borderRadius: 2,
-              color: 'white', textDecoration: 'none', textAlign: 'center',
-              fontSize: 12, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase',
-              boxSizing: 'border-box',
+            {/* PATH 2 — Members */}
+            <div style={{
+              borderTop: '4px solid rgba(255,255,255,0.7)',
+              background: 'rgba(255,255,255,0.07)',
+              padding: '28px 24px',
+              marginBottom: 20,
             }}>
-              Member Sign In →
-            </a>
-          </div>
+              <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 900, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'white' }}>
+                Members
+              </p>
+              <p style={{ margin: '0 0 20px', fontSize: 15, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
+                Events. Community. Perks.<br />
+                Membership card.<br />
+                Exclusive discounts across Lisbon.<br />
+                Access to the People Of Lisbon network.
+              </p>
+              <a href="/auth/member-login" style={{
+                display: 'block', width: '100%', padding: '17px',
+                border: '2px solid rgba(255,255,255,0.55)', borderRadius: 2,
+                color: 'white', textDecoration: 'none', textAlign: 'center',
+                fontSize: 13, fontWeight: 900, letterSpacing: '0.16em', textTransform: 'uppercase',
+                boxSizing: 'border-box',
+              }}>
+                Member Sign In →
+              </a>
+            </div>
 
-          {/* Footer */}
-          <p style={{ margin: 0, textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>
-            Want to join the club?{' '}
-            <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer"
-              style={{ color: 'rgba(255,255,255,0.55)', fontWeight: 700, textDecoration: 'none' }}>
-              peopleoflisbon.com →
-            </a>
-          </p>
+            {/* JOIN THE CLUB — prominent third block */}
+            <div style={{
+              borderTop: '4px solid #E6B75C',
+              background: 'rgba(230,183,92,0.1)',
+              padding: '28px 24px',
+            }}>
+              <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 900, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#E6B75C' }}>
+                Want to join the club?
+              </p>
+              <p style={{ margin: '0 0 20px', fontSize: 15, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
+                100+ members already inside.
+              </p>
+              <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer" style={{
+                display: 'block', width: '100%', padding: '17px',
+                background: '#E6B75C', color: '#1C1C1C', textDecoration: 'none', textAlign: 'center',
+                borderRadius: 2, fontSize: 13, fontWeight: 900, letterSpacing: '0.16em', textTransform: 'uppercase',
+                boxSizing: 'border-box',
+              }}>
+                Join → peopleoflisbon.com
+              </a>
+            </div>
+
+          </div>
         </div>
       )}
 
-      {/* ══════════════════════════════════
-          SCREEN 3 — MAP ACCESS FORM (unchanged logic)
-      ══════════════════════════════════ */}
+      {/* ════════════════════════════════════════
+          SCREEN 3 — MAP FORM (auth logic unchanged)
+      ════════════════════════════════════════ */}
       {(screen === 'form' || screen === 'forgot') && (
         <div style={{
           position: 'absolute', inset: 0, display: 'flex',
           alignItems: 'flex-end', justifyContent: 'center', zIndex: 20,
         }}>
           <div style={{
-            width: '100%', maxWidth: 480,
-            background: 'rgba(10,10,10,0.97)', backdropFilter: 'blur(20px)',
-            borderRadius: '16px 16px 0 0',
-            padding: '20px 28px calc(env(safe-area-inset-bottom) + 28px)',
+            width: '100%', maxWidth: 520,
+            background: 'rgba(10,10,10,0.97)', backdropFilter: 'blur(24px)',
+            borderRadius: '20px 20px 0 0',
+            padding: '20px 32px calc(env(safe-area-inset-bottom) + 32px)',
             border: '1px solid rgba(255,255,255,0.08)',
           }}>
-            <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 20px' }} />
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 22px' }} />
 
-            {screen === 'form' ? (
-              <>
-                <button onClick={() => setScreen('choice')}
-                  style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer', padding: 0, marginBottom: 14 }}>
-                  ← Back
-                </button>
-                <h2 style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 800, color: 'white', letterSpacing: '-0.01em', textTransform: 'uppercase' }}>Explore the map</h2>
-                <p style={{ margin: '0 0 22px', fontSize: 13, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>No spam. Just good people.</p>
-
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 9, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Email</label>
-                    <input type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email"
-                      style={{ width: '100%', padding: '13px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 4, color: 'white', fontSize: 15, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
-                  </div>
-                  <div style={{ position: 'relative' }}>
-                    <label style={{ display: 'block', fontSize: 9, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Password</label>
-                    <input type={showPw ? 'text' : 'password'} placeholder="Min 6 characters" value={password} onChange={e => setPassword(e.target.value)} required autoComplete="current-password"
-                      style={{ width: '100%', padding: '13px 44px 13px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 4, color: 'white', fontSize: 15, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
-                    <button type="button" onClick={() => setShowPw(!showPw)}
-                      style={{ position: 'absolute', right: 12, bottom: 13, background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)', cursor: 'pointer', padding: 0, fontSize: 16 }}>
-                      {showPw ? '🙈' : '👁'}
-                    </button>
-                  </div>
-                  <button type="button" onClick={() => setScreen('forgot')}
-                    style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)', fontSize: 12, cursor: 'pointer', textAlign: 'right', padding: 0 }}>
-                    Forgot password?
+            {screen === 'form' ? (<>
+              <button onClick={() => setScreen('choice')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer', padding: 0, marginBottom: 16 }}>← Back</button>
+              <h2 style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 800, color: 'white', letterSpacing: '-0.01em', textTransform: 'uppercase' }}>Explore the map</h2>
+              <p style={{ margin: '0 0 24px', fontSize: 13, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>No spam. Just good people.</p>
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 9, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Email</label>
+                  <input type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email"
+                    style={{ width: '100%', padding: '13px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 4, color: 'white', fontSize: 15, fontFamily: ff, outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+                <div style={{ position: 'relative' }}>
+                  <label style={{ display: 'block', fontSize: 9, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Password</label>
+                  <input type={showPw ? 'text' : 'password'} placeholder="Min 6 characters" value={password} onChange={e => setPassword(e.target.value)} required autoComplete="current-password"
+                    style={{ width: '100%', padding: '13px 44px 13px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 4, color: 'white', fontSize: 15, fontFamily: ff, outline: 'none', boxSizing: 'border-box' }} />
+                  <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: 'absolute', right: 12, bottom: 13, background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)', cursor: 'pointer', padding: 0, fontSize: 16 }}>
+                    {showPw ? '🙈' : '👁'}
                   </button>
-                  {error && <p style={{ fontSize: 13, color: '#f87171', margin: 0 }}>{error}</p>}
-                  <button type="submit" disabled={loading || !email.trim() || password.length < 6} style={{
-                    padding: '16px', background: loading ? 'rgba(200,16,46,0.5)' : POL_RED,
-                    color: 'white', border: 'none', borderRadius: 3,
-                    fontSize: 13, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase',
-                    cursor: loading ? 'not-allowed' : 'pointer', marginTop: 4,
-                  }}>
-                    {loading ? 'Entering…' : 'Enter the Map →'}
+                </div>
+                <button type="button" onClick={() => setScreen('forgot')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)', fontSize: 12, cursor: 'pointer', textAlign: 'right', padding: 0 }}>
+                  Forgot password?
+                </button>
+                {error && <p style={{ fontSize: 13, color: '#f87171', margin: 0 }}>{error}</p>}
+                <button type="submit" disabled={loading || !email.trim() || password.length < 6} style={{
+                  padding: '16px', background: loading ? 'rgba(200,16,46,0.5)' : POL_RED,
+                  color: 'white', border: 'none', borderRadius: 3, marginTop: 4,
+                  fontSize: 13, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                }}>
+                  {loading ? 'Entering…' : 'Enter the Map →'}
+                </button>
+              </form>
+            </>) : (<>
+              <button onClick={() => setScreen('form')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer', padding: 0, marginBottom: 20 }}>← Back</button>
+              <h2 style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 800, color: 'white', letterSpacing: '-0.01em', textTransform: 'uppercase' }}>Reset password</h2>
+              <p style={{ margin: '0 0 22px', fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>Enter your email and we'll send a reset link.</p>
+              {forgotSent ? (
+                <p style={{ fontSize: 14, color: '#4ade80', fontWeight: 600 }}>✓ Reset link sent — check your inbox.</p>
+              ) : (
+                <form onSubmit={handleForgot} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <input type="email" placeholder="your@email.com" value={email} onChange={e => setEmail(e.target.value)} required
+                    style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 4, color: 'white', fontSize: 15, fontFamily: ff, outline: 'none' }} />
+                  <button type="submit" disabled={loading} style={{ padding: '15px', background: POL_RED, color: 'white', border: 'none', borderRadius: 3, fontSize: 13, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                    {loading ? 'Sending…' : 'Send reset link'}
                   </button>
                 </form>
-              </>
-            ) : (
-              <>
-                <button onClick={() => setScreen('form')}
-                  style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer', padding: 0, marginBottom: 20 }}>
-                  ← Back
-                </button>
-                <h2 style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 800, color: 'white', letterSpacing: '-0.01em', textTransform: 'uppercase' }}>Reset password</h2>
-                <p style={{ margin: '0 0 22px', fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>Enter your email and we'll send a reset link.</p>
-                {forgotSent ? (
-                  <p style={{ fontSize: 14, color: '#4ade80', fontWeight: 600 }}>✓ Reset link sent — check your inbox.</p>
-                ) : (
-                  <form onSubmit={handleForgot} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    <input type="email" placeholder="your@email.com" value={email} onChange={e => setEmail(e.target.value)} required
-                      style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 4, color: 'white', fontSize: 15, fontFamily: 'inherit', outline: 'none' }} />
-                    <button type="submit" disabled={loading} style={{ padding: '15px', background: POL_RED, color: 'white', border: 'none', borderRadius: 3, fontSize: 13, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer' }}>
-                      {loading ? 'Sending…' : 'Send reset link'}
-                    </button>
-                  </form>
-                )}
-              </>
-            )}
+              )}
+            </>)}
           </div>
         </div>
       )}
