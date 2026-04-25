@@ -229,7 +229,7 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
             <button onClick={handleSignOut}
               className="w-full mt-1 px-3 py-2 text-xs font-medium text-left rounded-lg transition-colors hover:bg-stone-50"
               style={{ color: '#C8BEB2' }}>
-              Sign out
+              Log out
             </button>
           </div>
         </div>
@@ -292,7 +292,7 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
               </Link>
             );
           })}
-          {/* Sign out on mobile — compact */}
+          {/* Log out on mobile — compact */}
           <button onClick={handleSignOut}
             className="flex flex-col items-center justify-center flex-1 text-stone-400 hover:text-stone-600 transition-colors"
             style={{ paddingTop: '8px', paddingBottom: '4px', minHeight: '52px', fontSize: '18px' }}>

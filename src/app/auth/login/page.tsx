@@ -95,7 +95,7 @@ export default function GatewayPage() {
 
             {/* Logo */}
             <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 24px)', left: 32 }}>
-              <img src={logoUrl} alt="People Of Lisbon"
+              <img src={logoUrl || '/pol-logo.png'} alt="People Of Lisbon"
                 style={{ width: 46, height: 46, objectFit: 'contain', display: 'block' }}
                 onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
             </div>
@@ -141,7 +141,7 @@ export default function GatewayPage() {
 
             {/* Logo + back */}
             <div style={{ position: 'fixed', top: 'max(env(safe-area-inset-top), 20px)', left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 28px', zIndex: 20 }}>
-              <img src={logoUrl} alt="People Of Lisbon"
+              <img src={logoUrl || '/pol-logo.png'} alt="People Of Lisbon"
                 style={{ width: 40, height: 40, objectFit: 'contain', display: 'block' }}
                 onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
               <button onClick={() => setScreen('splash')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.45)', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0 }}>

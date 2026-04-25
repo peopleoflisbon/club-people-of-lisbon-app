@@ -96,9 +96,10 @@ interface Props {
   stephenProfile: { full_name: string; avatar_url: string } | null;
   brandLogoUrl?: string;
   latestEpisodeUrl?: string;
+  latestRec?: { id: string; name: string; category: string; neighbourhood: string } | null;
 }
 
-export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl }: Props) {
+export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl, latestRec }: Props) {
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
   const newestMember = recentMembers[0] || null;
   const gap = 18;
@@ -160,8 +161,8 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                 <Link key={event.id} href={`/events/${event.id}`}
                   style={{ display: 'block', ...card, textDecoration: 'none' }}>
                   {event.image_url ? (
-                    <div style={{ position: 'relative', height: 150 }}>
-                      <Image src={event.image_url} alt={event.title} fill style={{ objectFit: 'cover' }} unoptimized />
+                    <div style={{ position: 'relative', height: 150, overflow: 'hidden' }}>
+                      <img src={event.image_url} alt={event.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                       <ImgOverlay />
                       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 16px' }}>
                         <p style={{ fontSize: 16, fontWeight: 700, color: '#fff', margin: '0 0 3px', lineHeight: 1.2, ...imgText }}>
@@ -258,7 +259,27 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
         <div style={{ padding: pad, marginBottom: gap }}>
           <Eye t="Explore the club" color={MUTED} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
-            <Mod href="/recommendations" eye="Curated by POL"  title="Recommendations"          sub="Restaurants, cafés & experiences" />
+            {/* Recommendations — with latest rec preview */}
+            <Link href="/recommendations" style={{ display: 'block', ...card, textDecoration: 'none' }}>
+              <div style={{ borderLeft: `4px solid ${BLUE}`, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ flex: 1 }}>
+                  <Eye t="Curated by POL" color={BLUE} />
+                  <p style={{ fontSize: 16, fontWeight: 700, color: INK, margin: '0 0 2px', fontFamily: FF }}>Recommendations</p>
+                  {latestRec ? (
+                    <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>
+                      Latest: <span style={{ fontWeight: 600, color: INK }}>{latestRec.name}</span>
+                      {latestRec.neighbourhood ? ` · ${latestRec.neighbourhood}` : ''}
+                    </p>
+                  ) : (
+                    <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>Restaurants, cafés & experiences</p>
+                  )}
+                </div>
+                <div style={{ flexShrink: 0, width: 48, height: 48, borderRadius: 10, background: '#EAF2F8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
+                  {latestRec?.category === 'Restaurant' ? '🍽️' : latestRec?.category === 'Coffee' ? '☕' : latestRec?.category === 'Bar' ? '🍷' : latestRec?.category === 'Experience' ? '✨' : latestRec?.category === 'Shop' ? '🛍️' : latestRec?.category === 'Culture' ? '🎨' : '📍'}
+                </div>
+                <Chev color={BLUE} />
+              </div>
+            </Link>
             <Mod href="/board"           eye="Community"        title="Message Board"             sub="Post a thought or happening" />
             <Mod href="/membership-card" eye="Members only"     title="Membership Card + Offers"  sub="Your card and member discounts" />
             <Mod href="/leaderboard"     eye="Club"             title="Leaderboard"               sub="Totally pointless, just for fun" />
