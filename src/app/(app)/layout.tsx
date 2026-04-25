@@ -7,15 +7,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const supabase = createServerClient();
   const { data: { session } } = await supabase.auth.getSession();
 
-  // No session — middleware already ensures only public routes reach here (e.g. /map)
-  // Just render children without the app shell
-  if (!session) {
-    return (
-      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        {children}
-      </div>
-    );
-  }
+  if (!session) return <>{children}</>;
 
   // Read role from profiles table — most reliable source
   const admin = createClient(
