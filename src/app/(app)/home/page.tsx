@@ -65,7 +65,7 @@ export default async function HomePage() {
       .limit(1),
     supabase.from('app_settings').select('value').eq('key', 'brand_square_image_url').single(),
     supabase.from('app_settings').select('value').eq('key', 'latest_episode_url').single(),
-    (supabase as any).from('recommendations').select('id, name, category, neighbourhood').eq('is_published', true).order('display_order', { ascending: true }).limit(1),
+    (supabase as any).from('recommendations').select('id, name, category, neighbourhood, image_url').eq('is_published', true).order('display_order', { ascending: true }).limit(1),
   ]);
 
   const { data: stephenProfile } = await (supabase as any)

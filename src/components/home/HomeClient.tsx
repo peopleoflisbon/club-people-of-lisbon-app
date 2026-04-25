@@ -96,7 +96,7 @@ interface Props {
   stephenProfile: { full_name: string; avatar_url: string } | null;
   brandLogoUrl?: string;
   latestEpisodeUrl?: string;
-  latestRec?: { id: string; name: string; category: string; neighbourhood: string } | null;
+  latestRec?: { id: string; name: string; category: string; neighbourhood: string; image_url?: string } | null;
 }
 
 export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl, latestRec }: Props) {
@@ -259,23 +259,39 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
         <div style={{ padding: pad, marginBottom: gap }}>
           <Eye t="Explore the club" color={MUTED} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
-            {/* Recommendations — with latest rec preview */}
+            {/* Recommendations — with image preview like events */}
             <Link href="/recommendations" style={{ display: 'block', ...card, textDecoration: 'none' }}>
-              <div style={{ borderLeft: `4px solid ${BLUE}`, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ flex: 1 }}>
-                  <Eye t="Curated by POL" color={BLUE} />
-                  <p style={{ fontSize: 16, fontWeight: 700, color: INK, margin: '0 0 2px', fontFamily: FF }}>Recommendations</p>
-                  {latestRec ? (
-                    <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>
-                      Latest: <span style={{ fontWeight: 600, color: INK }}>{latestRec.name}</span>
-                      {latestRec.neighbourhood ? ` · ${latestRec.neighbourhood}` : ''}
+              {latestRec?.image_url ? (
+                <div style={{ position: 'relative', height: 150, overflow: 'hidden' }}>
+                  <img src={latestRec.image_url} alt={latestRec.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  <ImgOverlay />
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 16px' }}>
+                    <p style={{ fontSize: 16, fontWeight: 700, color: '#fff', margin: '0 0 3px', lineHeight: 1.2, ...imgText }}>{latestRec.name}</p>
+                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, ...imgText }}>
+                      {latestRec.category}{latestRec.neighbourhood ? ` · ${latestRec.neighbourhood}` : ''}
                     </p>
-                  ) : (
-                    <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>Restaurants, cafés & experiences</p>
-                  )}
+                  </div>
+                  <div style={{ position: 'absolute', top: 12, left: 12, background: BLUE, borderRadius: 8, padding: '5px 10px' }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, color: '#fff', textTransform: 'uppercase', margin: 0, letterSpacing: '0.08em' }}>Recommended</p>
+                  </div>
                 </div>
-                <Chev color={BLUE} />
-              </div>
+              ) : (
+                <div style={{ borderLeft: `4px solid ${BLUE}`, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ flex: 1 }}>
+                    <Eye t="Curated by POL" color={BLUE} />
+                    <p style={{ fontSize: 16, fontWeight: 700, color: INK, margin: '0 0 2px', fontFamily: FF }}>Recommendations</p>
+                    {latestRec ? (
+                      <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>
+                        Latest: <span style={{ fontWeight: 600, color: INK }}>{latestRec.name}</span>
+                        {latestRec.neighbourhood ? ` · ${latestRec.neighbourhood}` : ''}
+                      </p>
+                    ) : (
+                      <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>Restaurants, cafés & experiences</p>
+                    )}
+                  </div>
+                  <Chev color={BLUE} />
+                </div>
+              )}
             </Link>
             <Mod href="/board"           eye="Community"        title="Message Board"             sub="Post a thought or happening" />
             <Mod href="/membership-card" eye="Members only"     title="Membership Card + Offers"  sub="Your card and member discounts" />
@@ -312,9 +328,9 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           <div style={{ padding: pad, marginBottom: gap }}>
             <Head eye="Photography" title="Rita's Latest Photos" href="/photos" />
             <Link href="/photos" style={{ display: 'block', ...card, textDecoration: 'none' }}>
-              <div style={{ position: 'relative', aspectRatio: '4/3' }}>
-                <Image src={latestPhoto.image_url} alt={latestPhoto.title || "Rita's photo"} fill
-                  style={{ objectFit: 'cover' }} unoptimized />
+              <div style={{ position: 'relative', overflow: 'hidden' }}>
+                <img src={latestPhoto.image_url} alt={latestPhoto.title || "Rita's photo"}
+                  style={{ width: '100%', display: 'block', maxHeight: 520, objectFit: 'contain', background: '#111' }} />
                 <ImgOverlay />
                 {latestPhoto.title && (
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 18px' }}>
