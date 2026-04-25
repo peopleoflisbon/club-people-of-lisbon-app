@@ -1,14 +1,18 @@
 import { createServerClient } from '@/lib/supabase-server';
 import { createClient } from '@supabase/supabase-js';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import AppShell from '@/components/layout/AppShell';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const pathname = headers().get('x-pathname') || '';
   const supabase = createServerClient();
   const { data: { session } } = await supabase.auth.getSession();
 
-  if (!session) return <>{children}</>;
-
+  if (!session && (pathname === '/map' || pathname.startsWith('/map/'))) {
+    return <>{children}</>;
+  }
+  if (!session) redirect('/auth/login');
   // Read role from profiles table — most reliable source
   const admin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
