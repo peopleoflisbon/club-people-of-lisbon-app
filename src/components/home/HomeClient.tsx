@@ -1,4 +1,4 @@
-'use client';
+use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -10,81 +10,58 @@ import LatestEpisode from '@/components/home/LatestEpisode';
 import { formatDate, formatDateTime } from '@/lib/utils';
 import ScrollPage from '@/components/ui/ScrollPage';
 
-// ─── Design tokens ────────────────────────────────────────
-const BG   = '#F5F1EA';
-const CARD = '#FFFFFF';
-const BLUE = '#2F6DA5';
-const GOLD = '#E6B75C';
-const INK  = '#1C1C1C';
-const MUTED= '#8A7C6E';
-const BORDER = '1px solid #EDE7DC';
-const SHADOW = '0 2px 12px rgba(0,0,0,0.07)';
-const SHADOW_HOVER = '0 6px 24px rgba(0,0,0,0.11)';
-const RADIUS = '14px';
+// \u2500\u2500 Section theme tokens \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+const LIGHT  = { bg: '#F5F1EA', text: '#1C1C1C', muted: '#8A7C6E', border: '#EDE7DC' };
+const BLUE   = { bg: '#EAF2F8', text: '#1C1C1C', muted: '#5A7A8E', border: '#C5DFF0' };
+const DARK   = { bg: '#111111', text: '#FFFFFF',  muted: '#888888', border: '#2A2A2A' };
+const ACCENT = { bg: '#1A1A1A', text: '#FFFFFF',  muted: '#666666', border: '#2A2A2A' };
 
-// ─── Card wrapper ─────────────────────────────────────────
-const card: React.CSSProperties = {
-  background: CARD,
-  borderRadius: RADIUS,
-  boxShadow: SHADOW,
-  overflow: 'hidden',
-  border: 'none',
-};
-
-// ─── Eyebrow label ────────────────────────────────────────
-const Eye = ({ t, color = MUTED }: { t: string; color?: string }) => (
-  <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.13em',
-    textTransform: 'uppercase', color, margin: '0 0 6px' }}>{t}</p>
+// \u2500\u2500 Tiny helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+const Eyebrow = ({ label, color = LIGHT.muted }: { label: string; color?: string }) => (
+  <p style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color, marginBottom: '8px' }}>
+    {label}
+  </p>
 );
 
-// ─── Section row header ───────────────────────────────────
-const Head = ({ eye, title, href }: { eye: string; title: string; href?: string }) => (
-  <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 14 }}>
+const SectionHead = ({ eyebrow, title, href, linkLabel, dark = false }:
+  { eyebrow: string; title: string; href?: string; linkLabel?: string; dark?: boolean }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '16px' }}>
     <div>
-      <Eye t={eye} color={BLUE} />
-      <h2 style={{ fontSize: 22, fontWeight: 700, color: INK, margin: 0, letterSpacing: '-0.02em', lineHeight: 1.15 }}>{title}</h2>
+      <Eyebrow label={eyebrow} color={dark ? '#666' : LIGHT.muted} />
+      <h2 style={{ fontSize: '26px', fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.1, color: dark ? '#fff' : '#1C1C1C', margin: 0 }}>
+        {title}
+      </h2>
     </div>
     {href && (
-      <Link href={href} style={{ fontSize: 12, fontWeight: 600, color: BLUE, textDecoration: 'none', whiteSpace: 'nowrap', marginLeft: 12, paddingBottom: 2 }}>
-        See all →
+      <Link href={href} style={{ fontSize: '12px', fontWeight: 600, color: dark ? '#E6B75C' : '#2F6DA5', textDecoration: 'none', whiteSpace: 'nowrap', marginLeft: '12px' }}>
+        {linkLabel || 'See all \u2192'}
       </Link>
     )}
   </div>
 );
 
-// ─── Chevron icon ─────────────────────────────────────────
-const Chev = ({ color = BLUE }: { color?: string }) => (
-  <svg style={{ width: 18, height: 18, flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke={color} strokeWidth={2.2}>
+const ChevronRight = ({ color = '#2F6DA5' }: { color?: string }) => (
+  <svg style={{ width: 18, height: 18, flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke={color} strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
   </svg>
 );
 
-// ─── Module row card ──────────────────────────────────────
-const Mod = ({ href, eye, title, sub, accent = BLUE }: {
-  href: string; eye: string; title: string; sub: string; accent?: string;
-}) => (
-  <Link href={href} style={{ display: 'block', ...card, textDecoration: 'none' }}>
-    <div style={{ borderLeft: `3px solid ${accent}`, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
-      <div style={{ flex: 1 }}>
-        <Eye t={eye} color={accent} />
-        <p style={{ fontSize: 16, fontWeight: 600, color: INK, margin: '0 0 2px' }}>{title}</p>
-        <p style={{ fontSize: 12, color: MUTED, margin: 0, lineHeight: 1.4 }}>{sub}</p>
+// \u2500\u2500 Module link card \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+function ModuleCard({ href, eyebrow, title, subtitle, accentColor = '#2F6DA5' }:
+  { href: string; eyebrow: string; title: string; subtitle: string; accentColor?: string }) {
+  return (
+    <Link href={href} style={{ display: 'block', background: '#FFFFFF', borderRadius: '10px', border: '1px solid #EDE7DC', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', textDecoration: 'none', overflow: 'hidden' }}>
+      <div style={{ borderLeft: `3px solid ${accentColor}`, padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+        <div>
+          <p style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: accentColor, marginBottom: '3px' }}>{eyebrow}</p>
+          <p style={{ fontSize: '17px', fontWeight: 600, color: '#1C1C1C', margin: '0 0 2px' }}>{title}</p>
+          <p style={{ fontSize: '12px', color: '#A89A8C', margin: 0 }}>{subtitle}</p>
+        </div>
+        <ChevronRight color={accentColor} />
       </div>
-      <Chev color={accent} />
-    </div>
-  </Link>
-);
-
-// ─── Soft image gradient overlay ─────────────────────────
-const ImgOverlay = () => (
-  <div style={{ position: 'absolute', inset: 0,
-    background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 45%, transparent 100%)' }} />
-);
-
-// ─── Text shadow for image text ───────────────────────────
-const imgText: React.CSSProperties = {
-  textShadow: '0 1px 3px rgba(0,0,0,0.45)',
-};
+    </Link>
+  );
+}
 
 interface Props {
   profile: { full_name: string; avatar_url: string; neighborhood: string } | null;
@@ -97,218 +74,212 @@ interface Props {
   latestEpisodeUrl?: string;
 }
 
-export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl }: Props) {
+export default function HomeClient({ profile, recentMembers, upcomingEvents, latestPhoto, latestUpdate, stephenProfile, brandLogoUrl, latestEpisodeUrl }: Props) {
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
   const newestMember = recentMembers[0] || null;
-  const gap = 18;
-  const pad = '0 16px';
 
   return (
     <ScrollPage>
-      <div style={{ maxWidth: 680, margin: '0 auto', background: BG, paddingBottom: 32 }}>
+    <div style={{ maxWidth: '680px', margin: '0 auto' }}>
 
-        {/* ─── HERO ─────────────────────────────────────── */}
-        <div style={{ background: CARD, padding: '32px 20px 24px', borderBottom: BORDER, marginBottom: gap }}>
-          <Eye t="Club People Of Lisbon" color={BLUE} />
-          <h1 style={{ fontSize: 'clamp(26px, 5.5vw, 34px)', fontWeight: 700, color: INK,
-            letterSpacing: '-0.025em', lineHeight: 1.1, margin: '0 0 8px' }}>
-            Good to see you, {firstName}.
-          </h1>
-          <p style={{ fontSize: 14, color: MUTED, margin: 0, lineHeight: 1.6 }}>
-            Lisbon's most interesting people, all in one place.
-          </p>
+      {/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+          HERO \u2014 clean white, spacious
+      \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */}
+      <div style={{ background: '#FFFFFF', padding: '36px 20px 28px', borderBottom: '1px solid #EDE7DC' }}>
+        <Eyebrow label="Club People Of Lisbon" color="#2F6DA5" />
+        <h1 style={{ fontSize: 'clamp(28px, 6vw, 38px)', fontWeight: 700, letterSpacing: '-0.025em', lineHeight: 1.1, color: '#1C1C1C', margin: '0 0 10px' }}>
+          Good to see you,<br />{firstName}.
+        </h1>
+        <p style={{ fontSize: '14px', color: '#A89A8C', margin: 0 }}>
+          Lisbon's most interesting people, all in one place.
+        </p>
+      </div>
+
+      {/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+          WEATHER \u2014 light editorial strip
+      \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */}
+      <div style={{ background: LIGHT.bg, padding: '16px 20px 0' }}>
+        <LisbonWeather />
+      </div>
+
+      {/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+          LATEST EPISODE \u2014 DARK FEATURE section
+      \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */}
+      {latestEpisodeUrl && (
+        <div style={{ background: DARK.bg, padding: '28px 20px' }}>
+          <SectionHead eyebrow="Latest episode" title="Watch Now" dark />
+          <div style={{ borderRadius: '10px', overflow: 'hidden' }}>
+            <LatestEpisode url={latestEpisodeUrl} />
+          </div>
         </div>
+      )}
 
-        {/* ─── 1. WEATHER ───────────────────────────────── */}
-        <div style={{ padding: pad, marginBottom: gap }}>
-          <LisbonWeather />
-        </div>
-
-        {/* ─── 2. LATEST FROM STEPHEN ───────────────────── */}
-        {latestUpdate && (
-          <div style={{ padding: pad, marginBottom: gap }}>
-            <Head eye="From the founder" title="Latest from Stephen" href="/updates" />
-            <Link href="/updates" style={{ display: 'block', ...card, textDecoration: 'none' }}>
-              <div style={{ borderLeft: `4px solid ${GOLD}`, padding: '18px 20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: `2px solid ${GOLD}` }}>
+      {/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+          LATEST FROM STEPHEN \u2014 light editorial card
+      \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */}
+      {latestUpdate && (
+        <div style={{ background: LIGHT.bg, padding: '28px 20px' }}>
+          <SectionHead eyebrow="From the founder" title="Latest from Stephen" href="/updates" linkLabel="All updates \u2192" />
+          <Link href="/updates" style={{ display: 'block', textDecoration: 'none' }}>
+            <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid #EDE7DC', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+              <div style={{ borderLeft: '4px solid #E6B75C', padding: '18px 20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
                     <Avatar src={stephenProfile?.avatar_url || ''} name={stephenProfile?.full_name || 'Stephen'} size="sm" />
                   </div>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: INK, margin: 0 }}>
-                      {stephenProfile?.full_name || "Stephen O'Regan"}
-                    </p>
-                    <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>{formatDate(latestUpdate.published_at)}</p>
+                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#1C1C1C', margin: 0 }}>{stephenProfile?.full_name || "Stephen O'Regan"}</p>
+                    <p style={{ fontSize: '11px', color: '#A89A8C', margin: 0 }}>{formatDate(latestUpdate.published_at)}</p>
                   </div>
                 </div>
-                <p style={{ fontSize: 17, fontWeight: 600, color: INK, margin: '0 0 10px', lineHeight: 1.35 }}>
-                  {latestUpdate.title}
-                </p>
-                <p style={{ fontSize: 12, fontWeight: 600, color: BLUE, margin: 0 }}>Read more →</p>
-              </div>
-            </Link>
-          </div>
-        )}
-
-        {/* ─── 3. EVENTS ────────────────────────────────── */}
-        {upcomingEvents.length > 0 && (
-          <div style={{ padding: pad, marginBottom: gap }}>
-            <Head eye="What's on" title="Upcoming Events" href="/events" />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {upcomingEvents.map((event: any) => (
-                <Link key={event.id} href={`/events/${event.id}`}
-                  style={{ display: 'block', ...card, textDecoration: 'none' }}>
-                  {event.image_url ? (
-                    <div style={{ position: 'relative', height: 150 }}>
-                      <Image src={event.image_url} alt={event.title} fill style={{ objectFit: 'cover' }} unoptimized />
-                      <ImgOverlay />
-                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 16px' }}>
-                        <p style={{ fontSize: 16, fontWeight: 700, color: '#fff', margin: '0 0 3px', lineHeight: 1.2, ...imgText }}>
-                          {event.title}
-                        </p>
-                        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, ...imgText }}>
-                          {formatDateTime(event.starts_at)}{event.location_name ? ` · ${event.location_name}` : ''}
-                        </p>
-                      </div>
-                      <div style={{ position: 'absolute', top: 12, left: 12, background: BLUE, borderRadius: 8, padding: '5px 8px', textAlign: 'center', minWidth: 44 }}>
-                        <p style={{ fontSize: 10, fontWeight: 700, color: '#fff', textTransform: 'uppercase', margin: '0 0 1px', lineHeight: 1 }}>
-                          {new Date(event.starts_at).toLocaleDateString('en', { month: 'short' })}
-                        </p>
-                        <p style={{ fontSize: 19, fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1 }}>
-                          {new Date(event.starts_at).getDate()}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '14px 16px' }}>
-                      <div style={{ background: BLUE, borderRadius: 8, padding: '6px 8px', textAlign: 'center', minWidth: 44, flexShrink: 0 }}>
-                        <p style={{ fontSize: 10, fontWeight: 700, color: '#fff', textTransform: 'uppercase', margin: '0 0 1px', lineHeight: 1 }}>
-                          {new Date(event.starts_at).toLocaleDateString('en', { month: 'short' })}
-                        </p>
-                        <p style={{ fontSize: 19, fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1 }}>
-                          {new Date(event.starts_at).getDate()}
-                        </p>
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: 15, fontWeight: 600, color: INK, margin: '0 0 3px', lineHeight: 1.3 }}>{event.title}</p>
-                        {event.location_name && <p style={{ fontSize: 12, color: MUTED, margin: '0 0 1px' }}>{event.location_name}</p>}
-                        <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>{formatDateTime(event.starts_at)}</p>
-                      </div>
-                    </div>
-                  )}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ─── 4. NEW MEMBER ────────────────────────────── */}
-        {newestMember && (
-          <div style={{ padding: pad, marginBottom: gap }}>
-            <Head eye="New to the club" title="Say Hello" href="/members" />
-            <Link href={`/members/${newestMember.id}`}
-              style={{ display: 'flex', alignItems: 'center', gap: 14, ...card, padding: '16px 18px', textDecoration: 'none' }}>
-              <Avatar src={newestMember.avatar_url} name={newestMember.full_name} size="xl" />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 18, fontWeight: 700, color: INK, margin: '0 0 3px', lineHeight: 1.2 }}>
-                  {newestMember.full_name}
-                </p>
-                {newestMember.headline && (
-                  <p style={{ fontSize: 13, color: MUTED, margin: '0 0 7px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {newestMember.headline}
-                  </p>
-                )}
-                {newestMember.neighborhood && (
-                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', color: BLUE,
-                    background: '#EAF2F8', padding: '3px 8px', borderRadius: 5, display: 'inline-block' }}>
-                    {newestMember.neighborhood}
-                  </span>
-                )}
-              </div>
-              <Chev />
-            </Link>
-          </div>
-        )}
-
-        {/* ─── 5. LATEST EPISODE ────────────────────────── */}
-        {latestEpisodeUrl && (
-          <div style={{ padding: pad, marginBottom: gap }}>
-            <Head eye="People Of Lisbon" title="Latest Episode" />
-            <div style={{ ...card }}>
-              <LatestEpisode url={latestEpisodeUrl} />
-            </div>
-          </div>
-        )}
-
-        {/* ─── 6. PODCAST ───────────────────────────────── */}
-        <div style={{ padding: pad, marginBottom: gap }}>
-          <Head eye="Listen" title="Latest Podcast" />
-          <div style={{ ...card, overflow: 'visible' }}>
-            <LatestPodcast />
-          </div>
-        </div>
-
-        {/* ─── 7. PORTUGUESE PHRASE ─────────────────────── */}
-        <div style={{ padding: pad, marginBottom: gap }}>
-          <PortuguesePhrase />
-        </div>
-
-        {/* ─── 8. MODULES ───────────────────────────────── */}
-        <div style={{ padding: pad, marginBottom: gap }}>
-          <Eye t="Explore the club" color={MUTED} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
-            <Mod href="/recommendations" eye="Curated by POL"  title="Recommendations"          sub="Restaurants, cafés & experiences" />
-            <Mod href="/board"           eye="Community"        title="Message Board"             sub="Post a thought or happening" />
-            <Mod href="/membership-card" eye="Members only"     title="Membership Card + Offers"  sub="Your card and member discounts" />
-            <Mod href="/leaderboard"     eye="Club"             title="Leaderboard"               sub="Totally pointless, just for fun" />
-          </div>
-        </div>
-
-        {/* ─── 9. RITA'S PHOTOS ─────────────────────────── */}
-        {latestPhoto && (
-          <div style={{ padding: pad, marginBottom: gap }}>
-            <Head eye="Photography" title="Rita's Latest Photos" href="/photos" />
-            <Link href="/photos" style={{ display: 'block', ...card, textDecoration: 'none' }}>
-              <div style={{ position: 'relative', aspectRatio: '4/3' }}>
-                <Image src={latestPhoto.image_url} alt={latestPhoto.title || "Rita's photo"} fill
-                  style={{ objectFit: 'cover' }} unoptimized />
-                <ImgOverlay />
-                {latestPhoto.title && (
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 18px' }}>
-                    <p style={{ fontSize: 20, fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1.2, ...imgText }}>
-                      {latestPhoto.title}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </Link>
-          </div>
-        )}
-
-        {/* ─── 10. BREAK TILES ──────────────────────────── */}
-        <div style={{ padding: pad, marginBottom: 8 }}>
-          <Link href="/break-tiles" style={{ display: 'block', ...card, textDecoration: 'none', overflow: 'hidden' }}>
-            <div style={{ position: 'relative' }}>
-              <div style={{ backgroundImage: "url('/tile-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center', minHeight: 110 }}>
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,28,28,0.72)' }} />
-                <div style={{ position: 'relative', padding: '22px 20px', display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'space-between' }}>
-                  <div>
-                    <Eye t="Game" color={GOLD} />
-                    <p style={{ fontSize: 20, fontWeight: 700, color: '#fff', margin: '0 0 3px', ...imgText }}>Break The Tiles</p>
-                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', margin: 0 }}>Smash Portuguese azulejos</p>
-                  </div>
-                  <Chev color={GOLD} />
-                </div>
+                <p style={{ fontSize: '18px', fontWeight: 600, color: '#1C1C1C', lineHeight: 1.3, margin: 0 }}>{latestUpdate.title}</p>
+                <p style={{ fontSize: '12px', fontWeight: 600, color: '#2F6DA5', marginTop: '10px', marginBottom: 0 }}>Read more \u2192</p>
               </div>
             </div>
           </Link>
         </div>
+      )}
 
-        <div style={{ padding: pad, marginBottom: 32 }}>
-          <Mod href="/tile-leaderboard" eye="Leaderboard" title="Tile Smashers" sub="See who's smashing the most tiles" accent={GOLD} />
+      {/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+          EVENTS \u2014 light editorial
+      \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */}
+      {upcomingEvents.length > 0 && (
+        <div style={{ background: LIGHT.bg, padding: '0 20px 28px' }}>
+          <SectionHead eyebrow="What's on" title="Upcoming Events" href="/events" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {upcomingEvents.map((event: any) => (
+              <Link key={event.id} href={`/events/${event.id}`} style={{ display: 'block', textDecoration: 'none', background: '#FFFFFF', borderRadius: '10px', border: '1px solid #EDE7DC', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+                {event.image_url && (
+                  <div style={{ position: 'relative', height: '140px', background: '#E0D9CE' }}>
+                    <Image src={event.image_url} alt={event.title} fill style={{ objectFit: 'cover' }} unoptimized />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 60%)' }} />
+                  </div>
+                )}
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', padding: '14px 16px' }}>
+                  <div style={{ flexShrink: 0, textAlign: 'center', minWidth: '44px' }}>
+                    <div style={{ background: '#2F6DA5', borderRadius: '7px', padding: '6px 4px' }}>
+                      <p style={{ color: 'white', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', lineHeight: 1, margin: '0 0 2px' }}>
+                        {new Date(event.starts_at).toLocaleDateString('en', { month: 'short' })}
+                      </p>
+                      <p style={{ color: 'white', fontSize: '20px', fontWeight: 700, lineHeight: 1, margin: 0 }}>
+                        {new Date(event.starts_at).getDate()}
+                      </p>
+                    </div>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: '15px', fontWeight: 600, color: '#1C1C1C', margin: '0 0 3px', lineHeight: 1.3 }}>{event.title}</p>
+                    {event.location_name && <p style={{ fontSize: '12px', color: '#A89A8C', margin: '0 0 1px' }}>{event.location_name}</p>}
+                    <p style={{ fontSize: '12px', color: '#A89A8C', margin: 0 }}>{formatDateTime(event.starts_at)}</p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
+      )}
 
+      {/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+          NEW MEMBER \u2014 SOFT BLUE section
+      \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */}
+      {newestMember && (
+        <div style={{ background: BLUE.bg, padding: '28px 20px', borderTop: '1px solid #C5DFF0', borderBottom: '1px solid #C5DFF0' }}>
+          <SectionHead eyebrow="New to the club" title="Say Hello" href="/members" linkLabel="All members \u2192" />
+          <Link href={`/members/${newestMember.id}`} style={{ display: 'flex', alignItems: 'center', gap: '14px', background: '#FFFFFF', borderRadius: '10px', border: '1px solid #C5DFF0', padding: '16px', textDecoration: 'none', boxShadow: '0 2px 8px rgba(47,109,165,0.08)' }}>
+            <div style={{ flexShrink: 0 }}>
+              <Avatar src={newestMember.avatar_url} name={newestMember.full_name} size="xl" />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: '18px', fontWeight: 700, color: '#1C1C1C', margin: '0 0 3px', lineHeight: 1.2 }}>{newestMember.full_name}</p>
+              {newestMember.headline && <p style={{ fontSize: '13px', color: '#6B5E52', margin: '0 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{newestMember.headline}</p>}
+              {newestMember.neighborhood && (
+                <span style={{ display: 'inline-block', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#2F6DA5', background: '#EAF2F8', padding: '3px 8px', borderRadius: '4px' }}>
+                  {newestMember.neighborhood}
+                </span>
+              )}
+            </div>
+            <ChevronRight />
+          </Link>
+        </div>
+      )}
+
+      {/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+          PODCAST \u2014 DARK section
+      \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */}
+      <div style={{ background: DARK.bg, padding: '28px 20px' }}>
+        <SectionHead eyebrow="Listen" title="Latest Podcast" dark />
+        <LatestPodcast />
       </div>
+
+      {/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+          PORTUGUESE PHRASE \u2014 blue accent
+      \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */}
+      <div style={{ background: BLUE.bg, padding: '20px', borderTop: '1px solid #C5DFF0', borderBottom: '1px solid #C5DFF0' }}>
+        <PortuguesePhrase />
+      </div>
+
+      {/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+          MODULE CARDS \u2014 light editorial grid
+      \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */}
+      <div style={{ background: LIGHT.bg, padding: '28px 20px' }}>
+        <Eyebrow label="Explore the club" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <ModuleCard href="/recommendations" eyebrow="Curated by POL" title="Recommendations" subtitle="Restaurants, caf\u00e9s & experiences" />
+          <ModuleCard href="/leaderboard" eyebrow="Club" title="Leaderboard" subtitle="Totally pointless, just for fun" />
+          <ModuleCard href="/board" eyebrow="Community" title="Message Board" subtitle="Post a thought or happening" />
+          <ModuleCard href="/membership-card" eyebrow="Members only" title="Membership Card" subtitle="Your Club People Of Lisbon card" />
+        </div>
+      </div>
+
+      {/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+          RITA'S PHOTOS \u2014 light, full-bleed
+      \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */}
+      {latestPhoto && (
+        <div style={{ background: LIGHT.bg, padding: '0 20px 28px' }}>
+          <SectionHead eyebrow="Photography" title="Rita's Latest Photos" href="/photos" />
+          <Link href="/photos" style={{ display: 'block', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.1)', textDecoration: 'none' }}>
+            <div style={{ position: 'relative', aspectRatio: '4/3', background: '#E0D9CE' }}>
+              <Image src={latestPhoto.image_url} alt={latestPhoto.title || "Rita's photo"} fill style={{ objectFit: 'cover' }} unoptimized />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 55%)' }} />
+              {latestPhoto.title && (
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px' }}>
+                  <p style={{ fontSize: '20px', fontWeight: 700, color: 'white', margin: 0, lineHeight: 1.2 }}>{latestPhoto.title}</p>
+                </div>
+              )}
+            </div>
+          </Link>
+        </div>
+      )}
+
+      {/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+          BREAK TILES \u2014 ACCENT dark section
+      \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */}
+      <Link href="/break-tiles" style={{ display: 'block', textDecoration: 'none', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ backgroundImage: "url('/tile-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+          <div style={{ background: 'rgba(17,17,17,0.82)', padding: '24px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <Eyebrow label="Game" color="#E6B75C" />
+              <p style={{ fontSize: '22px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 3px' }}>Break The Tiles</p>
+              <p style={{ fontSize: '12px', color: '#888', margin: 0 }}>Smash Portuguese azulejos \u00b7 stress reliever</p>
+            </div>
+            <ChevronRight color="#E6B75C" />
+          </div>
+        </div>
+      </Link>
+
+      {/* Tile Smashers leaderboard link */}
+      <Link href="/tile-leaderboard" style={{ display: 'block', textDecoration: 'none', background: ACCENT.bg }}>
+        <div style={{ borderLeft: '3px solid #E6B75C', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#E6B75C', margin: '0 0 2px' }}>Leaderboard</p>
+            <p style={{ fontSize: '15px', fontWeight: 600, color: '#FFFFFF', margin: 0 }}>Tile Smashers</p>
+          </div>
+          <ChevronRight color="#E6B75C" />
+        </div>
+      </Link>
+
+      {/* Bottom spacer */}
+      <div style={{ height: '24px', background: LIGHT.bg }} />
+    </div>
     </ScrollPage>
   );
 }
