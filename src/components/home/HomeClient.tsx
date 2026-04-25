@@ -13,9 +13,7 @@ import ScrollPage from '@/components/ui/ScrollPage';
 // ─── Design tokens ────────────────────────────────────────
 const BG    = '#F5F1EA';
 const CARD  = '#FFFFFF';
-const BLUE  = '#2F6DA5';
 const RED   = '#C8102E';
-const GOLD  = '#E6B75C';
 const INK   = '#1C1C1C';
 const MUTED = '#8A7C6E';
 const BORDER = '1px solid #EDE7DC';
@@ -54,14 +52,14 @@ const Head = ({ eye, title, href }: { eye: string; title: string; href?: string 
 );
 
 // ─── Chevron icon ─────────────────────────────────────────
-const Chev = ({ color = BLUE }: { color?: string }) => (
+const Chev = ({ color = RED }: { color?: string }) => (
   <svg style={{ width: 18, height: 18, flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke={color} strokeWidth={2.2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
   </svg>
 );
 
 // ─── Module row card ──────────────────────────────────────
-const Mod = ({ href, eye, title, sub, accent = BLUE }: {
+const Mod = ({ href, eye, title, sub, accent = RED }: {
   href: string; eye: string; title: string; sub: string; accent?: string;
 }) => (
   <Link href={href} style={{ display: 'block', ...card, textDecoration: 'none' }}>
@@ -131,9 +129,9 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           <div style={{ padding: pad, marginBottom: gap }}>
             <Head eye="From the founder" title="Latest from Stephen" href="/updates" />
             <Link href="/updates" style={{ display: 'block', ...card, textDecoration: 'none' }}>
-              <div style={{ borderLeft: `4px solid ${GOLD}`, padding: '18px 20px' }}>
+              <div style={{ borderLeft: `4px solid ${RED}`, padding: '18px 20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: `2px solid ${GOLD}` }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: `2px solid ${RED}` }}>
                     <Avatar src={stephenProfile?.avatar_url || ''} name={stephenProfile?.full_name || 'Stephen'} size="sm" />
                   </div>
                   <div>
@@ -165,14 +163,11 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                       <img src={event.image_url} alt={event.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                       <ImgOverlay />
                       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 16px' }}>
-                        <p style={{ fontSize: 16, fontWeight: 700, color: '#fff', margin: '0 0 3px', lineHeight: 1.2, ...imgText }}>
+                        <p style={{ fontSize: 16, fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1.2, ...imgText }}>
                           {event.title}
                         </p>
-                        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, ...imgText }}>
-                          {formatDateTime(event.starts_at)}{event.location_name ? ` · ${event.location_name}` : ''}
-                        </p>
                       </div>
-                      <div style={{ position: 'absolute', top: 12, left: 12, background: BLUE, borderRadius: 8, padding: '5px 8px', textAlign: 'center', minWidth: 44 }}>
+                      <div style={{ position: 'absolute', top: 12, left: 12, background: RED, borderRadius: 8, padding: '5px 8px', textAlign: 'center', minWidth: 44 }}>
                         <p style={{ fontSize: 10, fontWeight: 700, color: '#fff', textTransform: 'uppercase', margin: '0 0 1px', lineHeight: 1 }}>
                           {new Date(event.starts_at).toLocaleDateString('en', { month: 'short' })}
                         </p>
@@ -182,8 +177,8 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                       </div>
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '14px 16px' }}>
-                      <div style={{ background: BLUE, borderRadius: 8, padding: '6px 8px', textAlign: 'center', minWidth: 44, flexShrink: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px' }}>
+                      <div style={{ background: RED, borderRadius: 8, padding: '6px 8px', textAlign: 'center', minWidth: 44, flexShrink: 0 }}>
                         <p style={{ fontSize: 10, fontWeight: 700, color: '#fff', textTransform: 'uppercase', margin: '0 0 1px', lineHeight: 1 }}>
                           {new Date(event.starts_at).toLocaleDateString('en', { month: 'short' })}
                         </p>
@@ -191,11 +186,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                           {new Date(event.starts_at).getDate()}
                         </p>
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: 15, fontWeight: 600, color: INK, margin: '0 0 3px', lineHeight: 1.3 }}>{event.title}</p>
-                        {event.location_name && <p style={{ fontSize: 12, color: MUTED, margin: '0 0 1px' }}>{event.location_name}</p>}
-                        <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>{formatDateTime(event.starts_at)}</p>
-                      </div>
+                      <p style={{ fontSize: 15, fontWeight: 600, color: INK, margin: 0, lineHeight: 1.3, flex: 1 }}>{event.title}</p>
                     </div>
                   )}
                 </Link>
@@ -221,7 +212,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                   </p>
                 )}
                 {newestMember.neighborhood && (
-                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', color: BLUE,
+                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', color: RED,
                     background: '#EAF2F8', padding: '3px 8px', borderRadius: 5, display: 'inline-block' }}>
                     {newestMember.neighborhood}
                   </span>
@@ -257,9 +248,8 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
 
         {/* ─── 8. MODULES ───────────────────────────────── */}
         <div style={{ padding: pad, marginBottom: gap }}>
-          <Eye t="Explore the club" color={MUTED} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
-            {/* Recommendations — with image preview like events */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {/* Recommendations — with image preview */}
             <Link href="/recommendations" style={{ display: 'block', ...card, textDecoration: 'none' }}>
               {latestRec?.image_url ? (
                 <div style={{ position: 'relative', height: 150, overflow: 'hidden' }}>
@@ -271,15 +261,15 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                       {latestRec.category}{latestRec.neighbourhood ? ` · ${latestRec.neighbourhood}` : ''}
                     </p>
                   </div>
-                  <div style={{ position: 'absolute', top: 12, left: 12, background: BLUE, borderRadius: 8, padding: '5px 10px' }}>
-                    <p style={{ fontSize: 10, fontWeight: 700, color: '#fff', textTransform: 'uppercase', margin: 0, letterSpacing: '0.08em' }}>Recommended</p>
+                  <div style={{ position: 'absolute', top: 12, left: 12, background: RED, borderRadius: 8, padding: '5px 10px' }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, color: '#fff', textTransform: 'uppercase', margin: 0, letterSpacing: '0.08em' }}>Our Recommendations</p>
                   </div>
                 </div>
               ) : (
-                <div style={{ borderLeft: `4px solid ${BLUE}`, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ borderLeft: `4px solid ${RED}`, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ flex: 1 }}>
-                    <Eye t="Curated by POL" color={BLUE} />
-                    <p style={{ fontSize: 16, fontWeight: 700, color: INK, margin: '0 0 2px', fontFamily: FF }}>Recommendations</p>
+                    <Eye t="Curated by POL" color={RED} />
+                    <p style={{ fontSize: 16, fontWeight: 700, color: INK, margin: '0 0 2px', fontFamily: FF }}>Our Recommendations</p>
                     {latestRec ? (
                       <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>
                         Latest: <span style={{ fontWeight: 600, color: INK }}>{latestRec.name}</span>
@@ -289,13 +279,13 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                       <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>Restaurants, cafés & experiences</p>
                     )}
                   </div>
-                  <Chev color={BLUE} />
+                  <Chev />
                 </div>
               )}
             </Link>
-            <Mod href="/board"           eye="Community"        title="Message Board"             sub="Post a thought or happening" />
-            <Mod href="/membership-card" eye="Members only"     title="Membership Card + Offers"  sub="Your card and member discounts" />
-            <Mod href="/leaderboard"     eye="Club"             title="Leaderboard"               sub="Totally pointless, just for fun" />
+            <Mod href="/board"           eye="Community"    title="Message Board"            sub="Post a thought or happening" />
+            <Mod href="/membership-card" eye="Members only"  title="Membership Card + Offers" sub="Your card and member discounts" />
+            <Mod href="/leaderboard"     eye="Club"          title="Leaderboard"              sub="Totally pointless, just for fun" />
 
             {/* ─── MAP FEATURE BLOCK ──────────────────────── */}
             <Link href="/map" style={{ display: 'block', textDecoration: 'none', borderRadius: RADIUS, overflow: 'hidden' }}>
@@ -352,11 +342,11 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,28,28,0.72)' }} />
                 <div style={{ position: 'relative', padding: '22px 20px', display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'space-between' }}>
                   <div>
-                    <Eye t="Game" color={GOLD} />
+                    <Eye t="Game" color={RED} />
                     <p style={{ fontSize: 20, fontWeight: 700, color: '#fff', margin: '0 0 3px', ...imgText }}>Break The Tiles</p>
                     <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', margin: 0 }}>Smash Portuguese azulejos</p>
                   </div>
-                  <Chev color={GOLD} />
+                  <Chev color={RED} />
                 </div>
               </div>
             </div>
@@ -364,7 +354,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
         </div>
 
         <div style={{ padding: pad, marginBottom: 32 }}>
-          <Mod href="/tile-leaderboard" eye="Leaderboard" title="Tile Smashers" sub="See who's smashing the most tiles" accent={GOLD} />
+          <Mod href="/tile-leaderboard" eye="Leaderboard" title="Tile Smashers" sub="See who's smashing the most tiles" />
         </div>
 
       </div>
