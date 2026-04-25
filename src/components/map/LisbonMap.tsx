@@ -195,7 +195,9 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
             fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
           }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#2F6DA5' }}>Explore Lisbon</p>
+            <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#1C1C1C', lineHeight: 1.3 }}>
+              Explore Lisbon through the people
+            </p>
           </div>
         )}
       </div>
@@ -263,7 +265,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
             fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
           }}>
-            Explore Lisbon through the people we've filmed.
+            Discover Lisbon through the people we've filmed.
           </p>
         </div>
       )}
