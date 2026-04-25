@@ -13,9 +13,10 @@ export default function GatewayPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [bgImage, setBgImage]       = useState(FALLBACK_BG);
-  const [logoUrl, setLogoUrl]       = useState('/pol-logo.png');
-  const [bgLoaded, setBgLoaded]     = useState(false);
+  const [bgImage, setBgImage]         = useState(FALLBACK_BG);
+  const [logoUrl, setLogoUrl]         = useState('/pol-logo.png');
+  const [featuredPerson, setFeaturedPerson] = useState('');
+  const [bgLoaded, setBgLoaded]       = useState(false);
   const [screen, setScreen]         = useState<Screen>('splash');
   const [email, setEmail]           = useState('');
   const [password, setPassword]     = useState('');
@@ -29,6 +30,7 @@ export default function GatewayPage() {
       (data || []).forEach((row: any) => {
         if (row.key === 'login_background_image_url' && row.value) setBgImage(row.value);
         if ((row.key === 'brand_square_image_url' || row.key === 'logo_url') && row.value) setLogoUrl(row.value);
+        if (row.key === 'splash_featured_person' && row.value) setFeaturedPerson(row.value);
       });
     });
   }, []); // eslint-disable-line
@@ -100,6 +102,14 @@ export default function GatewayPage() {
                 onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
             </div>
 
+            {/* Featured person — top right, editable in admin */}
+            {featuredPerson && (
+              <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 24px)', right: 32, textAlign: 'right' }}>
+                <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', margin: '0 0 2px' }}>Featured</p>
+                <p style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.85)', margin: 0, maxWidth: 160, lineHeight: 1.3, textAlign: 'right' }}>{featuredPerson}</p>
+              </div>
+            )}
+
             {/* Main headline — new copy */}
             <h1 style={{ margin: '0 0 32px', lineHeight: 0.95, letterSpacing: '-0.03em' }}>
               <span style={{ display: 'block', fontSize: 'clamp(46px, 11vw, 66px)', fontWeight: 900, color: 'white' }}>
@@ -149,22 +159,21 @@ export default function GatewayPage() {
               </button>
             </div>
 
-            {/* PATH 1 — Explore Lisbon (free) */}
+            {/* PATH 1 — Explore Lisbon */}
             <div style={{
               borderTop: `4px solid ${POL_RED}`,
               background: 'rgba(255,255,255,0.07)',
               padding: '20px 20px',
               marginBottom: 12,
             }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
-                <p style={{ margin: 0, fontSize: 10, fontWeight: 900, letterSpacing: '0.25em', textTransform: 'uppercase', color: POL_RED }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
+                <p style={{ margin: 0, fontSize: 16, fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'white' }}>
                   Explore Lisbon
                 </p>
-                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 2, padding: '1px 5px' }}>Free</span>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 2, padding: '2px 6px' }}>Free</span>
               </div>
-              <p style={{ margin: '0 0 16px', fontSize: 14, color: 'rgba(255,255,255,0.88)', lineHeight: 1.55 }}>
-                Discover 200+ real stories and videos across the city.<br />
-                Explore Lisbon through its people.
+              <p style={{ margin: '0 0 16px', fontSize: 14, color: 'rgba(255,255,255,0.75)', lineHeight: 1.65 }}>
+                Discover Lisbon like never before — through 200+ real video stories of the city's most fascinating people. Step into their world, and explore the city through our interactive map.
               </p>
               <button onClick={() => setScreen('form')} style={{
                 width: '100%', padding: '15px',
@@ -183,37 +192,33 @@ export default function GatewayPage() {
               padding: '20px 20px',
               marginBottom: 20,
             }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 6 }}>
-                <p style={{ margin: 0, fontSize: 10, fontWeight: 900, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#E6B75C' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
+                <p style={{ margin: 0, fontSize: 16, fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#E6B75C' }}>
                   Join the Club
                 </p>
                 <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>€10 / month</span>
               </div>
-              <p style={{ margin: '0 0 16px', fontSize: 14, color: 'rgba(255,255,255,0.88)', lineHeight: 1.65 }}>
-                100+ members already inside.<br />
-                Events. Community. Perks.<br />
-                Membership card.<br />
-                Exclusive discounts across Lisbon.<br />
-                Access to the People Of Lisbon network.
+              <p style={{ margin: '0 0 16px', fontSize: 14, color: 'rgba(255,255,255,0.75)', lineHeight: 1.65 }}>
+                Join 100+ members in Lisbon's most unique club. We do gatherings. We build community. You get a membership card, exclusive discounts, recommendations. And access to the People Of Lisbon network.
               </p>
-              <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer" style={{
+              <a href="/auth/join" style={{
                 display: 'block', width: '100%', padding: '15px',
                 background: '#E6B75C', color: '#1C1C1C', textDecoration: 'none', textAlign: 'center',
                 borderRadius: 2, fontSize: 13, fontWeight: 900, letterSpacing: '0.16em', textTransform: 'uppercase',
                 boxSizing: 'border-box',
               }}>
-                Join → peopleoflisbon.com
+                Join the Club →
               </a>
             </div>
 
-            {/* Bottom — member sign-in link */}
-            <div style={{ textAlign: 'center' }}>
-              <p style={{ margin: '0 0 8px', fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Already a member?</p>
+            {/* Bottom — member sign-in */}
+            <div style={{ textAlign: 'center', padding: '4px 0' }}>
+              <p style={{ margin: '0 0 10px', fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>Already a member?</p>
               <a href="/auth/member-login" style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                fontSize: 13, fontWeight: 800, color: 'white', textDecoration: 'none',
-                letterSpacing: '0.1em', textTransform: 'uppercase',
-                padding: '10px 20px', border: '1.5px solid rgba(255,255,255,0.3)', borderRadius: 4,
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                fontSize: 15, fontWeight: 900, color: 'white', textDecoration: 'none',
+                letterSpacing: '0.08em', textTransform: 'uppercase',
+                padding: '13px 28px', border: '2px solid rgba(255,255,255,0.4)', borderRadius: 4,
               }}>
                 Member Sign In →
               </a>

@@ -14,6 +14,7 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
   const [brandLogo, setBrandLogo] = useState(initial['brand_square_image_url'] || '/pol-logo.png');
   const [stephenPhoto, setStephenPhoto] = useState(initial['stephen_photo_url'] || '');
   const [latestEpisode, setLatestEpisode] = useState(initial['latest_episode_url'] || '');
+  const [featuredPerson, setFeaturedPerson] = useState(initial['splash_featured_person'] || '');
   const [savingBg, setSavingBg] = useState(false);
   const [savedBg, setSavedBg] = useState(false);
   const [savingLogo, setSavingLogo] = useState(false);
@@ -22,6 +23,8 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
   const [savedStephen, setSavedStephen] = useState(false);
   const [savingEpisode, setSavingEpisode] = useState(false);
   const [savedEpisode, setSavedEpisode] = useState(false);
+  const [savingFeatured, setSavingFeatured] = useState(false);
+  const [savedFeatured, setSavedFeatured] = useState(false);
   const [bgImgError, setBgImgError] = useState(false);
   const supabase = createClient();
 
@@ -207,7 +210,25 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
         </div>
       </div>
 
-      {/* Tips */}
+      {/* ── Splash Featured Person ── */}
+      <div className="pol-card p-6">
+        <h2 className="font-semibold text-sm text-ink mb-1">Splash Screen — Featured Person</h2>
+        <p className="text-xs text-stone-400 mb-4">
+          This text appears top-right on the entry splash screen. Update it each time you change the background image.
+        </p>
+        <input
+          className="pol-input mb-4"
+          value={featuredPerson}
+          onChange={e => setFeaturedPerson(e.target.value)}
+          placeholder="e.g. João Silva · The Baker of Alfama"
+        />
+        <div className="flex items-center gap-3">
+          <button onClick={() => save('splash_featured_person', featuredPerson, setSavingFeatured, setSavedFeatured)} disabled={savingFeatured} className="pol-btn-primary">
+            {savingFeatured ? 'Saving…' : 'Save'}
+          </button>
+          {savedFeatured && <span className="text-sm text-emerald-600 font-medium">✓ Saved</span>}
+        </div>
+      </div>
       <div className="bg-stone-50 border border-stone-200 rounded-xl p-5">
         <h3 className="font-semibold text-sm text-ink mb-3">How to update images</h3>
         <ol className="text-xs text-stone-500 space-y-2 list-decimal list-inside">
