@@ -1,27 +1,20 @@
 import { createServerClient } from '@/lib/supabase-server';
 import { createClient } from '@supabase/supabase-js';
 import { redirect } from 'next/navigation';
-import { headers } from 'next/headers';
 import AppShell from '@/components/layout/AppShell';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const headersList = headers();
-  const pathname = (headersList.get('x-pathname') || headersList.get('x-invoke-path') || '');
-  const isMapRoute = pathname === '/map' || pathname.startsWith('/map');
-
   const supabase = createServerClient();
   const { data: { session } } = await supabase.auth.getSession();
 
-  // Allow unauthenticated visitors on the public map
+  // No session — middleware already ensures only public routes reach here (e.g. /map)
+  // Just render children without the app shell
   if (!session) {
-    if (isMapRoute) {
-      return (
-        <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-          {children}
-        </div>
-      );
-    }
-    redirect('/auth/login');
+    return (
+      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        {children}
+      </div>
+    );
   }
 
   // Read role from profiles table — most reliable source

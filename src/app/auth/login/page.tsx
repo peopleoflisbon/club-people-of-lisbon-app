@@ -188,7 +188,7 @@ export default function GatewayPage() {
               <p style={{ margin: '0 0 16px', fontSize: 14, color: 'rgba(255,255,255,0.75)', lineHeight: 1.65 }}>
                 Discover Lisbon like never before — through 200+ real video stories of the city's most fascinating people. Step into their world, and explore the city through our interactive map.
               </p>
-              <a href="/map" style={{
+              <a href="/explore" style={{
                 display: 'block', width: '100%', padding: '15px',
                 background: POL_RED, color: 'white', textDecoration: 'none', textAlign: 'center',
                 border: 'none', borderRadius: 2,

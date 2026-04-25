@@ -193,17 +193,19 @@ export default function MessagesClient({ conversations, userId, initialConversat
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                 </svg>
               </button>
-              <Avatar
-                src={selectedConv.other_profile?.avatar_url}
-                name={selectedConv.other_profile?.full_name || '?'}
-                size="sm"
-              />
-              <div>
-                <p className="font-semibold text-sm text-ink">{selectedConv.other_profile?.full_name}</p>
-                {selectedConv.other_profile?.headline && (
-                  <p className="text-xs text-stone-400 line-clamp-1">{selectedConv.other_profile.headline}</p>
-                )}
-              </div>
+              <a href={`/members/${selectedConv.other_profile?.id}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+                <Avatar
+                  src={selectedConv.other_profile?.avatar_url}
+                  name={selectedConv.other_profile?.full_name || '?'}
+                  size="sm"
+                />
+                <div>
+                  <p className="font-semibold text-sm text-ink">{selectedConv.other_profile?.full_name}</p>
+                  {selectedConv.other_profile?.headline && (
+                    <p className="text-xs text-stone-400 line-clamp-1">{selectedConv.other_profile.headline}</p>
+                  )}
+                </div>
+              </a>
             </div>
 
             {/* Messages */}
