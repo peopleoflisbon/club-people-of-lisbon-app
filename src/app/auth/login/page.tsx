@@ -7,6 +7,24 @@ import { createClient } from '@/lib/supabase';
 const FALLBACK_BG = 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=85';
 const POL_RED = '#C8102E';
 
+// Inline logo — never fails, zero network requests
+function LogoImg({ size }: { size: number }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+        <rect width="100" height="100" rx="12" fill="#C8102E" />
+        <text x="50" y="38" textAnchor="middle" fill="white" fontSize="20" fontWeight="900" fontFamily="Arial, sans-serif">PEOPLE</text>
+        <text x="50" y="58" textAnchor="middle" fill="white" fontSize="20" fontWeight="900" fontFamily="Arial, sans-serif">OF</text>
+        <text x="50" y="78" textAnchor="middle" fill="white" fontSize="20" fontWeight="900" fontFamily="Arial, sans-serif">LISBON</text>
+      </svg>
+    );
+  }
+  return <img src="/pol-logo.png" alt="People Of Lisbon" width={size} height={size}
+    style={{ width: size, height: size, objectFit: 'contain', display: 'block' }}
+    onError={() => setFailed(true)} />;
+}
+
 type Screen = 'splash' | 'choice' | 'form' | 'forgot';
 
 export default function GatewayPage() {
@@ -95,12 +113,9 @@ export default function GatewayPage() {
           {/* Inner container — max width for desktop */}
           <div style={{ width: '100%', maxWidth: 560, padding: '0 32px calc(env(safe-area-inset-bottom) + 48px)' }}>
 
-            {/* Logo */}
+            {/* Logo with inline SVG fallback */}
             <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 24px)', left: 32 }}>
-              <img src={logoUrl || '/pol-logo.png'} alt="People Of Lisbon"
-                style={{ width: 46, height: 46, objectFit: 'contain', display: 'block' }}
-                onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
-            </div>
+              <LogoImg size={46} /></div>
 
             {/* Featured person — top right, editable in admin */}
             {featuredPerson && (
@@ -151,9 +166,7 @@ export default function GatewayPage() {
 
             {/* Logo + back */}
             <div style={{ position: 'fixed', top: 'max(env(safe-area-inset-top), 20px)', left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 28px', zIndex: 20 }}>
-              <img src={logoUrl || '/pol-logo.png'} alt="People Of Lisbon"
-                style={{ width: 40, height: 40, objectFit: 'contain', display: 'block' }}
-                onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
+              <LogoImg size={40} />
               <button onClick={() => setScreen('splash')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.45)', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0 }}>
                 ← Back
               </button>
@@ -175,14 +188,16 @@ export default function GatewayPage() {
               <p style={{ margin: '0 0 16px', fontSize: 14, color: 'rgba(255,255,255,0.75)', lineHeight: 1.65 }}>
                 Discover Lisbon like never before — through 200+ real video stories of the city's most fascinating people. Step into their world, and explore the city through our interactive map.
               </p>
-              <button onClick={() => setScreen('form')} style={{
-                width: '100%', padding: '15px',
-                background: POL_RED, color: 'white', border: 'none', borderRadius: 2,
+              <a href="/map" style={{
+                display: 'block', width: '100%', padding: '15px',
+                background: POL_RED, color: 'white', textDecoration: 'none', textAlign: 'center',
+                border: 'none', borderRadius: 2,
                 fontSize: 13, fontWeight: 900, letterSpacing: '0.16em', textTransform: 'uppercase',
                 cursor: 'pointer', boxShadow: '0 4px 20px rgba(200,16,46,0.4)',
+                boxSizing: 'border-box',
               }}>
                 Enter the Map →
-              </button>
+              </a>
             </div>
 
             {/* PATH 2 — Join the Club */}

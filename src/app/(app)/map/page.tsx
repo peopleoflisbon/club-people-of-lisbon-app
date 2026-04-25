@@ -31,11 +31,12 @@ export default async function MapPage() {
 
   const supabase = createServerClient();
   const { data: { session } } = await supabase.auth.getSession();
-  let isMapUser = false;
+  let isMapUser = true; // default: no session = guest = map-only view
   if (session?.user?.id) {
     const { data: profile } = await admin
       .from('profiles').select('role').eq('id', session.user.id).single();
-    isMapUser = (profile as any)?.role === 'map_user';
+    const role = (profile as any)?.role;
+    isMapUser = role !== 'member' && role !== 'admin';
   }
 
   return (

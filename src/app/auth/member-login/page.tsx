@@ -68,9 +68,15 @@ export default function MemberLoginPage() {
         <div style={{ padding: '20px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           {/* Logo — also a back link */}
           <a href="/auth/login" style={{ display: 'block', lineHeight: 0 }}>
-            <img src={logoUrl} alt="People Of Lisbon"
+            <img src="/pol-logo.png" alt="People Of Lisbon"
               style={{ width: 44, height: 44, objectFit: 'contain', display: 'block' }}
-              onError={(e) => { (e.target as HTMLImageElement).src = '/pol-logo.png'; }} />
+              onError={(e) => {
+                const img = e.target as HTMLImageElement;
+                img.style.display = 'none';
+                const svg = document.createElement('div');
+                svg.innerHTML = `<svg width="44" height="44" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="12" fill="#C8102E"/><text x="50" y="38" text-anchor="middle" fill="white" font-size="20" font-weight="900" font-family="Arial,sans-serif">PEOPLE</text><text x="50" y="58" text-anchor="middle" fill="white" font-size="20" font-weight="900" font-family="Arial,sans-serif">OF</text><text x="50" y="78" text-anchor="middle" fill="white" font-size="20" font-weight="900" font-family="Arial,sans-serif">LISBON</text></svg>`;
+                img.parentElement?.appendChild(svg.firstChild!);
+              }} />
           </a>
 
           {/* Back button */}

@@ -9,7 +9,9 @@ const PUBLIC_PATHS = [
   '/auth/callback',
   '/auth/confirm',
   '/auth/set-password',
+  '/auth/join',
   '/api/auth/map-access',
+  '/map',
 ];
 
 export async function middleware(req: NextRequest) {
