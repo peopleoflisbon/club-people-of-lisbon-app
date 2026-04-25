@@ -226,7 +226,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
         {/* ─── 5. LATEST EPISODE ────────────────────────── */}
         {latestEpisodeUrl && (
           <div style={{ padding: pad, marginBottom: gap }}>
-            <Head eye="People Of Lisbon" title="Latest Episode" />
+            <Head eye="Latest Episode" title="Watch" />
             <div style={{ ...card }}>
               <LatestEpisode url={latestEpisodeUrl} />
             </div>
@@ -285,7 +285,6 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
             </Link>
             <Mod href="/board"           eye="Community"    title="Message Board"            sub="Post a thought or happening" />
             <Mod href="/membership-card" eye="Members only"  title="Membership Card + Offers" sub="Your card and member discounts" />
-            <Mod href="/leaderboard"     eye="Club"          title="Leaderboard"              sub="Totally pointless, just for fun" />
 
             {/* ─── MAP FEATURE BLOCK ──────────────────────── */}
             <Link href="/map" style={{ display: 'block', textDecoration: 'none', borderRadius: RADIUS, overflow: 'hidden' }}>
@@ -344,7 +343,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                   <div>
                     <Eye t="Game" color={RED} />
                     <p style={{ fontSize: 20, fontWeight: 700, color: '#fff', margin: '0 0 3px', ...imgText }}>Break The Tiles</p>
-                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', margin: 0 }}>Smash Portuguese azulejos</p>
+                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', margin: 0 }}>Stressed with waiting for the Metro, Portuguese bureaucracy, learning Portuguese...</p>
                   </div>
                   <Chev color={RED} />
                 </div>
@@ -353,9 +352,8 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           </Link>
         </div>
 
-        <div style={{ padding: pad, marginBottom: 32 }}>
-          <Mod href="/tile-leaderboard" eye="Leaderboard" title="Tile Smashers" sub="See who's smashing the most tiles" />
-        </div>
+        {/* bottom spacer */}
+        <div style={{ height: '32px', background: LIGHT.bg }} />
 
       </div>
     </ScrollPage>
