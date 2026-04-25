@@ -78,7 +78,8 @@ export default async function HomePage() {
   const brandLogoUrl = (brandSetting as any)?.value || '/pol-logo.png';
   const latestEpisodeUrl = (episodeSetting as any)?.value || '';
   const recList = latestRecArr || [];
-  const latestRec = recList.length > 0 ? recList[Math.floor(Math.random() * recList.length)] : null;
+  // Pass all recs — client will pick randomly to avoid hydration mismatch
+  const latestRec = recList[0] || null;
 
   return (
     <HomeClient
@@ -91,6 +92,7 @@ export default async function HomePage() {
       brandLogoUrl={brandLogoUrl}
       latestEpisodeUrl={latestEpisodeUrl}
       latestRec={latestRec}
+      allRecs={recList}
     />
   );
 }

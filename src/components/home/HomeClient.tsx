@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Avatar from '@/components/ui/Avatar';
@@ -95,11 +96,20 @@ interface Props {
   brandLogoUrl?: string;
   latestEpisodeUrl?: string;
   latestRec?: { id: string; name: string; category: string; neighbourhood: string; image_url?: string } | null;
+  allRecs?: { id: string; name: string; category: string; neighbourhood: string; image_url?: string }[];
 }
 
-export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl, latestRec }: Props) {
+export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl, latestRec: initialRec, allRecs = [] }: Props) {
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
   const newestMember = recentMembers[0] || null;
+  const [latestRec, setLatestRec] = useState(initialRec);
+
+  useEffect(() => {
+    if (allRecs.length > 0) {
+      const pick = allRecs[Math.floor(Math.random() * allRecs.length)];
+      setLatestRec(pick);
+    }
+  }, []); // eslint-disable-line
   const gap = 18;
   const pad = '0 16px';
 
