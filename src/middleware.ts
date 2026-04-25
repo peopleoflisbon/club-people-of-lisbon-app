@@ -16,6 +16,9 @@ const PUBLIC_PATHS = [
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
+  // Inject pathname so layouts can read it via headers()
+  res.headers.set('x-pathname', req.nextUrl.pathname);
+
   const supabase = createMiddlewareClient({ req, res });
   const { data: { session } } = await supabase.auth.getSession();
   const path = req.nextUrl.pathname;

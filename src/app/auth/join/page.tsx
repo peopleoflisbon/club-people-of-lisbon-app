@@ -6,13 +6,15 @@ const FF = "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif";
 const STRIPE_URL = 'https://buy.stripe.com/bIY7tn8AfasP99ebII';
 
 const PERKS = [
-  { icon: '🎟️', title: 'Member Events',        desc: 'Exclusive gatherings, meetups and experiences across Lisbon.' },
-  { icon: '🤝', title: 'The Community',         desc: 'Connect with 100+ interesting people who live and love Lisbon.' },
-  { icon: '💳', title: 'Membership Card',       desc: 'Your official People Of Lisbon card.' },
-  { icon: '🎁', title: 'Exclusive Discounts',   desc: 'Member-only deals at restaurants, bars, and experiences across the city.' },
-  { icon: '📍', title: 'Recommendations',       desc: "Curated picks from the POL team — the city's best kept secrets." },
-  { icon: '🗺️', title: 'Full Map Access',       desc: 'Explore all 200+ video stories across Lisbon\'s interactive map.' },
-  { icon: '🌐', title: 'The POL Network',       desc: 'Access to the People Of Lisbon community and network.' },
+  { icon: '🎟️', title: 'Member Events',              desc: 'Exclusive gatherings, meetups and experiences across Lisbon.' },
+  { icon: '📱', title: 'Members App',                 desc: 'Access to the full People Of Lisbon members app.' },
+  { icon: '💬', title: 'WhatsApp Group',              desc: 'Join the members WhatsApp group — the real conversation.' },
+  { icon: '📬', title: 'Newsletter',                  desc: 'Our curated newsletter with the best of Lisbon, delivered to you.' },
+  { icon: '💳', title: 'Digital Membership Card',     desc: 'Your official People Of Lisbon digital membership card.' },
+  { icon: '🎁', title: 'Offers & Discounts',          desc: 'Member-only deals at restaurants, bars, and experiences across the city.' },
+  { icon: '📍', title: 'Recommendations',             desc: "Curated picks from the POL team — the city's best kept secrets." },
+  { icon: '✉️', title: 'Direct Line to Stephen',     desc: 'Direct communication with Stephen, the founder of People Of Lisbon.' },
+  { icon: '🌐', title: 'The POL Network',             desc: 'Access to Lisbon\'s most interesting community of people.' },
 ];
 
 export default function JoinPage() {
