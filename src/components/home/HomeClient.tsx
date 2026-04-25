@@ -274,9 +274,6 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                     <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>Restaurants, cafés & experiences</p>
                   )}
                 </div>
-                <div style={{ flexShrink: 0, width: 48, height: 48, borderRadius: 10, background: '#EAF2F8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
-                  {latestRec?.category === 'Restaurant' ? '🍽️' : latestRec?.category === 'Coffee' ? '☕' : latestRec?.category === 'Bar' ? '🍷' : latestRec?.category === 'Experience' ? '✨' : latestRec?.category === 'Shop' ? '🛍️' : latestRec?.category === 'Culture' ? '🎨' : '📍'}
-                </div>
                 <Chev color={BLUE} />
               </div>
             </Link>

@@ -297,7 +297,7 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
             className="flex flex-col items-center justify-center flex-1 text-stone-400 hover:text-stone-600 transition-colors"
             style={{ paddingTop: '8px', paddingBottom: '4px', minHeight: '52px', fontSize: '18px' }}>
             <span>⬡</span>
-            <span className="text-2xs font-semibold mt-0.5">Out</span>
+            <span className="text-2xs font-semibold mt-0.5">Log out</span>
           </button>
         </nav>
       </main>

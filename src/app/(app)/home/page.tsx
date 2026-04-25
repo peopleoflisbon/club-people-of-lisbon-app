@@ -15,14 +15,14 @@ export default async function HomePage() {
   let upcomingEvents: any[] = [];
   const { data: eventsWithImage, error: eventsError } = await (supabase as any)
     .from('events')
-    .select('id, title, starts_at, location_name, status, image_url')
+    .select('id, title, starts_at, location_name, status, cover_image_url')
     .in('status', ['upcoming', 'live'])
     .gt('starts_at', new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString())
     .order('starts_at', { ascending: true })
     .limit(3);
 
   if (!eventsError) {
-    upcomingEvents = eventsWithImage || [];
+    upcomingEvents = (eventsWithImage || []).map((e: any) => ({ ...e, image_url: e.cover_image_url }));
   } else {
     // image_url column missing — fetch without it
     const { data: eventsBasic } = await supabase
