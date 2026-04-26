@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import ScrollPage from '@/components/ui/ScrollPage';
 
 const POL_RED = '#C8102E';
 const FF = "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif";
@@ -91,6 +92,7 @@ export default function MemberEventsClient({ events, userId, userName }: Props) 
   const words = wordCount(form.description);
 
   return (
+    <ScrollPage>
     <div style={{ maxWidth: 600, margin: '0 auto', padding: '24px 16px 120px', fontFamily: FF }}>
 
       {/* Header */}
@@ -125,24 +127,23 @@ export default function MemberEventsClient({ events, userId, userName }: Props) 
               placeholder="Name of your event" required />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
-            <div>
-              <label style={label}>Date *</label>
-              <input className="pol-input" type="date" value={form.event_date}
-                onChange={e => set('event_date', e.target.value)} required />
-            </div>
-            <div>
-              <label style={label}>Time</label>
-              <input className="pol-input" type="time" value={form.event_time}
-                onChange={e => set('event_time', e.target.value)} />
-            </div>
+          <div style={{ marginBottom: 14 }}>
+            <label style={label}>Date *</label>
+            <input className="pol-input" type="date" value={form.event_date}
+              onChange={e => set('event_date', e.target.value)} required />
+          </div>
+
+          <div style={{ marginBottom: 14 }}>
+            <label style={label}>Time</label>
+            <input className="pol-input" type="time" value={form.event_time}
+              onChange={e => set('event_time', e.target.value)} />
           </div>
 
           <div style={{ marginBottom: 14 }}>
             <label style={label}>
               Description * <span style={{ color: words > 180 ? POL_RED : '#A89A8C', fontWeight: 400 }}>({words}/180 words)</span>
             </label>
-            <textarea className="pol-textarea" rows={8}
+            <textarea className="pol-textarea" rows={5}
               style={{ width: '100%', boxSizing: 'border-box', resize: 'vertical' }}
               value={form.description}
               onChange={e => set('description', e.target.value)}
@@ -223,5 +224,6 @@ export default function MemberEventsClient({ events, userId, userName }: Props) 
         ))}
       </div>
     </div>
+    </ScrollPage>
   );
 }
