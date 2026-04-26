@@ -11,6 +11,7 @@ interface MemberEvent {
   id: string;
   name: string;
   event_date: string;
+  event_time: string;
   description: string;
   link: string;
   submitted_by: string;
@@ -33,6 +34,12 @@ function formatDate(dateStr: string) {
   });
 }
 
+const label: React.CSSProperties = {
+  display: 'block', fontSize: 11, fontWeight: 700,
+  letterSpacing: '0.1em', textTransform: 'uppercase' as const,
+  color: '#8A7C6E', marginBottom: 6,
+};
+
 export default function MemberEventsClient({ events, userId, userName }: Props) {
   const supabase = createClient();
   const router = useRouter();
@@ -43,8 +50,9 @@ export default function MemberEventsClient({ events, userId, userName }: Props) 
   const [form, setForm] = useState({
     name: '',
     event_date: '',
+    event_time: '',
     description: '',
-    link: '',
+    link: 'https://',
     submitted_by: userName,
   });
 
@@ -67,13 +75,14 @@ export default function MemberEventsClient({ events, userId, userName }: Props) 
     const { error: err } = await (supabase as any).from('member_events').insert({
       name: form.name,
       event_date: form.event_date,
+      event_time: form.event_time || null,
       description: form.description,
-      link: form.link,
+      link: form.link === 'https://' ? '' : form.link,
       submitted_by: form.submitted_by || userName,
       user_id: userId,
     });
     if (err) { setError('Something went wrong. Please try again.'); setSaving(false); return; }
-    setForm({ name: '', event_date: '', description: '', link: '', submitted_by: userName });
+    setForm({ name: '', event_date: '', event_time: '', description: '', link: 'https://', submitted_by: userName });
     setShowForm(false);
     setSaving(false);
     router.refresh();
@@ -82,7 +91,7 @@ export default function MemberEventsClient({ events, userId, userName }: Props) 
   const words = wordCount(form.description);
 
   return (
-    <div style={{ maxWidth: 600, margin: '0 auto', padding: '24px 16px', fontFamily: FF }}>
+    <div style={{ maxWidth: 600, margin: '0 auto', padding: '24px 16px 120px', fontFamily: FF }}>
 
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
@@ -111,34 +120,45 @@ export default function MemberEventsClient({ events, userId, userName }: Props) 
           <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 16px', color: '#1C1C1C' }}>Post an Event</h2>
 
           <div style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8A7C6E', marginBottom: 6 }}>Event Name *</label>
+            <label style={label}>Event Name *</label>
             <input className="pol-input" value={form.name} onChange={e => set('name', e.target.value)}
               placeholder="Name of your event" required />
           </div>
 
-          <div style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8A7C6E', marginBottom: 6 }}>Date *</label>
-            <input className="pol-input" type="date" value={form.event_date} onChange={e => set('event_date', e.target.value)} required />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+            <div>
+              <label style={label}>Date *</label>
+              <input className="pol-input" type="date" value={form.event_date}
+                onChange={e => set('event_date', e.target.value)} required />
+            </div>
+            <div>
+              <label style={label}>Time</label>
+              <input className="pol-input" type="time" value={form.event_time}
+                onChange={e => set('event_time', e.target.value)} />
+            </div>
           </div>
 
           <div style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8A7C6E', marginBottom: 6 }}>
+            <label style={label}>
               Description * <span style={{ color: words > 180 ? POL_RED : '#A89A8C', fontWeight: 400 }}>({words}/180 words)</span>
             </label>
-            <textarea className="pol-textarea" rows={5} value={form.description}
+            <textarea className="pol-textarea" rows={8}
+              style={{ width: '100%', boxSizing: 'border-box', resize: 'vertical' }}
+              value={form.description}
               onChange={e => set('description', e.target.value)}
               placeholder="Tell members about your event (max 180 words)" required />
           </div>
 
           <div style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8A7C6E', marginBottom: 6 }}>Link (optional)</label>
-            <input className="pol-input" value={form.link} onChange={e => set('link', e.target.value)}
-              placeholder="https://..." />
+            <label style={label}>Link (optional)</label>
+            <input className="pol-input" value={form.link}
+              onChange={e => set('link', e.target.value)} />
           </div>
 
           <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8A7C6E', marginBottom: 6 }}>Submitted By *</label>
-            <input className="pol-input" value={form.submitted_by} onChange={e => set('submitted_by', e.target.value)}
+            <label style={label}>Submitted By *</label>
+            <input className="pol-input" value={form.submitted_by}
+              onChange={e => set('submitted_by', e.target.value)}
               placeholder="Your name" required />
           </div>
 
@@ -146,14 +166,14 @@ export default function MemberEventsClient({ events, userId, userName }: Props) 
 
           <div style={{ display: 'flex', gap: 10 }}>
             <button type="submit" disabled={saving || words > 180} style={{
-              flex: 1, padding: '12px', background: POL_RED, color: 'white',
+              flex: 1, padding: '14px', background: POL_RED, color: 'white',
               border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 700,
               cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1,
             }}>
               {saving ? 'Posting…' : 'Post Event'}
             </button>
             <button type="button" onClick={() => { setShowForm(false); setError(''); }} style={{
-              padding: '12px 20px', background: '#F5F1EA', color: '#6B5E52',
+              padding: '14px 20px', background: '#F5F1EA', color: '#6B5E52',
               border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer',
             }}>
               Cancel
@@ -175,14 +195,21 @@ export default function MemberEventsClient({ events, userId, userName }: Props) 
             <div style={{ borderLeft: `4px solid ${POL_RED}`, padding: '16px 18px' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 6 }}>
                 <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1C1C1C', margin: 0, lineHeight: 1.2 }}>{event.name}</h3>
-                <span style={{ fontSize: 11, fontWeight: 700, color: POL_RED, whiteSpace: 'nowrap', flexShrink: 0, paddingTop: 2 }}>
-                  {formatDate(event.event_date)}
-                </span>
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: POL_RED, display: 'block' }}>
+                    {formatDate(event.event_date)}
+                  </span>
+                  {event.event_time && (
+                    <span style={{ fontSize: 11, color: '#A89A8C', display: 'block' }}>
+                      {event.event_time}
+                    </span>
+                  )}
+                </div>
               </div>
               <p style={{ fontSize: 13, color: '#6B5E52', margin: '0 0 10px', lineHeight: 1.6 }}>{event.description}</p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
                 <p style={{ fontSize: 12, color: '#A89A8C', margin: 0 }}>Posted by <strong style={{ color: '#1C1C1C' }}>{event.submitted_by}</strong></p>
-                {event.link && (
+                {event.link && event.link !== 'https://' && (
                   <a href={event.link} target="_blank" rel="noopener noreferrer" style={{
                     fontSize: 12, fontWeight: 700, color: POL_RED, textDecoration: 'none',
                     padding: '5px 12px', border: `1px solid ${POL_RED}`, borderRadius: 6,
