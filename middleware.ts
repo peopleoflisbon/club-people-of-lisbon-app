@@ -9,6 +9,7 @@ const PUBLIC_PATHS = [
   '/auth/confirm',
   '/auth/set-password',
   '/join',
+  '/public-map',
 ];
 
 export async function middleware(req: NextRequest) {
