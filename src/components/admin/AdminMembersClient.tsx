@@ -373,7 +373,6 @@ export default function AdminMembersClient({ members, invitations }: Props) {
                     <p className="font-semibold text-sm text-ink">{member.full_name || '(no name yet)'}</p>
                     {member.role === 'admin' && <span className="text-2xs bg-brand/10 text-brand px-2 py-0.5 font-semibold">Admin</span>}
                     {!member.is_active && <span className="text-2xs bg-stone-100 text-stone-400 px-2 py-0.5 font-semibold">Inactive</span>}
-                    {(member as any).open_to_feature && <span className="text-2xs px-2 py-0.5 font-semibold rounded" style={{ background: '#FFF3CD', color: '#856404', border: '1px solid #FFECB5' }}>⭐ Open to feature</span>}
                   </div>
                   <p className="text-xs text-stone-400">{member.email}</p>
                 </div>

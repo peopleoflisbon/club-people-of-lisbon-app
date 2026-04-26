@@ -203,12 +203,12 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
       {/* ── Top-right: Join + Filter + Count ── */}
       <div className="absolute right-4 z-10" style={{ top: safeTop, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
         {isMapUser && (
-          <a href="/auth/join"
+          <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer"
             style={{
               pointerEvents: 'auto',
               display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px',
               background: '#C8102E', color: 'white', borderRadius: 999, fontSize: 13,
-              fontWeight: 700, textDecoration: 'none', boxShadow: '0 2px 12px rgba(200,16,46,0.45)',
+              fontWeight: 700, textDecoration: 'none', boxShadow: '0 2px 12px rgba(47,109,165,0.45)',
               fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
             }}>
             Join the Club ↗
@@ -455,7 +455,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.65, margin: '0 0 22px' }}>
               Meet the people behind the stories. Join the club to unlock events, members, and the full Lisbon network.
             </p>
-            <a href="/auth/join" onClick={dismissOverlay}
+            <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer" onClick={dismissOverlay}
               style={{ display: 'block', width: '100%', padding: '13px', background: '#C8102E', color: 'white', fontSize: 15, fontWeight: 700, borderRadius: 10, textAlign: 'center', textDecoration: 'none', marginBottom: 10 }}>
               Join the Club ↗
             </a>

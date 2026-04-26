@@ -174,18 +174,28 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         </div>
 
         <div>
+          <label className="pol-label">Nationality 🌍</label>
+          <select className="pol-input" value={form.nationality} onChange={(e) => set('nationality', e.target.value)}>
+            <option value="">Select your nationality</option>
+            {['Irish','British','American','Portuguese','French','Spanish','Italian','German','Brazilian','Australian','Canadian','Dutch','Belgian','Swedish','Norwegian','Danish','Finnish','Polish','Russian','Ukrainian','Greek','Turkish','Israeli','South African','Indian','Chinese','Japanese','Korean','Mexican','Argentine','Colombian','Chilean','Venezuelan','Latvian','Lithuanian','Estonian','Romanian','Hungarian','Czech','Slovak','Croatian','Serbian','Swiss','Austrian','New Zealander','Singaporean','Malaysian','Nigerian','Ghanaian','Kenyan','Ethiopian','Egyptian','Moroccan','Pakistani','Bangladeshi'].map(n => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
           <label className="pol-label">Short Bio</label>
-          <textarea className="pol-textarea" rows={6} value={form.short_bio} onChange={(e) => set('short_bio', e.target.value)} placeholder="A few sentences about you…" />
+          <textarea className="pol-textarea" rows={3} value={form.short_bio} onChange={(e) => set('short_bio', e.target.value)} placeholder="A few sentences about you…" />
         </div>
 
         <div>
           <label className="pol-label">My Lisbon Story</label>
-          <textarea className="pol-textarea" rows={8} value={form.personal_story} onChange={(e) => set('personal_story', e.target.value)} placeholder="How did you end up in Lisbon? What keeps you here?" />
+          <textarea className="pol-textarea" rows={4} value={form.personal_story} onChange={(e) => set('personal_story', e.target.value)} placeholder="How did you end up in Lisbon? What keeps you here?" />
         </div>
 
         <div>
           <label className="pol-label">Favourite Lisbon Spots</label>
-          <textarea className="pol-textarea" rows={6} value={form.favorite_spots} onChange={(e) => set('favorite_spots', e.target.value)} placeholder="Pastéis de Belém for breakfast, sunset at Miradouro da Graça…" />
+          <textarea className="pol-textarea" rows={3} value={form.favorite_spots} onChange={(e) => set('favorite_spots', e.target.value)} placeholder="Pastéis de Belém for breakfast, sunset at Miradouro da Graça…" />
         </div>
       </div>
 

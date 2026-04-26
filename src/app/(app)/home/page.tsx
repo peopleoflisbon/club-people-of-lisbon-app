@@ -65,7 +65,7 @@ export default async function HomePage() {
       .limit(1),
     supabase.from('app_settings').select('value').eq('key', 'brand_square_image_url').single(),
     supabase.from('app_settings').select('value').eq('key', 'latest_episode_url').single(),
-    (supabase as any).from('recommendations').select('id, name, category, neighbourhood, image_url').eq('is_active', true).not('image_url', 'is', null).neq('image_url', '').limit(20),
+    (supabase as any).from('recommendations').select('id, name, category, neighbourhood, image_url').eq('is_active', true).not('image_url', 'is', null).neq('image_url', '').order('display_order', { ascending: true }).limit(1),
   ]);
 
   const { data: stephenProfile } = await (supabase as any)
@@ -77,9 +77,7 @@ export default async function HomePage() {
 
   const brandLogoUrl = (brandSetting as any)?.value || '/pol-logo.png';
   const latestEpisodeUrl = (episodeSetting as any)?.value || '';
-  const recList = latestRecArr || [];
-  // Pass all recs — client will pick randomly to avoid hydration mismatch
-  const latestRec = recList[0] || null;
+  const latestRec = latestRecArr?.[0] || null;
 
   return (
     <HomeClient
@@ -92,7 +90,6 @@ export default async function HomePage() {
       brandLogoUrl={brandLogoUrl}
       latestEpisodeUrl={latestEpisodeUrl}
       latestRec={latestRec}
-      allRecs={recList}
     />
   );
 }

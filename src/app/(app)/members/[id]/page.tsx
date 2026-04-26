@@ -131,6 +131,19 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
         {/* ── Content body ── */}
         <div className="px-5 py-7 space-y-8">
 
+          {/* Kudos — playful but subtle */}
+          <div className="flex items-center justify-between px-5 py-4 rounded-xl" style={{ background: '#FFFFFF', border: '1px solid #EDE7DC' }}>
+            <div>
+              <p className="text-sm font-semibold" style={{ color: '#1C1C1C' }}>
+                {isOwnProfile ? 'Your kudos' : `Give ${firstName} a thumbs up`}
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: '#A89A8C' }}>
+                {isOwnProfile ? 'From the club — just for fun' : 'Totally pointless, just for fun'}
+              </p>
+            </div>
+            <KudosButton recipientId={params.id} initialCount={kudosCount || 0} isOwnProfile={isOwnProfile} inline />
+          </div>
+
           {/* About */}
           {profile.short_bio && (
             <div>
