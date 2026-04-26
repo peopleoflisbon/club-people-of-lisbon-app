@@ -12,6 +12,7 @@ const PUBLIC_PATHS = [
   '/auth/join',
   '/api/auth/map-access',
   '/map',
+  '/public-map',
 ];
 
 export async function middleware(req: NextRequest) {
