@@ -1,5 +1,4 @@
 export const dynamic = 'force-dynamic';
-
 import { createClient } from '@supabase/supabase-js';
 import LisbonMap from '@/components/map/LisbonMap';
 
