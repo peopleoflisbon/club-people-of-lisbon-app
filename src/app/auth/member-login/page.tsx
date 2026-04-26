@@ -65,7 +65,7 @@ export default function MemberLoginPage() {
       <div style={{ width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', flex: 1 }}>
 
         {/* ── Header ── */}
-        <div style={{ padding: 'max(env(safe-area-inset-top), 20px) 28px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <div style={{ padding: '20px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           {/* Logo — also a back link */}
           <a href="/auth/login" style={{ display: 'block', lineHeight: 0 }}>
             <img src="/pol-logo.png" alt="People Of Lisbon"

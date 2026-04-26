@@ -9,15 +9,10 @@ const PUBLIC_PATHS = [
   '/auth/confirm',
   '/auth/set-password',
   '/join',
-  '/public-map',
-  '/map',
-  '/explore',
-  '/auth/join',
 ];
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
-  res.headers.set('x-pathname', req.nextUrl.pathname);
   const supabase = createMiddlewareClient({ req, res });
   const { data: { session } } = await supabase.auth.getSession();
 

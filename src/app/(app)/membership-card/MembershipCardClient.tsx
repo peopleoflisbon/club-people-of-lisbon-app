@@ -166,14 +166,19 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear, 
               WebkitBackfaceVisibility: 'hidden',
               borderRadius: '16px',
               overflow: 'hidden',
-              backgroundImage: 'url(/card-bg.jpg)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center top',
+              background: 'linear-gradient(135deg, #1a0000 0%, #5a0000 40%, #8B0000 70%, #1a0000 100%)',
               boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
               zIndex: flipped ? 0 : 1,
             }}>
-              {/* Dark overlay so text stays readable */}
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.65) 100%)' }} />
+              {/* Chevron SVG overlay */}
+              <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 600 378" preserveAspectRatio="xMidYMid slice">
+                {Array.from({ length: 20 }, (_, i) => (
+                  <path key={i} d={`M${i * 35 - 100} 0 L${i * 35} 189 L${i * 35 - 100} 378`} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="1.5" />
+                ))}
+              </svg>
+
+              {/* Gloss overlay */}
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%)', borderRadius: '16px 16px 0 0' }} />
 
               {/* Content */}
               <div style={{ position: 'relative', zIndex: 1, padding: '6%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -263,7 +268,17 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear, 
 
         <p className="text-center text-stone-400 text-xs mb-6">Tap card to flip</p>
 
-        <p className="text-center text-stone-400 text-xs mt-2 leading-relaxed">
+        <button
+          onClick={saveCard}
+          className="w-full py-4 bg-ink text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          Save Card to Camera Roll
+        </button>
+
+        <p className="text-center text-stone-400 text-xs mt-4 leading-relaxed">
           Show this card at partner venues around Lisbon for member discounts.
         </p>
 

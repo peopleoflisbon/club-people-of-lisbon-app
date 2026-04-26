@@ -50,7 +50,7 @@ export default function LisbonWeather() {
       style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid #EDE7DC', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
       <span className="text-2xl leading-none">{condition.icon}</span>
       <div className="flex-1 min-w-0">
-        <p className="pol-eyebrow mb-0.5" style={{ color: '#1C1C1C' }}>Lisbon, Portugal</p>
+        <p className="pol-eyebrow mb-0.5">Lisbon, Portugal</p>
         <p className="text-sm font-medium leading-tight" style={{ color: '#6B5E52' }}>{condition.label}</p>
       </div>
       <div className="text-right flex-shrink-0">

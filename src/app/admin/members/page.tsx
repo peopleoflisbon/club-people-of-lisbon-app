@@ -14,7 +14,7 @@ export default async function AdminMembersPage() {
   const [{ data: members }, { data: invitations }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('id, full_name, email, headline, neighborhood, role, is_active, joined_at, avatar_url, open_to_feature')
+      .select('id, full_name, email, headline, neighborhood, role, is_active, joined_at, avatar_url')
       .neq('role', 'map_user')   // never show public map users in members list
       .order('joined_at', { ascending: false }),
     supabase
