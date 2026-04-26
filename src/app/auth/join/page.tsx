@@ -14,7 +14,8 @@ const PERKS = [
   { icon: '🎁', title: 'Offers & Discounts',          desc: 'Member-only deals at restaurants, bars, and experiences across the city.' },
   { icon: '📍', title: 'Recommendations',             desc: "Curated picks from the POL team — the city's best kept secrets." },
   { icon: '✉️', title: 'Direct Line to Stephen',     desc: 'Direct communication with Stephen, the founder of People Of Lisbon.' },
-  { icon: '🌐', title: 'The POL Network',             desc: 'Access to Lisbon\'s most interesting community of people.' },
+  { icon: '🎬', title: 'Support People Of Lisbon',   desc: 'Your membership directly supports Stephen and Rita in making the People Of Lisbon videos and photoshoots.' },
+  { icon: '🌐', title: 'The POL Network',             desc: "Access to Lisbon's most interesting community of people." },
 ];
 
 export default function JoinPage() {
@@ -26,7 +27,7 @@ export default function JoinPage() {
       <div style={{ width: '100%', maxWidth: 480, padding: '0 0 48px' }}>
 
         {/* Header */}
-        <div style={{ padding: '20px 24px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ padding: 'max(env(safe-area-inset-top), 20px) 24px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 'max(env(safe-area-inset-top), 20px)' }}>
           <a href="/auth/login" style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>
             ← Back
           </a>
