@@ -283,7 +283,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                 </div>
               )}
             </Link>
-            <Mod href="/board"           eye="Community"    title="Message Board"            sub="Post a thought or happening" />
+            <Mod href="/member-events" eye="Community"    title="Member Events"            sub="Events posted by club members" />
             <Mod href="/membership-card" eye="Members only"  title="Membership Card + Offers" sub="Your card and member discounts" />
 
             {/* ─── MAP FEATURE BLOCK ──────────────────────── */}
