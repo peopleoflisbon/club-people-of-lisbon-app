@@ -172,8 +172,8 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear, 
               boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
               zIndex: flipped ? 0 : 1,
             }}>
-              {/* Dark overlay so text stays readable */}
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.65) 100%)' }} />
+              {/* Dark overlay — heavier at bottom where text is */}
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.75) 70%, rgba(0,0,0,0.9) 100%)' }} />
 
               {/* Content */}
               <div style={{ position: 'relative', zIndex: 1, padding: '6%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
