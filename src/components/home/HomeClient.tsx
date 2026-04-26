@@ -284,6 +284,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
               )}
             </Link>
             <Mod href="/board"           eye="Community"    title="Message Board"            sub="Post a thought or happening" />
+            <Mod href="/membership-card" eye="Members only"  title="Membership Card + Offers" sub="Your card and member discounts" />
 
             {/* ─── MAP FEATURE BLOCK ──────────────────────── */}
             <Link href="/map" style={{ display: 'block', textDecoration: 'none', borderRadius: RADIUS, overflow: 'hidden' }}>
@@ -352,6 +353,11 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
         </div>
 
       </div>
+
+        <div style={{ padding: pad, marginBottom: 32 }}>
+          <Mod href="/tile-leaderboard" eye="Leaderboard" title="Tile Smashers" sub="See who's smashing the most tiles" />
+        </div>
+
     </ScrollPage>
   );
 }
