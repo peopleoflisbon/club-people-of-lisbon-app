@@ -168,7 +168,7 @@ export default function MembershipCardClient({ profile, memberNumber, joinYear, 
               overflow: 'hidden',
               backgroundImage: 'url(/card-bg.jpg)',
               backgroundSize: 'cover',
-              backgroundPosition: 'center top',
+              backgroundPosition: 'center 20%',
               boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
               zIndex: flipped ? 0 : 1,
             }}>

@@ -68,7 +68,7 @@ const SECONDARY_NAV = [
   { href: '/board', label: 'Message Board' },
   { href: '/membership-card', label: 'Membership Card' },
   { href: '/sponsors', label: 'Sponsors' },
-  { href: '/leaderboard', label: 'Leaderboard' },
+  { href: '/map', label: 'Map' },
   { href: '/photos', label: "Rita's Photos" },
   { href: '/break-tiles', label: 'Break The Tiles' },
 ];
