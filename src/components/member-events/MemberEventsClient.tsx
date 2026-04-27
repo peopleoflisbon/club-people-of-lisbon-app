@@ -119,15 +119,21 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
 
           <div style={{ marginBottom: 14 }}>
             <label style={lbl}>Date *</label>
-            <div style={{ width: '100%', overflow: 'hidden', borderRadius: 8 }}>
-              <input className="pol-input" type="date" value={form.event_date} onChange={e => set('event_date', e.target.value)} required style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', display: 'block' }} />
+            <div style={{ width: '100%', overflow: 'hidden' }}>
+              <input className="pol-input" type="text" value={form.event_date}
+                onChange={e => set('event_date', e.target.value)}
+                placeholder="e.g. 15 May 2026"
+                required style={{ width: '100%', boxSizing: 'border-box', display: 'block' }} />
             </div>
           </div>
 
           <div style={{ marginBottom: 14 }}>
             <label style={lbl}>Time *</label>
-            <div style={{ width: '100%', overflow: 'hidden', borderRadius: 8 }}>
-              <input className="pol-input" type="time" value={form.event_time} onChange={e => set('event_time', e.target.value)} required style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', display: 'block' }} />
+            <div style={{ width: '100%', overflow: 'hidden' }}>
+              <input className="pol-input" type="text" value={form.event_time}
+                onChange={e => set('event_time', e.target.value)}
+                placeholder="e.g. 7:00pm"
+                required style={{ width: '100%', boxSizing: 'border-box', display: 'block' }} />
             </div>
           </div>
 
@@ -143,13 +149,27 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
 
           <div style={{ marginBottom: 14 }}>
             <label style={lbl}>
-              Description * <span style={{ color: chars > 180 ? POL_RED : '#A89A8C', fontWeight: 400 }}>({chars}/180 characters)</span>
+              Description * <span style={{ color: chars > 160 ? (chars > 180 ? POL_RED : '#E6A817') : '#A89A8C', fontWeight: 600 }}>({chars}/180 characters)</span>
             </label>
-            <textarea className="pol-textarea" rows={5}
-              style={{ width: '100%', boxSizing: 'border-box', resize: 'vertical' }}
+            <textarea
+              rows={5}
+              style={{
+                width: '100%', boxSizing: 'border-box', resize: 'vertical',
+                padding: '12px 14px', fontSize: 15, lineHeight: 1.5,
+                border: `1.5px solid ${chars > 160 ? (chars >= 180 ? POL_RED : '#E6A817') : '#D1C9BE'}`,
+                borderRadius: 10, background: '#FFFFFF', color: '#1C1C1C',
+                fontFamily: 'inherit', outline: 'none',
+              }}
               value={form.description}
               onChange={e => set('description', e.target.value.slice(0, 180))}
-              placeholder="Tell members about your event (max 180 characters)" required />
+              placeholder="Tell members about your event (max 180 characters)"
+              required />
+            {chars > 160 && chars < 180 && (
+              <p style={{ fontSize: 12, color: '#E6A817', margin: '4px 0 0' }}>Almost at limit — {180 - chars} characters remaining.</p>
+            )}
+            {chars >= 180 && (
+              <p style={{ fontSize: 12, color: POL_RED, margin: '4px 0 0' }}>Character limit reached.</p>
+            )}
           </div>
 
           <div style={{ marginBottom: 14 }}>
