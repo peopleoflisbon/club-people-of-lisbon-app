@@ -12,7 +12,7 @@ export default async function MemberEventsPage() {
 
   const { data: profile } = await (supabase as any)
     .from('profiles')
-    .select('full_name')
+    .select('full_name, avatar_url')
     .eq('id', userId)
     .single();
 
@@ -26,6 +26,7 @@ export default async function MemberEventsPage() {
       events={events || []}
       userId={userId}
       userName={profile?.full_name || ''}
+      userAvatar={profile?.avatar_url || ''}
     />
   );
 }

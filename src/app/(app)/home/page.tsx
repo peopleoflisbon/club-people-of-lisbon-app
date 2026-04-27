@@ -65,7 +65,7 @@ export default async function HomePage() {
       .limit(1),
     supabase.from('app_settings').select('value').eq('key', 'brand_square_image_url').single(),
     supabase.from('app_settings').select('value').eq('key', 'latest_episode_url').single(),
-    (supabase as any).from('recommendations').select('id, name, category, neighbourhood, image_url').eq('is_active', true).not('image_url', 'is', null).neq('image_url', '').order('display_order', { ascending: true }).limit(1),
+    (supabase as any).from('recommendations').select('id, name, category, neighbourhood, image_url').eq('is_active', true).not('image_url', 'is', null).neq('image_url', '').limit(20),
   ]);
 
   const { data: stephenProfile } = await (supabase as any)
@@ -77,7 +77,9 @@ export default async function HomePage() {
 
   const brandLogoUrl = (brandSetting as any)?.value || '/pol-logo.png';
   const latestEpisodeUrl = (episodeSetting as any)?.value || '';
-  const latestRec = latestRecArr?.[0] || null;
+  const recList = latestRecArr || [];
+  // Pick a different rec based on current minute so it changes regularly without Math.random() hydration issues
+  const latestRec = recList.length > 0 ? recList[Math.floor(Date.now() / 60000) % recList.length] : null;
 
   return (
     <HomeClient
