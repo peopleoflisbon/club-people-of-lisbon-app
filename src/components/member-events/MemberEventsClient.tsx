@@ -20,6 +20,7 @@ interface MemberEvent {
   google_maps_url: string;
   submitted_by: string;
   avatar_url: string;
+  user_id: string;
   created_at: string;
 }
 
@@ -118,12 +119,16 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
 
           <div style={{ marginBottom: 14 }}>
             <label style={lbl}>Date *</label>
-            <input className="pol-input" type="date" value={form.event_date} onChange={e => set('event_date', e.target.value)} required style={{ width: '100%', boxSizing: 'border-box' }} />
+            <div style={{ width: '100%', overflow: 'hidden', borderRadius: 8 }}>
+              <input className="pol-input" type="date" value={form.event_date} onChange={e => set('event_date', e.target.value)} required style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', display: 'block' }} />
+            </div>
           </div>
 
           <div style={{ marginBottom: 14 }}>
             <label style={lbl}>Time *</label>
-            <input className="pol-input" type="time" value={form.event_time} onChange={e => set('event_time', e.target.value)} required style={{ width: '100%', boxSizing: 'border-box' }} />
+            <div style={{ width: '100%', overflow: 'hidden', borderRadius: 8 }}>
+              <input className="pol-input" type="time" value={form.event_time} onChange={e => set('event_time', e.target.value)} required style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', display: 'block' }} />
+            </div>
           </div>
 
           <div style={{ marginBottom: 14 }}>
@@ -143,7 +148,7 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
             <textarea className="pol-textarea" rows={5}
               style={{ width: '100%', boxSizing: 'border-box', resize: 'vertical' }}
               value={form.description}
-              onChange={e => set('description', e.target.value)}
+              onChange={e => set('description', e.target.value.slice(0, 180))}
               placeholder="Tell members about your event (max 180 characters)" required />
           </div>
 
@@ -205,8 +210,17 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
               <p style={{ fontSize: 13, color: '#6B5E52', margin: '0 0 10px', lineHeight: 1.6 }}>{event.description}</p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {event.avatar_url && <Avatar src={event.avatar_url} name={event.submitted_by} size="xs" />}
-                  <p style={{ fontSize: 12, color: '#A89A8C', margin: 0 }}>Posted by <strong style={{ color: '#1C1C1C' }}>{event.submitted_by}</strong></p>
+                  {event.user_id ? (
+                    <a href={`/members/${event.user_id}`} style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+                      {event.avatar_url && <Avatar src={event.avatar_url} name={event.submitted_by} size="xs" />}
+                      <p style={{ fontSize: 12, color: '#A89A8C', margin: 0 }}>Posted by <strong style={{ color: '#1C1C1C' }}>{event.submitted_by}</strong></p>
+                    </a>
+                  ) : (
+                    <>
+                      {event.avatar_url && <Avatar src={event.avatar_url} name={event.submitted_by} size="xs" />}
+                      <p style={{ fontSize: 12, color: '#A89A8C', margin: 0 }}>Posted by <strong style={{ color: '#1C1C1C' }}>{event.submitted_by}</strong></p>
+                    </>
+                  )}
                 </div>
                 {event.link && (
                   <a href={event.link} target="_blank" rel="noopener noreferrer" style={{
