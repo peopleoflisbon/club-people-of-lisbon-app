@@ -285,7 +285,7 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
                   {item.icon(active)}
                   {showBadge && (
                     <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white"
-                      style={{ background: '#2F6DA5' }} />
+                      style={{ background: '#C8102E' }} />
                   )}
                 </span>
                 <span className="text-2xs font-semibold">{item.mobileLabel}</span>

@@ -12,9 +12,10 @@ import type { Event, RsvpStatus } from '@/types';
 interface Props {
   events: (Event & { user_rsvp: RsvpStatus | null; rsvp_count: number })[];
   userId: string;
+  memberEvents?: any[];
 }
 
-export default function EventsClient({ events: initialEvents, userId }: Props) {
+export default function EventsClient({ events: initialEvents, userId, memberEvents = [] }: Props) {
   const [events, setEvents] = useState(initialEvents);
   const [rsvpLoading, setRsvpLoading] = useState<string | null>(null);
   const supabase = createClient();
@@ -62,7 +63,7 @@ export default function EventsClient({ events: initialEvents, userId }: Props) {
   return (
     <ScrollPage>
     <div className="max-w-3xl mx-auto">
-      <PageHeader title="Events" subtitle="People Of Lisbon gatherings" />
+      <PageHeader title="Events" subtitle="People Of Lisbon gatherings & member events" />
 
       {events.length === 0 ? (
         <EmptyState
@@ -78,7 +79,7 @@ export default function EventsClient({ events: initialEvents, userId }: Props) {
         <div className="px-4 lg:px-8 pb-6 space-y-8">
           {upcoming.length > 0 && (
             <section>
-              <h2 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-4">Upcoming</h2>
+              <h2 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-4">Next People Of Lisbon Gatherings</h2>
               <div className="space-y-4">
                 {upcoming.map((event, i) => (
                   <EventCard
@@ -88,6 +89,33 @@ export default function EventsClient({ events: initialEvents, userId }: Props) {
                     onRsvp={handleRsvp}
                     rsvpLoading={rsvpLoading === event.id}
                   />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {memberEvents.length > 0 && (
+            <section>
+              <h2 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-4">Member Events</h2>
+              <div className="space-y-3">
+                {memberEvents.map((event: any) => (
+                  <div key={event.id} style={{ background: 'white', borderRadius: 12, border: '1px solid #EDE7DC', overflow: 'hidden' }}>
+                    <div style={{ borderLeft: '4px solid #C8102E', padding: '14px 16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 4 }}>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: '#1C1C1C', margin: 0 }}>{event.name}</p>
+                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                          <p style={{ fontSize: 11, fontWeight: 700, color: '#C8102E', margin: 0 }}>{event.event_date}</p>
+                          {event.event_time && <p style={{ fontSize: 11, color: '#A89A8C', margin: 0 }}>{event.event_time}</p>}
+                        </div>
+                      </div>
+                      {event.location && <p style={{ fontSize: 12, color: '#8A7C6E', margin: '0 0 4px' }}>📍 {event.location}</p>}
+                      <p style={{ fontSize: 13, color: '#6B5E52', margin: '0 0 8px', lineHeight: 1.5 }}>{event.description}</p>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <p style={{ fontSize: 12, color: '#A89A8C', margin: 0 }}>By <strong style={{ color: '#1C1C1C' }}>{event.submitted_by}</strong></p>
+                        {event.link && <a href={event.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, fontWeight: 700, color: '#C8102E', textDecoration: 'none', padding: '4px 10px', border: '1px solid #C8102E', borderRadius: 6 }}>More info →</a>}
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </section>

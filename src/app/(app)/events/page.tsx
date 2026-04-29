@@ -13,10 +13,13 @@ export default async function EventsPage() {
   // BUG FIX: removed !inner join and embedded count — both caused bugs.
   // !inner filtered out all events the user hadn't RSVP'd to.
   // event_rsvps(count) returned [{count:N}] not N, so length was always 1.
-  const [{ data: events }, { data: rsvpCounts }, { data: userRsvps }] = await Promise.all([
+  const today = new Date().toISOString().split('T')[0];
+
+  const [{ data: events }, { data: rsvpCounts }, { data: userRsvps }, { data: memberEvents }] = await Promise.all([
     supabase.from('events').select('*').neq('status', 'cancelled').order('starts_at', { ascending: true }),
     supabase.from('event_rsvps').select('event_id').eq('status', 'attending'),
     supabase.from('event_rsvps').select('event_id, status').eq('user_id', userId),
+    (supabase as any).from('member_events').select('*').gte('event_date', today).order('event_date', { ascending: true }),
   ]);
 
   const countMap = new Map<string, number>();
@@ -32,5 +35,5 @@ export default async function EventsPage() {
     rsvp_count: countMap.get(e.id) || 0,
   }));
 
-  return <EventsClient events={enriched} userId={userId} />;
+  return <EventsClient events={enriched} userId={userId} memberEvents={memberEvents || []} />;
 }

@@ -95,9 +95,10 @@ interface Props {
   brandLogoUrl?: string;
   latestEpisodeUrl?: string;
   latestRec?: { id: string; name: string; category: string; neighbourhood: string; image_url?: string } | null;
+  nextMemberEvent?: { id: string; name: string; event_date: string; event_time: string; location: string; submitted_by: string } | null;
 }
 
-export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl, latestRec }: Props) {
+export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl, latestRec, nextMemberEvent }: Props) {
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
   const newestMember = recentMembers[0] || null;
   const gap = 18;
@@ -192,6 +193,26 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                 </Link>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ─── 3b. NEXT MEMBER EVENT ──────────────────────── */}
+        {nextMemberEvent && (
+          <div style={{ padding: pad, marginBottom: gap }}>
+            <Head eye="Member Events" title="Up Next" href="/member-events" />
+            <Link href="/member-events" style={{ display: 'block', ...card, textDecoration: 'none' }}>
+              <div style={{ borderLeft: `4px solid ${RED}`, padding: '14px 18px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: INK, margin: '0 0 4px', fontFamily: FF }}>{nextMemberEvent.name}</p>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: RED, margin: 0 }}>{nextMemberEvent.event_date}</p>
+                    {nextMemberEvent.event_time && <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>{nextMemberEvent.event_time}</p>}
+                  </div>
+                </div>
+                {nextMemberEvent.location && <p style={{ fontSize: 12, color: MUTED, margin: '2px 0 0' }}>📍 {nextMemberEvent.location}</p>}
+                <p style={{ fontSize: 12, color: MUTED, margin: '6px 0 0' }}>By <strong style={{ color: INK }}>{nextMemberEvent.submitted_by}</strong></p>
+              </div>
+            </Link>
           </div>
         )}
 

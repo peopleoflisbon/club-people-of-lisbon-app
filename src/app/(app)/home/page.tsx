@@ -43,6 +43,7 @@ export default async function HomePage() {
     { data: brandSetting },
     { data: episodeSetting },
     { data: latestRecArr },
+    { data: nextMemberEventArr },
   ] = await Promise.all([
     supabase.from('profiles').select('full_name, avatar_url, neighborhood').eq('id', userId).single(),
     supabase.from('profiles')
@@ -66,6 +67,7 @@ export default async function HomePage() {
     supabase.from('app_settings').select('value').eq('key', 'brand_square_image_url').single(),
     supabase.from('app_settings').select('value').eq('key', 'latest_episode_url').single(),
     (supabase as any).from('recommendations').select('id, name, category, neighbourhood, image_url').eq('is_active', true).not('image_url', 'is', null).neq('image_url', '').limit(20),
+    (supabase as any).from('member_events').select('id, name, event_date, event_time, location, submitted_by').gte('event_date', new Date().toISOString().split('T')[0]).order('event_date', { ascending: true }).limit(1),
   ]);
 
   const { data: stephenProfile } = await (supabase as any)
@@ -81,6 +83,8 @@ export default async function HomePage() {
   // Pick a different rec based on current minute so it changes regularly without Math.random() hydration issues
   const latestRec = recList.length > 0 ? recList[Math.floor(Date.now() / 60000) % recList.length] : null;
 
+  const nextMemberEvent = nextMemberEventArr?.[0] || null;
+
   return (
     <HomeClient
       profile={profile}
@@ -92,6 +96,7 @@ export default async function HomePage() {
       brandLogoUrl={brandLogoUrl}
       latestEpisodeUrl={latestEpisodeUrl}
       latestRec={latestRec}
+      nextMemberEvent={nextMemberEvent}
     />
   );
 }
