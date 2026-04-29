@@ -156,10 +156,9 @@ export default function AdminEventsClient({ events: initialEvents }: Props) {
             <div>
               <label className="pol-label">Cover Image</label>
               <ImageUpload
-                currentUrl={form.cover_image_url}
-                bucket="media"
-                path="events"
-                onUpload={(url) => setForm({ ...form, cover_image_url: url })}
+                value={form.cover_image_url}
+                folder="events"
+                onChange={(url) => setForm({ ...form, cover_image_url: url })}
               />
             </div>
             <div className="flex gap-3 pt-2">
