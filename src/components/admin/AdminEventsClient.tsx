@@ -80,7 +80,7 @@ export default function AdminEventsClient({ events: initialEvents }: Props) {
     setRsvpList(null);
     const { data } = await (supabase as any)
       .from('event_rsvps')
-      .select('profiles(full_name, avatar_url, neighborhood)')
+      .select('profiles(full_name, avatar_url, email, neighborhood)')
       .eq('event_id', event.id)
       .eq('status', 'attending');
     const list = (data || []).map((r: any) => ({

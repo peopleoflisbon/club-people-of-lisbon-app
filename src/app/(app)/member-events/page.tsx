@@ -16,9 +16,12 @@ export default async function MemberEventsPage() {
     .eq('id', userId)
     .single();
 
+  const today = new Date().toISOString().split('T')[0];
+
   const { data: events } = await (supabase as any)
     .from('member_events')
     .select('*')
+    .gte('event_date', today)
     .order('event_date', { ascending: true });
 
   return (

@@ -34,9 +34,16 @@ interface Props {
 function charCount(text: string) { return text.length; }
 
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('en-IE', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  });
+  if (!dateStr) return '';
+  // Handle ISO format (2026-05-15) and text format (15 May 2026)
+  const d = new Date(dateStr);
+  if (!isNaN(d.getTime())) {
+    return d.toLocaleDateString('en-IE', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+  }
+  // Return as-is if can't parse (plain text date entered by user)
+  return dateStr;
 }
 
 const lbl: React.CSSProperties = {
