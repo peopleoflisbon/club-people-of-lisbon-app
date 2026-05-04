@@ -11,6 +11,7 @@ const ADMIN_NAV = [
   { href: '/admin/pins', label: 'Map Pins', emoji: '📍' },
   { href: '/admin/categories', label: 'Categories', emoji: '🏷️' },
   { href: '/admin/sponsors', label: 'Sponsors', emoji: '⭐' },
+  { href: '/admin/newsletter', label: 'Newsletter Generator', emoji: '📰' },
   { href: '/admin/updates', label: 'Updates from Stephen', emoji: '✍️' },
   { href: '/admin/good-news', label: 'Good News', emoji: '🎉' },
   { href: '/admin/board', label: 'Message Board', emoji: '📋' },
