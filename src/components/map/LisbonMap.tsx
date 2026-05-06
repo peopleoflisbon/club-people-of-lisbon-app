@@ -190,7 +190,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
         ) : null}
       </div>
       {/* ── Top-right: Join + Filter + Count ── */}
-      <div className="absolute right-4 z-10" style={{ top: safeTop, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+      <div className="absolute right-4 z-10" style={{ top: isMapUser ? safeTop : `calc(${safeTop} + 72px)`, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
         {isMapUser && (
           <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer"
             style={{
@@ -239,11 +239,11 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
         </div>
       </div>
 
-      {/* ── Intro blurb — non-mapUser only, below controls ── */}
+      {/* ── Intro blurb — non-mapUser only, at very top ── */}
       {!isMapUser && (
         <div style={{
           position: 'absolute', left: 16, right: 16, zIndex: 9, pointerEvents: 'none',
-          top: `calc(${safeTop} + 60px)`,
+          top: safeTop,
         }}>
           <p style={{
             margin: 0, fontSize: 22, fontWeight: 900, color: '#1C1C1C',

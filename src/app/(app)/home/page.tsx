@@ -69,7 +69,7 @@ export default async function HomePage() {
     supabase.from('app_settings').select('value').eq('key', 'latest_episode_url').single(),
     (supabase as any).from('recommendations').select('id, name, category, neighbourhood, image_url').eq('is_active', true).not('image_url', 'is', null).neq('image_url', '').limit(20),
     (supabase as any).from('member_events').select('id, name, event_date, event_time, location, submitted_by').gte('event_date', new Date().toISOString().split('T')[0]).order('event_date', { ascending: true }).limit(1),
-    (supabase as any).from('membership_offers').select('id, title, partner_name, description, cta_url').eq('is_active', true).order('display_order', { ascending: true }).limit(1),
+    (supabase as any).from('membership_offers').select('*').eq('is_active', true).order('display_order', { ascending: true }).limit(1),
   ]);
 
   const { data: stephenProfile } = await (supabase as any)

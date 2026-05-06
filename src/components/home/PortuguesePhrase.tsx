@@ -60,7 +60,7 @@ export default function PortuguesePhrase() {
         </div>
 
         {/* Phrase */}
-        <p className="font-display text-white text-3xl leading-tight mb-2">{phrase.pt}</p>
+        <p className="font-display text-white leading-tight mb-2" style={{ fontSize: 22, fontWeight: 900, letterSpacing: '-0.02em' }}>{phrase.pt}</p>
 
         {/* Divider */}
         <div className="h-px bg-white/20 mb-3" />

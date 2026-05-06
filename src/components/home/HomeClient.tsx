@@ -226,7 +226,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
               style={{ display: 'flex', alignItems: 'center', gap: 14, ...card, padding: '16px 18px', textDecoration: 'none' }}>
               <Avatar src={newestMember.avatar_url} name={newestMember.full_name} size="xl" />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 18, fontWeight: 700, color: INK, margin: '0 0 3px', lineHeight: 1.2 }}>
+                <p style={{ fontSize: 22, fontWeight: 900, color: INK, margin: '0 0 3px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
                   {newestMember.full_name}
                 </p>
                 {newestMember.headline && (
@@ -279,7 +279,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                   <img src={latestRec.image_url} alt={latestRec.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                   <ImgOverlay />
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 16px' }}>
-                    <p style={{ fontSize: 16, fontWeight: 700, color: '#fff', margin: '0 0 3px', lineHeight: 1.2, ...imgText }}>{latestRec.name}</p>
+                    <p style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 3px', lineHeight: 1.1, letterSpacing: '-0.02em', ...imgText }}>{latestRec.name}</p>
                     <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, ...imgText }}>
                       {latestRec.category}{latestRec.neighbourhood ? ` · ${latestRec.neighbourhood}` : ''}
                     </p>
@@ -323,7 +323,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
               <div style={{ background: INK, borderLeft: `5px solid ${RED}`, padding: '22px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
                 <div>
                   <Eye t="Explore Lisbon" color={RED} />
-                  <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 5px', letterSpacing: '-0.02em', lineHeight: 1.1, textTransform: 'uppercase', fontFamily: FF }}>
+                  <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 5px', letterSpacing: '-0.02em', lineHeight: 1.1, fontFamily: FF, textTransform: 'none' }}>
                     Through the people
                   </h3>
                   <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', margin: '0 0 16px', fontFamily: FF }}>
@@ -374,7 +374,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                 <div style={{ position: 'relative', padding: '22px 20px', display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'space-between' }}>
                   <div>
                     <Eye t="Game" color={RED} />
-                    <p style={{ fontSize: 20, fontWeight: 700, color: '#fff', margin: '0 0 3px', ...imgText }}>Break The Tiles</p>
+                    <p style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 3px', letterSpacing: '-0.02em', lineHeight: 1.1, ...imgText }}>Break The Tiles</p>
                     <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', margin: 0 }}>Smash Portuguese azulejos</p>
                   </div>
                   <Chev color={RED} />
