@@ -1,4 +1,5 @@
 import { createServerClient } from '@/lib/supabase-server';
+import { createClient } from '@supabase/supabase-js';
 import HomeClient from '@/components/home/HomeClient';
 
 export const revalidate = 0;
@@ -8,6 +9,11 @@ export const metadata = { title: 'Home · People Of Lisbon' };
 
 export default async function HomePage() {
   const supabase = createServerClient();
+  const admin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
   const { data: { session } } = await supabase.auth.getSession();
   const userId = session!.user.id;
 
@@ -69,7 +75,7 @@ export default async function HomePage() {
     supabase.from('app_settings').select('value').eq('key', 'latest_episode_url').single(),
     (supabase as any).from('recommendations').select('id, name, category, neighbourhood, image_url').eq('is_active', true).not('image_url', 'is', null).neq('image_url', '').limit(20),
     (supabase as any).from('member_events').select('id, name, event_date, event_time, location, submitted_by').gte('event_date', new Date().toISOString().split('T')[0]).order('event_date', { ascending: true }).limit(1),
-    (supabase as any).from('membership_offers').select('id, title, partner_name, cta_url').eq('is_active', true).order('display_order', { ascending: true }),
+    admin.from('membership_offers').select('id, title, partner_name, cta_url').eq('is_active', true).order('display_order', { ascending: true }),
   ]);
 
   const { data: stephenProfile } = await (supabase as any)
