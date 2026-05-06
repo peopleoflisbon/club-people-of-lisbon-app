@@ -6,10 +6,7 @@ import { getYouTubeThumbnail, cn } from '@/lib/utils';
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 const LISBON_CENTER: [number, number] = [-9.1393, 38.7223];
-const NEIGHBORHOODS = [
-  'Alfama', 'Bairro Alto', 'Baixa', 'Belém', 'Chiado', 'Graça',
-  'LX Factory', 'Mouraria', 'Príncipe Real', 'Santos', 'Other',
-];
+import { LISBON_NEIGHBORHOODS } from '@/lib/utils';
 
 interface Category { id: string; name: string; sort_order: number; }
 interface MapPin {
@@ -195,7 +192,7 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
           <label className="pol-label">Neighborhood</label>
           <select className="pol-input" value={form.neighborhood} onChange={e => setForm({ ...form, neighborhood: e.target.value })}>
             <option value="">Select…</option>
-            {NEIGHBORHOODS.map(n => <option key={n} value={n}>{n}</option>)}
+            {LISBON_NEIGHBORHOODS.map(n => <option key={n} value={n}>{n}</option>)}
           </select>
         </div>
         <div>

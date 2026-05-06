@@ -14,6 +14,7 @@ import ScrollPage from '@/components/ui/ScrollPage';
 const BG    = '#F5F1EA';
 const CARD  = '#FFFFFF';
 const RED   = '#C8102E';
+const GOLD  = '#E6B75C';
 const INK   = '#1C1C1C';
 const MUTED = '#8A7C6E';
 const BORDER = '1px solid #EDE7DC';
@@ -96,9 +97,10 @@ interface Props {
   latestEpisodeUrl?: string;
   latestRec?: { id: string; name: string; category: string; neighbourhood: string; image_url?: string } | null;
   nextMemberEvent?: { id: string; name: string; event_date: string; event_time: string; location: string; submitted_by: string } | null;
+  latestOffer?: { id: string; title: string; partner_name: string; description: string; cta_url: string } | null;
 }
 
-export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl, latestRec, nextMemberEvent }: Props) {
+export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl, latestRec, nextMemberEvent, latestOffer }: Props) {
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
   const newestMember = recentMembers[0] || null;
   const gap = 18;
@@ -154,7 +156,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
         {/* ─── 3. EVENTS ────────────────────────────────── */}
         {upcomingEvents.length > 0 && (
           <div style={{ padding: pad, marginBottom: gap }}>
-            <Head eye="What's on" title="Upcoming Events" href="/events" />
+            <Head eye="What's on" title="Club Gatherings" href="/events" />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {upcomingEvents.map((event: any) => (
                 <Link key={event.id} href={`/events/${event.id}`}
@@ -199,7 +201,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
         {/* ─── 3b. NEXT MEMBER EVENT ──────────────────────── */}
         {nextMemberEvent && (
           <div style={{ padding: pad, marginBottom: gap }}>
-            <Head eye="Member Events" title="Up Next" href="/member-events" />
+            <Head eye="From the club" title="Member Events" href="/member-events" />
             <Link href="/member-events" style={{ display: 'block', ...card, textDecoration: 'none' }}>
               <div style={{ borderLeft: `4px solid ${RED}`, padding: '14px 18px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
@@ -307,6 +309,15 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
             <Mod href="/member-events" eye="Community"    title="Member Events"            sub="Events posted by club members" />
             <Mod href="/membership-card" eye="Members only"  title="Membership Card + Offers" sub="Your card and member discounts" />
 
+            {/* Latest offer */}
+            {latestOffer && (
+              <a href={latestOffer.cta_url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', textDecoration: 'none', background: '#fff', borderRadius: RADIUS, border: '1px solid #EDE7DC', borderLeft: `4px solid ${GOLD}`, padding: '14px 18px', marginTop: 2 }}>
+                <p style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: GOLD, margin: '0 0 3px', fontFamily: FF }}>{latestOffer.partner_name}</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: INK, margin: '0 0 3px', fontFamily: FF }}>{latestOffer.title}</p>
+                <p style={{ fontSize: 12, color: MUTED, margin: 0, lineHeight: 1.5 }}>{latestOffer.description?.slice(0, 100)}{latestOffer.description?.length > 100 ? '…' : ''}</p>
+              </a>
+            )}
+
             {/* ─── MAP FEATURE BLOCK ──────────────────────── */}
             <Link href="/map" style={{ display: 'block', textDecoration: 'none', borderRadius: RADIUS, overflow: 'hidden' }}>
               <div style={{ background: INK, borderLeft: `5px solid ${RED}`, padding: '22px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
@@ -373,12 +384,11 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           </Link>
         </div>
 
-      </div>
-
-        <div style={{ padding: pad, marginBottom: 32 }}>
+        <div style={{ padding: pad, marginBottom: 32, maxWidth: 600 }}>
           <Mod href="/tile-leaderboard" eye="Leaderboard" title="Tile Smashers" sub="See who's smashing the most tiles" />
         </div>
 
+      </div>
     </ScrollPage>
   );
 }

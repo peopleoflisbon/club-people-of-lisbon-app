@@ -74,7 +74,15 @@ export default async function UpdatesPage() {
                   <h2 className="font-display text-2xl text-ink mt-1 mb-3">{update.title}</h2>
                   <div className="prose prose-sm text-stone-600 max-w-none">
                     {update.content.split('\n').map((para, j) => (
-                      para.trim() ? <p key={j} className="mb-3 leading-relaxed">{para}</p> : null
+                      para.trim() ? (
+                        <p key={j} className="mb-3 leading-relaxed">
+                          {para.split(/(https?:\/\/[^\s]+)/g).map((part, k) =>
+                            /^https?:\/\//.test(part)
+                              ? <a key={k} href={part} target="_blank" rel="noopener noreferrer" style={{ color: '#C8102E', textDecoration: 'underline' }}>{part}</a>
+                              : part
+                          )}
+                        </p>
+                      ) : null
                     ))}
                   </div>
                 </div>

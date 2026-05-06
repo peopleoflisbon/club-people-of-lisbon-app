@@ -187,19 +187,8 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             </svg>
             <span style={{ fontSize: 12, fontWeight: 700, color: '#C8102E' }}>Exit map</span>
           </button>
-        ) : (
-          <div style={{
-            pointerEvents: 'none',
-            padding: '8px 14px', borderRadius: 12,
-            background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-            fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
-          }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#C8102E' }}>Explore Lisbon</p>
-          </div>
-        )}
+        ) : null}
       </div>
-
       {/* ── Top-right: Join + Filter + Count ── */}
       <div className="absolute right-4 z-10" style={{ top: safeTop, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
         {isMapUser && (
@@ -254,14 +243,15 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
       {!isMapUser && (
         <div style={{
           position: 'absolute', left: 16, right: 16, zIndex: 9, pointerEvents: 'none',
-          top: `calc(${safeTop} + 52px)`,
+          top: `calc(${safeTop} + 12px)`,
         }}>
           <p style={{
-            margin: 0, fontSize: 12, fontWeight: 600, color: '#1C1C1C',
-            background: 'rgba(250,248,244,0.88)', backdropFilter: 'blur(8px)',
-            padding: '6px 12px', borderRadius: 8, display: 'inline-block',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            margin: 0, fontSize: 22, fontWeight: 900, color: '#1C1C1C',
+            background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(8px)',
+            padding: '10px 16px', borderRadius: 10, display: 'inline-block',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.10)',
             fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+            letterSpacing: '-0.01em', lineHeight: 1.2,
           }}>
             Explore Lisbon through the people we've filmed.
           </p>
