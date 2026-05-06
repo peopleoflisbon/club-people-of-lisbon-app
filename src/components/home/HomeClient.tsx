@@ -311,13 +311,21 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
 
             {/* Latest offer */}
             {latestOffer && (
-              <Link href="/membership-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, textDecoration: 'none', background: '#fff', borderRadius: RADIUS, border: '1px solid #EDE7DC', borderLeft: `4px solid ${GOLD}`, padding: '16px 18px', marginTop: 2 }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <Eye t="Selected Offer" color={GOLD} />
-                  <p style={{ fontSize: 22, fontWeight: 900, color: INK, margin: 0, fontFamily: FF, letterSpacing: '-0.02em', lineHeight: 1.1 }}>{latestOffer.title}</p>
+              <div style={{ background: '#fff', borderRadius: RADIUS, border: '1px solid #EDE7DC', borderLeft: `4px solid ${GOLD}`, padding: '16px 18px', marginTop: 2 }}>
+                <Eye t="Selected Offer" color={GOLD} />
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    {latestOffer.partner_name && <p style={{ fontSize: 11, fontWeight: 700, color: GOLD, letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 3px', fontFamily: FF }}>{latestOffer.partner_name}</p>}
+                    <p style={{ fontSize: 22, fontWeight: 900, color: INK, margin: 0, fontFamily: FF, letterSpacing: '-0.02em', lineHeight: 1.1 }}>{latestOffer.title}</p>
+                  </div>
+                  {latestOffer.discount && (
+                    <span style={{ flexShrink: 0, background: '#FEF9EE', border: `1.5px solid ${GOLD}`, color: GOLD, borderRadius: 8, padding: '5px 12px', fontSize: 13, fontWeight: 800, fontFamily: FF }}>{latestOffer.discount}</span>
+                  )}
                 </div>
-                <Chev />
-              </Link>
+                <Link href="/membership-card" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: INK, color: '#fff', borderRadius: 6, padding: '9px 16px', fontSize: 12, fontWeight: 700, textDecoration: 'none', fontFamily: FF, letterSpacing: '0.03em', marginTop: 4 }}>
+                  More Offers →
+                </Link>
+              </div>
             )}
 
             {/* ─── MAP FEATURE BLOCK ──────────────────────── */}
