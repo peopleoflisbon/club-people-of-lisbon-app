@@ -97,7 +97,7 @@ interface Props {
   latestEpisodeUrl?: string;
   latestRec?: { id: string; name: string; category: string; neighbourhood: string; image_url?: string } | null;
   nextMemberEvent?: { id: string; name: string; event_date: string; event_time: string; location: string; submitted_by: string } | null;
-  latestOffer?: { id: string; title: string; partner_name: string; description: string; cta_url: string } | null;
+  latestOffer?: { id: string; title: string; partner_name: string; partner_url: string; discount: string } | null;
 }
 
 export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl, latestRec, nextMemberEvent, latestOffer }: Props) {
