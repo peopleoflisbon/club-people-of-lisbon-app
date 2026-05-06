@@ -170,7 +170,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [], sh
       <div ref={mapContainer} style={{ position: 'absolute', inset: 0, height: '100%' }} />
 
       {/* ── Top-left: Exit / Explore label ── */}
-      <div className="absolute left-4 z-10" style={{ top: safeTop, pointerEvents: 'none' }}>
+      <div className="absolute left-4 z-10" style={{ top: (!isMapUser || showExploreText) ? `calc(${safeTop} + 56px)` : safeTop, pointerEvents: 'none' }}>
         {isMapUser ? (
           <button
             onClick={handleSignOut}

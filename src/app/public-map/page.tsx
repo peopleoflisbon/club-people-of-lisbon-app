@@ -22,7 +22,7 @@ export default async function PublicMapPage() {
       .map((pc: any) => pc.category_id),
   }));
   return (
-    <div style={{ position: 'fixed', inset: 0, height: '100dvh' }}>
+    <div style={{ position: 'fixed', inset: 0 }}>
       <LisbonMap pins={pins} isMapUser={true} categories={categories || []} showExploreText={true} />
     </div>
   );
