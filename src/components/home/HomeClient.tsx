@@ -311,11 +311,13 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
 
             {/* Latest offer */}
             {latestOffer && (
-              <a href={latestOffer.cta_url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', textDecoration: 'none', background: '#fff', borderRadius: RADIUS, border: '1px solid #EDE7DC', borderLeft: `4px solid ${GOLD}`, padding: '14px 18px', marginTop: 2 }}>
-                <p style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: GOLD, margin: '0 0 3px', fontFamily: FF }}>{latestOffer.partner_name}</p>
-                <p style={{ fontSize: 15, fontWeight: 700, color: INK, margin: '0 0 3px', fontFamily: FF }}>{latestOffer.title}</p>
-                <p style={{ fontSize: 12, color: MUTED, margin: 0, lineHeight: 1.5 }}>{latestOffer.description?.slice(0, 100)}{latestOffer.description?.length > 100 ? '…' : ''}</p>
-              </a>
+              <Link href="/membership-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, textDecoration: 'none', background: '#fff', borderRadius: RADIUS, border: '1px solid #EDE7DC', borderLeft: `4px solid ${GOLD}`, padding: '16px 18px', marginTop: 2 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <Eye t="Selected Offer" color={GOLD} />
+                  <p style={{ fontSize: 22, fontWeight: 900, color: INK, margin: 0, fontFamily: FF, letterSpacing: '-0.02em', lineHeight: 1.1 }}>{latestOffer.title}</p>
+                </div>
+                <Chev />
+              </Link>
             )}
 
             {/* ─── MAP FEATURE BLOCK ──────────────────────── */}
