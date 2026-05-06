@@ -40,7 +40,7 @@ export default async function MapPage() {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0 }}>
+    <div style={{ position: 'fixed', inset: 0, height: '100dvh' }}>
       <LisbonMap pins={pins} isMapUser={isMapUser} categories={categories || []} />
     </div>
   );
