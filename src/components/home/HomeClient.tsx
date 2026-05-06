@@ -67,8 +67,8 @@ const Mod = ({ href, eye, title, sub, accent = RED }: {
     <div style={{ borderLeft: `4px solid ${accent}`, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
       <div style={{ flex: 1 }}>
         <Eye t={eye} color={accent} />
-        <p style={{ fontSize: 16, fontWeight: 700, color: INK, margin: '0 0 2px', fontFamily: FF }}>{title}</p>
-        <p style={{ fontSize: 12, color: MUTED, margin: 0, lineHeight: 1.4 }}>{sub}</p>
+        <p style={{ fontSize: 22, fontWeight: 900, color: INK, margin: '0 0 2px', fontFamily: FF, letterSpacing: '-0.02em', lineHeight: 1.1 }}>{title}</p>
+        <p style={{ fontSize: 13, color: MUTED, margin: 0, lineHeight: 1.4 }}>{sub}</p>
       </div>
       <Chev color={accent} />
     </div>
@@ -384,7 +384,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           </Link>
         </div>
 
-        <div style={{ padding: pad, marginBottom: 32, maxWidth: 600 }}>
+        <div style={{ padding: pad, marginBottom: 32 }}>
           <Mod href="/tile-leaderboard" eye="Leaderboard" title="Tile Smashers" sub="See who's smashing the most tiles" />
         </div>
 

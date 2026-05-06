@@ -175,12 +175,12 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
 
         <div>
           <label className="pol-label">Short Bio</label>
-          <textarea className="pol-textarea" rows={3} value={form.short_bio} onChange={(e) => set('short_bio', e.target.value)} placeholder="A few sentences about you…" />
+          <textarea className="pol-textarea" rows={5} value={form.short_bio} onChange={(e) => set('short_bio', e.target.value)} placeholder="A few sentences about you…" />
         </div>
 
         <div>
           <label className="pol-label">My Lisbon Story</label>
-          <textarea className="pol-textarea" rows={4} value={form.personal_story} onChange={(e) => set('personal_story', e.target.value)} placeholder="How did you end up in Lisbon? What keeps you here?" />
+          <textarea className="pol-textarea" rows={6} value={form.personal_story} onChange={(e) => set('personal_story', e.target.value)} placeholder="How did you end up in Lisbon? What keeps you here?" />
         </div>
 
         <div>

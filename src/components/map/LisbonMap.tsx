@@ -239,11 +239,11 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
         </div>
       </div>
 
-      {/* ── Intro blurb — non-mapUser only, below controls, pointer-events none ── */}
+      {/* ── Intro blurb — non-mapUser only, below controls ── */}
       {!isMapUser && (
         <div style={{
           position: 'absolute', left: 16, right: 16, zIndex: 9, pointerEvents: 'none',
-          top: `calc(${safeTop} + 12px)`,
+          top: `calc(${safeTop} + 60px)`,
         }}>
           <p style={{
             margin: 0, fontSize: 22, fontWeight: 900, color: '#1C1C1C',
