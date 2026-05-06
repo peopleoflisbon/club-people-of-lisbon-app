@@ -253,7 +253,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
             letterSpacing: '-0.01em', lineHeight: 1.2,
           }}>
-            Explore Lisbon through the people we've filmed.
+            Explore Lisbon Through The People
           </p>
         </div>
       )}

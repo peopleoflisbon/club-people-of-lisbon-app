@@ -45,8 +45,8 @@ export default function JoinPage() {
             Join 100+ members in Lisbon's most unique club. We do gatherings, we build community, and we give you access to the best of the city.
           </p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-            <span style={{ fontSize: 32, fontWeight: 900, color: '#fff' }}>€10</span>
-            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>/ month</span>
+            <span style={{ fontSize: 32, fontWeight: 900, color: '#E6B75C' }}>€10</span>
+            <span style={{ fontSize: 14, color: '#E6B75C' }}>/ month</span>
           </div>
         </div>
 

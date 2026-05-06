@@ -267,9 +267,14 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
           {children}
         </div>
 
-        {/* Mobile bottom tab bar — warm white, blue active */}
+        {/* Mobile bottom tab bar — fixed overlay */}
         <nav className="lg:hidden flex items-stretch flex-shrink-0"
           style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 50,
             background: '#FFFFFF',
             borderTop: '1px solid #EDE7DC',
             paddingBottom: 'max(env(safe-area-inset-bottom), 8px)',

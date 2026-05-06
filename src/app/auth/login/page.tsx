@@ -183,7 +183,7 @@ export default function GatewayPage() {
                 <p style={{ margin: 0, fontSize: 16, fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'white' }}>
                   Explore Lisbon
                 </p>
-                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 2, padding: '2px 6px' }}>Free</span>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#E6B75C', border: '1px solid #E6B75C', borderRadius: 2, padding: '2px 6px' }}>Free</span>
               </div>
               <p style={{ margin: '0 0 16px', fontSize: 14, color: 'rgba(255,255,255,0.75)', lineHeight: 1.65 }}>
                 Discover Lisbon like never before — through 200+ real video stories of the city's most fascinating people. Step into their world, and explore the city through our interactive map.
