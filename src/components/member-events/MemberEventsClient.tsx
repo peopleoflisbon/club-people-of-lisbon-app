@@ -139,12 +139,15 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
 
           <div style={{ marginBottom: 14 }}>
             <label style={lbl}>Time *</label>
-            <div style={{ width: '100%', overflow: 'hidden' }}>
-              <input className="pol-input" type="text" value={form.event_time}
-                onChange={e => set('event_time', e.target.value)}
-                placeholder="e.g. 7:00pm"
-                required style={{ width: '100%', boxSizing: 'border-box', display: 'block' }} />
-            </div>
+            <input type="time" value={form.event_time}
+              onChange={e => set('event_time', e.target.value)}
+              required
+              style={{
+                width: '100%', boxSizing: 'border-box', display: 'block',
+                padding: '12px 16px', border: '1.5px solid #E0D9CE',
+                borderRadius: 8, fontSize: 16, fontFamily: FF,
+                background: 'white', color: '#1C1C1C', outline: 'none',
+              }} />
           </div>
 
           <div style={{ marginBottom: 14 }}>
