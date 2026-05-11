@@ -132,8 +132,9 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
               style={{
                 width: '100%', boxSizing: 'border-box', display: 'block',
                 padding: '12px 16px', border: '1.5px solid #E0D9CE',
-                borderRadius: 8, fontSize: 16, fontFamily: FF,
-                background: 'white', color: '#1C1C1C', outline: 'none',
+                borderRadius: 8, fontSize: 16, fontFamily: 'inherit',
+                background: '#fff', color: '#1C1C1C', outline: 'none',
+                WebkitAppearance: 'none',
               }} />
           </div>
 
@@ -145,8 +146,9 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
               style={{
                 width: '100%', boxSizing: 'border-box', display: 'block',
                 padding: '12px 16px', border: '1.5px solid #E0D9CE',
-                borderRadius: 8, fontSize: 16, fontFamily: FF,
-                background: 'white', color: '#1C1C1C', outline: 'none',
+                borderRadius: 8, fontSize: 16, fontFamily: 'inherit',
+                background: '#fff', color: '#1C1C1C', outline: 'none',
+                WebkitAppearance: 'none',
               }} />
           </div>
 
