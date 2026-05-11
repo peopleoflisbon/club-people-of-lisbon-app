@@ -126,30 +126,56 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
 
           <div style={{ marginBottom: 14 }}>
             <label style={lbl}>Date *</label>
-            <input type="date" value={form.event_date}
-              onChange={e => set('event_date', e.target.value)}
-              required
-              style={{
-                width: '100%', boxSizing: 'border-box', display: 'block',
-                padding: '12px 16px', border: '1.5px solid #E0D9CE',
-                borderRadius: 8, fontSize: 16, fontFamily: 'inherit',
-                background: '#fff', color: '#1C1C1C', outline: 'none',
-                WebkitAppearance: 'none',
-              }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: 8 }}>
+              <select className="pol-input" value={form.event_date ? form.event_date.split('-')[2] : ''} required
+                onChange={e => {
+                  const parts = form.event_date ? form.event_date.split('-') : ['', '', ''];
+                  set('event_date', `${parts[0] || new Date().getFullYear()}-${parts[1] || '01'}-${e.target.value.padStart(2,'0')}`);
+                }}>
+                <option value="">Day</option>
+                {Array.from({length:31},(_,i)=>i+1).map(d=><option key={d} value={String(d).padStart(2,'0')}>{d}</option>)}
+              </select>
+              <select className="pol-input" value={form.event_date ? form.event_date.split('-')[1] : ''} required
+                onChange={e => {
+                  const parts = form.event_date ? form.event_date.split('-') : ['', '', ''];
+                  set('event_date', `${parts[0] || new Date().getFullYear()}-${e.target.value}-${parts[2] || '01'}`);
+                }}>
+                <option value="">Month</option>
+                {['January','February','March','April','May','June','July','August','September','October','November','December'].map((m,i)=>(
+                  <option key={m} value={String(i+1).padStart(2,'0')}>{m}</option>
+                ))}
+              </select>
+              <select className="pol-input" value={form.event_date ? form.event_date.split('-')[0] : ''} required
+                onChange={e => {
+                  const parts = form.event_date ? form.event_date.split('-') : ['', '', ''];
+                  set('event_date', `${e.target.value}-${parts[1] || '01'}-${parts[2] || '01'}`);
+                }}>
+                <option value="">Year</option>
+                {[2025,2026,2027].map(y=><option key={y} value={y}>{y}</option>)}
+              </select>
+            </div>
           </div>
 
           <div style={{ marginBottom: 14 }}>
             <label style={lbl}>Time *</label>
-            <input type="time" value={form.event_time}
-              onChange={e => set('event_time', e.target.value)}
-              required
-              style={{
-                width: '100%', boxSizing: 'border-box', display: 'block',
-                padding: '12px 16px', border: '1.5px solid #E0D9CE',
-                borderRadius: 8, fontSize: 16, fontFamily: 'inherit',
-                background: '#fff', color: '#1C1C1C', outline: 'none',
-                WebkitAppearance: 'none',
-              }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <select className="pol-input" value={form.event_time ? form.event_time.split(':')[0] : ''} required
+                onChange={e => {
+                  const min = form.event_time ? form.event_time.split(':')[1] : '00';
+                  set('event_time', `${e.target.value}:${min}`);
+                }}>
+                <option value="">Hour</option>
+                {Array.from({length:24},(_,i)=>i).map(h=><option key={h} value={String(h).padStart(2,'0')}>{String(h).padStart(2,'0')}</option>)}
+              </select>
+              <select className="pol-input" value={form.event_time ? form.event_time.split(':')[1] : ''} required
+                onChange={e => {
+                  const hr = form.event_time ? form.event_time.split(':')[0] : '00';
+                  set('event_time', `${hr}:${e.target.value}`);
+                }}>
+                <option value="">Minute</option>
+                {['00','15','30','45'].map(m=><option key={m} value={m}>{m}</option>)}
+              </select>
+            </div>
           </div>
 
           <div style={{ marginBottom: 14 }}>
