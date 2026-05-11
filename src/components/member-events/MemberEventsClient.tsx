@@ -127,10 +127,10 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
           <div style={{ marginBottom: 14 }}>
             <label style={lbl}>Date *</label>
             <div style={{ width: '100%', overflow: 'hidden' }}>
-              <input className="pol-input" type="text" value={form.event_date}
+              <input className="pol-input" type="date" value={form.event_date}
                 onChange={e => set('event_date', e.target.value)}
-                placeholder="e.g. 15 May 2026"
                 required style={{ width: '100%', boxSizing: 'border-box', display: 'block' }} />
+            </div>
             </div>
           </div>
 
