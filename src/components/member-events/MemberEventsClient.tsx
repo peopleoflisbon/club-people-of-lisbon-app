@@ -131,7 +131,6 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
                 onChange={e => set('event_date', e.target.value)}
                 required style={{ width: '100%', boxSizing: 'border-box', display: 'block' }} />
             </div>
-            </div>
           </div>
 
           <div style={{ marginBottom: 14 }}>
