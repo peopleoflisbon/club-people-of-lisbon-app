@@ -115,7 +115,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           <Eye t="Club People Of Lisbon" color={RED} />
           <h1 style={{ fontSize: 'clamp(28px, 6vw, 38px)', fontWeight: 900, color: INK,
             letterSpacing: '-0.03em', lineHeight: 1.05, margin: '0 0 8px', fontFamily: FF }}>
-            Good to see you, {firstName}.
+            Welcome back, {firstName}.
           </h1>
           <p style={{ fontSize: 14, color: MUTED, margin: 0, lineHeight: 1.6, fontFamily: FF }}>
             Lisbon's most interesting people, all in one place.
