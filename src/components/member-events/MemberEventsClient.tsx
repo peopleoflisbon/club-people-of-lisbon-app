@@ -126,14 +126,22 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
 
           <div style={{ marginBottom: 14 }}>
             <label style={lbl}>Date *</label>
-            <input className="pol-input" type="date" value={form.event_date}
-              onChange={e => set('event_date', e.target.value)} required />
+            <div style={{ width: '100%', overflow: 'hidden' }}>
+              <input className="pol-input" type="text" value={form.event_date}
+                onChange={e => set('event_date', e.target.value)}
+                placeholder="e.g. 15 May 2026"
+                required style={{ width: '100%', boxSizing: 'border-box', display: 'block' }} />
+            </div>
           </div>
 
           <div style={{ marginBottom: 14 }}>
             <label style={lbl}>Time *</label>
-            <input className="pol-input" type="time" value={form.event_time}
-              onChange={e => set('event_time', e.target.value)} required />
+            <div style={{ width: '100%', overflow: 'hidden' }}>
+              <input className="pol-input" type="text" value={form.event_time}
+                onChange={e => set('event_time', e.target.value)}
+                placeholder="e.g. 7:00pm"
+                required style={{ width: '100%', boxSizing: 'border-box', display: 'block' }} />
+            </div>
           </div>
 
           <div style={{ marginBottom: 14 }}>

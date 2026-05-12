@@ -15,7 +15,7 @@ interface MapPin {
   filmed_address: string; google_maps_url: string;
   category_ids: string[];
 }
-interface Props { pins: MapPin[]; isMapUser?: boolean; categories: Category[]; showExploreText?: boolean; }
+interface Props { pins: MapPin[]; isMapUser?: boolean; categories: Category[]; }
 
 function getThumbnail(pin: MapPin): string {
   if (pin.thumbnail_url) return pin.thumbnail_url;
@@ -26,7 +26,7 @@ function getThumbnail(pin: MapPin): string {
   return '';
 }
 
-export default function LisbonMap({ pins, isMapUser = false, categories = [], showExploreText = false }: Props) {
+export default function LisbonMap({ pins, isMapUser = false, categories = [] }: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef       = useRef<any>(null);
   // Store { marker, pin, el } so we can show/hide without recreating
@@ -166,11 +166,11 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [], sh
   }
 
   return (
-    <div style={{ position: 'absolute', inset: 0, height: '100%', overflow: 'hidden' }}>
-      <div ref={mapContainer} style={{ position: 'absolute', inset: 0, height: '100%' }} />
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+      <div ref={mapContainer} style={{ position: 'absolute', inset: 0 }} />
 
       {/* ── Top-left: Exit / Explore label ── */}
-      <div className="absolute left-4 z-10" style={{ top: (!isMapUser || showExploreText) ? `calc(${safeTop} + 56px)` : safeTop, pointerEvents: 'none' }}>
+      <div className="absolute left-4 z-10" style={{ top: safeTop, pointerEvents: 'none' }}>
         {isMapUser ? (
           <button
             onClick={handleSignOut}
@@ -190,32 +190,30 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [], sh
         ) : null}
       </div>
       {/* ── Top-right: Join + Filter + Count ── */}
-      <div className="absolute right-4 z-10" style={{ top: (!isMapUser || showExploreText) ? `calc(${safeTop} + 56px)` : safeTop, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+      <div className="absolute right-4 z-10" style={{ top: isMapUser ? safeTop : `calc(${safeTop} + 72px)`, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+        {isMapUser && (
+          <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer"
+            style={{
+              pointerEvents: 'auto',
+              display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px',
+              background: '#C8102E', color: 'white', borderRadius: 999, fontSize: 13,
+              fontWeight: 700, textDecoration: 'none', boxShadow: '0 2px 12px rgba(47,109,165,0.45)',
+              fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+            }}>
+            Join the Club ↗
+          </a>
+        )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {isMapUser && (
-            <a href="/auth/join"
-              style={{
-                pointerEvents: 'auto',
-                display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px',
-                background: '#C8102E', color: 'white', borderRadius: 12, fontSize: 12,
-                fontWeight: 700, textDecoration: 'none', boxShadow: '0 2px 12px rgba(200,16,46,0.35)',
-                fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
-                height: 40, boxSizing: 'border-box' as const,
-              }}>
-              Join the Club ↗
-            </a>
-          )}
           {categories.length > 0 && (
             <button onClick={() => setShowFilters(true)} style={{
               pointerEvents: 'auto',
               display: 'flex', alignItems: 'center', gap: 7,
-              padding: '0 14px', height: 40, borderRadius: 12,
+              padding: '10px 16px', borderRadius: 12,
               background: hasFilters ? '#C8102E' : 'rgba(250,248,244,0.93)',
               backdropFilter: 'blur(12px)',
               boxShadow: hasFilters ? '0 4px 16px rgba(200,16,46,0.35)' : '0 4px 20px rgba(0,0,0,0.1)',
               border: 'none', cursor: 'pointer',
               fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
-              boxSizing: 'border-box' as const,
             }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={hasFilters ? 'white' : '#C8102E'} strokeWidth="2.5">
                 <path d="M22 3H2l8 9.46V19l4 2v-9.54z"/>
@@ -228,13 +226,12 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [], sh
           {pins.length > 0 && (
             <div style={{
               pointerEvents: 'none',
-              display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: 40,
+              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px',
               background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)',
               borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-              boxSizing: 'border-box' as const,
             }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#C8102E', flexShrink: 0 }} />
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#1C1C1C', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#1C1C1C', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
                 {visiblePins.length}{hasFilters ? `/${pins.length}` : ''} {visiblePins.length === 1 ? 'story' : 'stories'}
               </span>
             </div>
@@ -242,16 +239,16 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [], sh
         </div>
       </div>
 
-      {/* ── Intro blurb — members and public visitors ── */}
-      {(!isMapUser || showExploreText) && (
+      {/* ── Intro blurb — non-mapUser only, at very top ── */}
+      {!isMapUser && (
         <div style={{
           position: 'absolute', left: 16, right: 16, zIndex: 9, pointerEvents: 'none',
           top: safeTop,
         }}>
           <p style={{
-            margin: 0, fontSize: 15, fontWeight: 800, color: '#1C1C1C',
+            margin: 0, fontSize: 22, fontWeight: 900, color: '#1C1C1C',
             background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(8px)',
-            padding: '10px 14px', borderRadius: 10, display: 'inline-block',
+            padding: '10px 16px', borderRadius: 10, display: 'inline-block',
             boxShadow: '0 2px 12px rgba(0,0,0,0.10)',
             fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
             letterSpacing: '-0.01em', lineHeight: 1.2,

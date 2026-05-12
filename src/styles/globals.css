@@ -30,8 +30,6 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  height: 100%;
-  overflow: hidden;
 }
 
 /* ── Unified SF UI Display font system ── */
@@ -44,8 +42,6 @@ body {
   line-height: 1.6;
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
-  height: 100%;
-  overflow: hidden;
 }
 
 p, span, div { color: inherit; }

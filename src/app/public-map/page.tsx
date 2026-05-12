@@ -23,7 +23,7 @@ export default async function PublicMapPage() {
   }));
   return (
     <div style={{ position: 'fixed', inset: 0 }}>
-      <LisbonMap pins={pins} isMapUser={true} categories={categories || []} showExploreText={true} />
+      <LisbonMap pins={pins} isMapUser={true} categories={categories || []} />
     </div>
   );
 }
