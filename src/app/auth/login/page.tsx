@@ -32,6 +32,9 @@ export default function GatewayPage() {
   const supabase = createClient();
 
   const [bgImage, setBgImage]         = useState(FALLBACK_BG);
+  const [desktopBgImage, setDesktopBgImage] = useState('');
+  const [mobilePosn, setMobilePosn]   = useState('center top');
+  const [desktopPosn, setDesktopPosn] = useState('center center');
   const [logoUrl, setLogoUrl]         = useState('/pol-logo.png');
   const [featuredPerson, setFeaturedPerson] = useState('');
   const [bgLoaded, setBgLoaded]       = useState(false);
@@ -47,6 +50,9 @@ export default function GatewayPage() {
     supabase.from('app_settings').select('key, value').then(({ data }) => {
       (data || []).forEach((row: any) => {
         if (row.key === 'login_background_image_url' && row.value) setBgImage(row.value);
+        if (row.key === 'login_background_desktop_url' && row.value) setDesktopBgImage(row.value);
+        if (row.key === 'login_background_mobile_position' && row.value) setMobilePosn(row.value);
+        if (row.key === 'login_background_desktop_position' && row.value) setDesktopPosn(row.value);
         if ((row.key === 'brand_square_image_url' || row.key === 'logo_url') && row.value) setLogoUrl(row.value);
         if (row.key === 'splash_featured_person' && row.value) setFeaturedPerson(row.value);
       });
@@ -85,12 +91,19 @@ export default function GatewayPage() {
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#0a0a0a', overflow: 'hidden', fontFamily: ff }}>
 
-      {/* ── Background — dynamic via app_settings ── */}
+      {/* ── Background — mobile image ── */}
       <img src={bgImage} alt="" onLoad={() => setBgLoaded(true)} style={{
         position: 'absolute', inset: 0, width: '100%', height: '100%',
-        objectFit: 'cover', objectPosition: 'center top',
+        objectFit: 'cover', objectPosition: mobilePosn,
         opacity: bgLoaded ? 1 : 0, transition: 'opacity 0.7s ease',
-      }} />
+      }} className="lg:hidden" />
+
+      {/* ── Background — desktop image ── */}
+      <img src={desktopBgImage || bgImage} alt="" style={{
+        position: 'absolute', inset: 0, width: '100%', height: '100%',
+        objectFit: 'cover', objectPosition: desktopPosn,
+        opacity: bgLoaded ? 1 : 0, transition: 'opacity 0.7s ease',
+      }} className="hidden lg:block" />
 
       {/* ── Cinematic overlay — lighter than before ── */}
       <div style={{
@@ -161,10 +174,6 @@ export default function GatewayPage() {
                 one place.
               </span>
             </h1>
-
-            <p style={{ margin: '0 0 40px', fontSize: 18, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6, maxWidth: 480, fontWeight: 400 }}>
-              200+ real video stories of Lisbon's most fascinating people — on an interactive map.
-            </p>
 
             <button onClick={() => setScreen('choice')} style={{
               padding: '22px 64px',
