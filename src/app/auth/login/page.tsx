@@ -64,14 +64,6 @@ export default function GatewayPage() {
   const [loading, setLoading]               = useState(false);
   const [error, setError]                   = useState('');
   const [forgotSent, setForgotSent]         = useState(false);
-  const [bgLoaded, setBgLoaded]       = useState(false);
-  const [screen, setScreen]         = useState<Screen>('splash');
-  const [email, setEmail]           = useState('');
-  const [password, setPassword]     = useState('');
-  const [showPw, setShowPw]         = useState(false);
-  const [loading, setLoading]       = useState(false);
-  const [error, setError]           = useState('');
-  const [forgotSent, setForgotSent] = useState(false);
 
   useEffect(() => {
     supabase.from('app_settings').select('key, value').then(({ data }) => {
