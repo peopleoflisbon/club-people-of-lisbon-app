@@ -13,12 +13,12 @@ function PolLabel() {
     <div style={{
       display: 'inline-block',
       background: POL_RED,
-      padding: '5px 12px',
+      padding: '2px 10px 4px',
       marginBottom: 16,
     }}>
       <span style={{
-        fontSize: 11, fontWeight: 900, letterSpacing: '0.18em',
-        textTransform: 'uppercase', color: 'white',
+        fontSize: 15, fontWeight: 700, letterSpacing: '0',
+        textTransform: 'none', color: 'white',
         fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
       }}>
         People Of Lisbon
@@ -166,7 +166,7 @@ export default function GatewayPage() {
           {/* Featured */}
           {featuredPerson && (
             <div style={{ position: 'absolute', top: 40, right: '5vw', textAlign: 'right' }}>
-              <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', margin: '0 0 3px' }}>Featured</p>
+              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', color: 'rgba(255,255,255,0.9)', margin: '0 0 3px' }}>Featured</p>
               <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.85)', margin: 0, maxWidth: 200, lineHeight: 1.3, textAlign: 'right' }}>{featuredPerson}</p>
             </div>
           )}
@@ -192,7 +192,7 @@ export default function GatewayPage() {
             <button onClick={() => setScreen('choice')} style={{
               padding: '22px 64px',
               background: POL_RED, color: 'white', border: 'none', borderRadius: 2,
-              fontSize: 14, fontWeight: 900, letterSpacing: '0.2em', textTransform: 'uppercase',
+              fontSize: 14, fontWeight: 700, letterSpacing: '0.02em', textTransform: 'none',
               cursor: 'pointer', boxShadow: '0 8px 40px rgba(200,16,46,0.55)',
               display: 'inline-block',
             }}>
