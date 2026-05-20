@@ -104,20 +104,91 @@ export default function GatewayPage() {
       {/* ════════════════════════════════════════
           SCREEN 1 — SPLASH
       ════════════════════════════════════════ */}
-      {screen === 'splash' && (
-        <div style={{
+      {screen === 'splash' && (<>
+
+        {/* ── DESKTOP HERO (1024px+) ── */}
+        <style>{`
+          @media (min-width: 1024px) {
+            .splash-mobile { display: none !important; }
+            .splash-desktop { display: flex !important; }
+          }
+          @media (max-width: 1023px) {
+            .splash-mobile { display: flex !important; }
+            .splash-desktop { display: none !important; }
+          }
+        `}</style>
+
+        {/* Desktop gradient — cinematic left-dark */}
+        <div className="splash-desktop" style={{
+          display: 'none',
+          position: 'absolute', inset: 0, zIndex: 2,
+          background: 'linear-gradient(to right, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.75) 38%, rgba(0,0,0,0.25) 65%, rgba(0,0,0,0.05) 100%)',
+        }} />
+
+        {/* Desktop layout */}
+        <div className="splash-desktop" style={{
+          display: 'none',
           position: 'absolute', inset: 0, zIndex: 10,
-          display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+          alignItems: 'center',
+          padding: '0 0 0 8vw',
+        }}>
+          {/* Logo */}
+          <div style={{ position: 'absolute', top: 36, left: '8vw' }}>
+            <LogoImg size={52} />
+          </div>
+
+          {/* Featured */}
+          {featuredPerson && (
+            <div style={{ position: 'absolute', top: 40, right: '5vw', textAlign: 'right' }}>
+              <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', margin: '0 0 3px' }}>Featured</p>
+              <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.85)', margin: 0, maxWidth: 200, lineHeight: 1.3, textAlign: 'right' }}>{featuredPerson}</p>
+            </div>
+          )}
+
+          {/* Hero content block */}
+          <div style={{ maxWidth: 680, paddingTop: 60 }}>
+            <h1 style={{ margin: '0 0 40px', lineHeight: 0.92, letterSpacing: '-0.04em' }}>
+              <span style={{ display: 'block', fontSize: 'clamp(72px, 8vw, 112px)', fontWeight: 900, color: 'white' }}>
+                Lisbon's most
+              </span>
+              <span style={{ display: 'block', fontSize: 'clamp(72px, 8vw, 112px)', fontWeight: 900 }}>
+                <span style={{ background: POL_RED, color: 'white', padding: '2px 12px 8px', display: 'inline-block' }}>interesting</span>
+              </span>
+              <span style={{ display: 'block', fontSize: 'clamp(72px, 8vw, 112px)', fontWeight: 900, color: 'white' }}>
+                people, all in
+              </span>
+              <span style={{ display: 'block', fontSize: 'clamp(72px, 8vw, 112px)', fontWeight: 900, color: 'white' }}>
+                one place.
+              </span>
+            </h1>
+
+            <p style={{ margin: '0 0 40px', fontSize: 18, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6, maxWidth: 480, fontWeight: 400 }}>
+              200+ real video stories of Lisbon's most fascinating people — on an interactive map.
+            </p>
+
+            <button onClick={() => setScreen('choice')} style={{
+              padding: '22px 64px',
+              background: POL_RED, color: 'white', border: 'none', borderRadius: 2,
+              fontSize: 14, fontWeight: 900, letterSpacing: '0.2em', textTransform: 'uppercase',
+              cursor: 'pointer', boxShadow: '0 8px 40px rgba(200,16,46,0.55)',
+              display: 'inline-block',
+            }}>
+              Enter →
+            </button>
+          </div>
+        </div>
+
+        {/* ── MOBILE HERO (unchanged) ── */}
+        <div className="splash-mobile" style={{
+          position: 'absolute', inset: 0, zIndex: 10,
+          flexDirection: 'column', justifyContent: 'flex-end',
           alignItems: 'center',
         }}>
-          {/* Inner container — max width for desktop */}
           <div style={{ width: '100%', maxWidth: 560, padding: '0 32px calc(env(safe-area-inset-bottom) + 48px)' }}>
 
-            {/* Logo with inline SVG fallback */}
             <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 24px)', left: 32 }}>
               <LogoImg size={46} /></div>
 
-            {/* Featured person — top right, editable in admin */}
             {featuredPerson && (
               <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 24px)', right: 32, textAlign: 'right' }}>
                 <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', margin: '0 0 2px' }}>Featured</p>
@@ -125,7 +196,6 @@ export default function GatewayPage() {
               </div>
             )}
 
-            {/* Main headline — new copy */}
             <h1 style={{ margin: '0 0 32px', lineHeight: 0.95, letterSpacing: '-0.03em' }}>
               <span style={{ display: 'block', fontSize: 'clamp(46px, 11vw, 66px)', fontWeight: 900, color: 'white' }}>
                 Lisbon's most
@@ -151,7 +221,7 @@ export default function GatewayPage() {
             </button>
           </div>
         </div>
-      )}
+      </>)}
 
       {/* ════════════════════════════════════════
           SCREEN 2 — CHOICE
