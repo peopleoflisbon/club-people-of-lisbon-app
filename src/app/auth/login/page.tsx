@@ -7,7 +7,27 @@ import { createClient } from '@/lib/supabase';
 const FALLBACK_BG = 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=85';
 const POL_RED = '#C8102E';
 
-// Inline logo — never fails, zero network requests
+// Text label — replaces logo image on splash screen only
+function PolLabel() {
+  return (
+    <div style={{
+      display: 'inline-block',
+      background: POL_RED,
+      padding: '5px 12px',
+      marginBottom: 16,
+    }}>
+      <span style={{
+        fontSize: 11, fontWeight: 900, letterSpacing: '0.18em',
+        textTransform: 'uppercase', color: 'white',
+        fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
+      }}>
+        People Of Lisbon
+      </span>
+    </div>
+  );
+}
+
+// Logo for non-splash screens (choice, form)
 function LogoImg({ size }: { size: number }) {
   const [failed, setFailed] = useState(false);
   if (failed) {
@@ -31,12 +51,19 @@ export default function GatewayPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [bgImage, setBgImage]         = useState(FALLBACK_BG);
+  const [bgImage, setBgImage]               = useState(FALLBACK_BG);
   const [desktopBgImage, setDesktopBgImage] = useState('');
-  const [mobilePosn, setMobilePosn]   = useState('center top');
-  const [desktopPosn, setDesktopPosn] = useState('center center');
-  const [logoUrl, setLogoUrl]         = useState('/pol-logo.png');
+  const [mobilePosn, setMobilePosn]         = useState('center top');
+  const [desktopPosn, setDesktopPosn]       = useState('center center');
   const [featuredPerson, setFeaturedPerson] = useState('');
+  const [bgLoaded, setBgLoaded]             = useState(false);
+  const [screen, setScreen]                 = useState<Screen>('splash');
+  const [email, setEmail]                   = useState('');
+  const [password, setPassword]             = useState('');
+  const [showPw, setShowPw]                 = useState(false);
+  const [loading, setLoading]               = useState(false);
+  const [error, setError]                   = useState('');
+  const [forgotSent, setForgotSent]         = useState(false);
   const [bgLoaded, setBgLoaded]       = useState(false);
   const [screen, setScreen]         = useState<Screen>('splash');
   const [email, setEmail]           = useState('');
@@ -53,7 +80,6 @@ export default function GatewayPage() {
         if (row.key === 'login_background_desktop_url' && row.value) setDesktopBgImage(row.value);
         if (row.key === 'login_background_mobile_position' && row.value) setMobilePosn(row.value);
         if (row.key === 'login_background_desktop_position' && row.value) setDesktopPosn(row.value);
-        if ((row.key === 'brand_square_image_url' || row.key === 'logo_url') && row.value) setLogoUrl(row.value);
         if (row.key === 'splash_featured_person' && row.value) setFeaturedPerson(row.value);
       });
     });
@@ -145,11 +171,6 @@ export default function GatewayPage() {
           alignItems: 'center',
           padding: '0 0 0 8vw',
         }}>
-          {/* Logo */}
-          <div style={{ position: 'absolute', top: 36, left: '8vw' }}>
-            <LogoImg size={52} />
-          </div>
-
           {/* Featured */}
           {featuredPerson && (
             <div style={{ position: 'absolute', top: 40, right: '5vw', textAlign: 'right' }}>
@@ -159,7 +180,8 @@ export default function GatewayPage() {
           )}
 
           {/* Hero content block */}
-          <div style={{ maxWidth: 680, paddingTop: 60 }}>
+          <div style={{ maxWidth: 680, paddingTop: 0 }}>
+            <PolLabel />
             <h1 style={{ margin: '0 0 40px', lineHeight: 0.92, letterSpacing: '-0.04em' }}>
               <span style={{ display: 'block', fontSize: 'clamp(72px, 8vw, 112px)', fontWeight: 900, color: 'white' }}>
                 Lisbon's most
@@ -195,9 +217,6 @@ export default function GatewayPage() {
         }}>
           <div style={{ width: '100%', maxWidth: 560, padding: '0 32px calc(env(safe-area-inset-bottom) + 48px)' }}>
 
-            <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 24px)', left: 32 }}>
-              <LogoImg size={46} /></div>
-
             {featuredPerson && (
               <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 24px)', right: 32, textAlign: 'right' }}>
                 <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', margin: '0 0 2px' }}>Featured</p>
@@ -205,6 +224,7 @@ export default function GatewayPage() {
               </div>
             )}
 
+            <PolLabel />
             <h1 style={{ margin: '0 0 32px', lineHeight: 0.95, letterSpacing: '-0.03em' }}>
               <span style={{ display: 'block', fontSize: 'clamp(46px, 11vw, 66px)', fontWeight: 900, color: 'white' }}>
                 Lisbon's most

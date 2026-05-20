@@ -1,24 +1,99 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase';
 import BrandLogo from '@/components/ui/BrandLogo';
 import ImageUpload from '@/components/ui/ImageUpload';
 
-const POSITIONS = [
-  'center top', 'center center', 'center bottom',
-  'left top', 'left center', 'left bottom',
-  'right top', 'right center', 'right bottom',
-  '50% 20%', '50% 30%', '50% 40%', '50% 60%', '50% 70%', '50% 80%',
-];
-
 interface Props { settings: Record<string, string>; }
 
+function parsePos(pos: string): { x: number; y: number } {
+  const parts = pos.replace(/%/g, '').split(/\s+/);
+  const keyMap: Record<string, number> = { left: 0, center: 50, right: 100, top: 0, bottom: 100 };
+  const x = keyMap[parts[0]] ?? parseFloat(parts[0]) ?? 50;
+  const y = keyMap[parts[1]] ?? parseFloat(parts[1]) ?? 50;
+  return { x: isNaN(x) ? 50 : x, y: isNaN(y) ? 50 : y };
+}
+
+function DraggableImagePosition({
+  src, fallback, x, y, onChange, aspect,
+}: {
+  src: string; fallback: string; x: number; y: number;
+  onChange: (x: number, y: number) => void; aspect: number;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+  const startPos = useRef({ mouseX: 0, mouseY: 0, imgX: x, imgY: y });
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    dragging.current = true;
+    startPos.current = { mouseX: e.clientX, mouseY: e.clientY, imgX: x, imgY: y };
+
+    const onMove = (ev: MouseEvent) => {
+      if (!dragging.current || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const dx = ((ev.clientX - startPos.current.mouseX) / rect.width) * -100;
+      const dy = ((ev.clientY - startPos.current.mouseY) / rect.height) * -100;
+      const newX = Math.min(100, Math.max(0, startPos.current.imgX + dx));
+      const newY = Math.min(100, Math.max(0, startPos.current.imgY + dy));
+      onChange(newX, newY);
+    };
+    const onUp = () => { dragging.current = false; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }, [x, y, onChange]);
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    dragging.current = true;
+    startPos.current = { mouseX: touch.clientX, mouseY: touch.clientY, imgX: x, imgY: y };
+
+    const onMove = (ev: TouchEvent) => {
+      if (!dragging.current || !containerRef.current) return;
+      const t = ev.touches[0];
+      const rect = containerRef.current.getBoundingClientRect();
+      const dx = ((t.clientX - startPos.current.mouseX) / rect.width) * -100;
+      const dy = ((t.clientY - startPos.current.mouseY) / rect.height) * -100;
+      const newX = Math.min(100, Math.max(0, startPos.current.imgX + dx));
+      const newY = Math.min(100, Math.max(0, startPos.current.imgY + dy));
+      onChange(newX, newY);
+    };
+    const onUp = () => { dragging.current = false; window.removeEventListener('touchmove', onMove); window.removeEventListener('touchend', onUp); };
+    window.addEventListener('touchmove', onMove);
+    window.addEventListener('touchend', onUp);
+  }, [x, y, onChange]);
+
+  return (
+    <div>
+      <div ref={containerRef} onMouseDown={onMouseDown} onTouchStart={onTouchStart}
+        style={{ position: 'relative', width: '100%', paddingBottom: `${100 / aspect}%`, overflow: 'hidden', borderRadius: 10, cursor: 'grab', userSelect: 'none', background: '#111' }}>
+        <img src={src || fallback} alt="" draggable={false}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: `${x}% ${y}%`, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+          <div style={{ width: 32, height: 32, border: '2px solid rgba(255,255,255,0.6)', borderRadius: '50%', background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)' }} />
+        </div>
+        <div style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.55)', borderRadius: 6, padding: '3px 10px', fontSize: 11, color: 'white', pointerEvents: 'none', whiteSpace: 'nowrap' }}>
+          Drag to reposition
+        </div>
+      </div>
+      <p style={{ fontSize: 11, color: '#8A7C6E', margin: '6px 0 0', fontFamily: 'monospace' }}>
+        Position: {Math.round(x)}% {Math.round(y)}%
+      </p>
+    </div>
+  );
+}
+
 export default function AdminSettingsClient({ settings: initial }: Props) {
+  const FALLBACK = 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=70';
   const [loginBg, setLoginBg] = useState(initial['login_background_image_url'] || '');
   const [desktopBg, setDesktopBg] = useState(initial['login_background_desktop_url'] || '');
-  const [mobilePosn, setMobilePosn] = useState(initial['login_background_mobile_position'] || 'center top');
-  const [desktopPosn, setDesktopPosn] = useState(initial['login_background_desktop_position'] || 'center center');
+  const mobileParsed = parsePos(initial['login_background_mobile_position'] || 'center top');
+  const desktopParsed = parsePos(initial['login_background_desktop_position'] || 'center center');
+  const [mobileX, setMobileX] = useState(mobileParsed.x);
+  const [mobileY, setMobileY] = useState(mobileParsed.y);
+  const [desktopX, setDesktopX] = useState(desktopParsed.x);
+  const [desktopY, setDesktopY] = useState(desktopParsed.y);
   const [brandLogo, setBrandLogo] = useState(initial['brand_square_image_url'] || '/pol-logo.png');
   const [stephenPhoto, setStephenPhoto] = useState(initial['stephen_photo_url'] || '');
   const [latestEpisode, setLatestEpisode] = useState(initial['latest_episode_url'] || '');
@@ -43,8 +118,6 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
     setTimeout(() => setSaved(null), 3000);
   }
 
-  const FALLBACK_BG = 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=70';
-
   return (
     <div className="max-w-2xl space-y-8">
       <div>
@@ -52,10 +125,10 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
         <p className="text-stone-500 text-sm">Brand and appearance settings for People Of Lisbon.</p>
       </div>
 
-      {/* ── Brand Logo ── */}
+      {/* Brand Logo */}
       <div className="pol-card p-6">
         <h2 className="font-semibold text-sm text-ink mb-1">Brand Logo</h2>
-        <p className="text-xs text-stone-400 mb-5">The square brand image used in the navigation and login screen.</p>
+        <p className="text-xs text-stone-400 mb-5">Used in the navigation, admin panel.</p>
         <div className="flex items-center gap-5 mb-5 p-4 bg-stone-50 rounded-xl border border-stone-100">
           <BrandLogo src={brandLogo} size={64} radius={14} className="shadow-md shadow-brand/20" />
           <div>
@@ -72,35 +145,22 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
         </div>
       </div>
 
-      {/* ── Mobile Background ── */}
+      {/* Mobile Background */}
       <div className="pol-card p-6">
         <h2 className="font-semibold text-sm text-ink mb-1">Mobile Background Image</h2>
-        <p className="text-xs text-stone-400 mb-4">Shown on phones and tablets on the login splash screen.</p>
-
-        {/* Preview */}
-        <div className="relative rounded-xl overflow-hidden mb-4" style={{ height: 220, background: '#111' }}>
-          <img src={loginBg || FALLBACK_BG} alt="Mobile preview"
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: mobilePosn }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%)' }} />
-          <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16 }}>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }}>MOBILE PREVIEW</div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: 'white', lineHeight: 1.1 }}>Lisbon's most <span style={{ background: '#C8102E', padding: '0 4px' }}>interesting</span> people.</div>
-          </div>
-          <div style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(0,0,0,0.5)', borderRadius: 6, padding: '3px 8px', fontSize: 11, color: 'white' }}>
-            Position: {mobilePosn}
-          </div>
+        <p className="text-xs text-stone-400 mb-4">Shown on phones. Drag the preview to reposition the image.</p>
+        <div className="mb-4">
+          <DraggableImagePosition
+            src={loginBg} fallback={FALLBACK}
+            x={mobileX} y={mobileY}
+            onChange={(x, y) => { setMobileX(x); setMobileY(y); }}
+            aspect={9/16}
+          />
         </div>
-
         <div className="space-y-3">
           <ImageUpload value={loginBg} onChange={(url) => setLoginBg(url)} label="Mobile Background Photo" folder="backgrounds" preview="wide" />
-          <div>
-            <label className="pol-label">Image Position</label>
-            <select className="pol-input" value={mobilePosn} onChange={e => setMobilePosn(e.target.value)}>
-              {POSITIONS.map(p => <option key={p} value={p}>{p}</option>)}
-            </select>
-          </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => saveMultiple([['login_background_image_url', loginBg], ['login_background_mobile_position', mobilePosn]], 'mobile')} disabled={saving === 'mobile'} className="pol-btn-primary">
+            <button onClick={() => saveMultiple([['login_background_image_url', loginBg], ['login_background_mobile_position', `${Math.round(mobileX)}% ${Math.round(mobileY)}%`]], 'mobile')} disabled={saving === 'mobile'} className="pol-btn-primary">
               {saving === 'mobile' ? 'Saving…' : 'Save Mobile Background'}
             </button>
             {saved === 'mobile' && <span className="text-sm text-emerald-600 font-medium">✓ Saved</span>}
@@ -108,35 +168,22 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
         </div>
       </div>
 
-      {/* ── Desktop Background ── */}
+      {/* Desktop Background */}
       <div className="pol-card p-6">
         <h2 className="font-semibold text-sm text-ink mb-1">Desktop Background Image</h2>
-        <p className="text-xs text-stone-400 mb-4">Shown on desktop screens on the login splash screen. If left blank, uses the mobile image.</p>
-
-        {/* Preview */}
-        <div className="relative rounded-xl overflow-hidden mb-4" style={{ height: 220, background: '#111' }}>
-          <img src={desktopBg || loginBg || FALLBACK_BG} alt="Desktop preview"
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: desktopPosn }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.05) 100%)' }} />
-          <div style={{ position: 'absolute', top: '50%', left: 24, transform: 'translateY(-50%)' }}>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 6 }}>DESKTOP PREVIEW</div>
-            <div style={{ fontSize: 28, fontWeight: 900, color: 'white', lineHeight: 1, maxWidth: 260 }}>Lisbon's most <span style={{ background: '#C8102E', padding: '0 4px' }}>interesting</span> people, all in one place.</div>
-          </div>
-          <div style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(0,0,0,0.5)', borderRadius: 6, padding: '3px 8px', fontSize: 11, color: 'white' }}>
-            Position: {desktopPosn}
-          </div>
+        <p className="text-xs text-stone-400 mb-4">Shown on desktop. If blank, uses mobile image. Drag to reposition.</p>
+        <div className="mb-4">
+          <DraggableImagePosition
+            src={desktopBg || loginBg} fallback={FALLBACK}
+            x={desktopX} y={desktopY}
+            onChange={(x, y) => { setDesktopX(x); setDesktopY(y); }}
+            aspect={16/9}
+          />
         </div>
-
         <div className="space-y-3">
           <ImageUpload value={desktopBg} onChange={(url) => setDesktopBg(url)} label="Desktop Background Photo" folder="backgrounds" preview="wide" />
-          <div>
-            <label className="pol-label">Image Position</label>
-            <select className="pol-input" value={desktopPosn} onChange={e => setDesktopPosn(e.target.value)}>
-              {POSITIONS.map(p => <option key={p} value={p}>{p}</option>)}
-            </select>
-          </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => saveMultiple([['login_background_desktop_url', desktopBg], ['login_background_desktop_position', desktopPosn]], 'desktop')} disabled={saving === 'desktop'} className="pol-btn-primary">
+            <button onClick={() => saveMultiple([['login_background_desktop_url', desktopBg], ['login_background_desktop_position', `${Math.round(desktopX)}% ${Math.round(desktopY)}%`]], 'desktop')} disabled={saving === 'desktop'} className="pol-btn-primary">
               {saving === 'desktop' ? 'Saving…' : 'Save Desktop Background'}
             </button>
             {saved === 'desktop' && <span className="text-sm text-emerald-600 font-medium">✓ Saved</span>}
@@ -144,10 +191,10 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
         </div>
       </div>
 
-      {/* ── Stephen's Photo ── */}
+      {/* Stephen's Photo */}
       <div className="pol-card p-6">
         <h2 className="font-semibold text-sm text-ink mb-1">Stephen's Photo</h2>
-        <p className="text-xs text-stone-400 mb-5">This photo appears at the top of the Updates from Stephen page.</p>
+        <p className="text-xs text-stone-400 mb-5">Appears on the Updates from Stephen page.</p>
         <div className="space-y-3">
           <ImageUpload value={stephenPhoto} onChange={(url) => setStephenPhoto(url)} label="Stephen's Photo" folder="brand" preview="square" />
           <div className="flex items-center gap-3">
@@ -157,7 +204,7 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
         </div>
       </div>
 
-      {/* ── Latest Episode ── */}
+      {/* Latest Episode */}
       <div className="pol-card p-6 space-y-4">
         <h2 className="font-semibold text-sm text-ink mb-1">Latest Episode</h2>
         <p className="text-xs text-stone-400">Paste a YouTube URL for the latest People Of Lisbon episode.</p>
@@ -173,10 +220,10 @@ export default function AdminSettingsClient({ settings: initial }: Props) {
         </div>
       </div>
 
-      {/* ── Splash Featured Person ── */}
+      {/* Featured Person */}
       <div className="pol-card p-6">
         <h2 className="font-semibold text-sm text-ink mb-1">Splash Screen — Featured Person</h2>
-        <p className="text-xs text-stone-400 mb-4">This text appears top-right on the entry splash screen.</p>
+        <p className="text-xs text-stone-400 mb-4">Appears top-right on the entry splash screen.</p>
         <input className="pol-input mb-4" value={featuredPerson} onChange={e => setFeaturedPerson(e.target.value)} placeholder="e.g. João Silva // Episode 211" />
         <div className="flex items-center gap-3">
           <button onClick={() => save('splash_featured_person', featuredPerson, 'featured')} disabled={saving === 'featured'} className="pol-btn-primary">{saving === 'featured' ? 'Saving…' : 'Save'}</button>
