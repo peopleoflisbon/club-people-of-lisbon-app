@@ -252,3 +252,4 @@ src/
 public/pol-logo.png                ← NEW: Uploaded logo asset
 supabase/migrations/003_good_news.sql ← NEW: DB migration
 ```
+
