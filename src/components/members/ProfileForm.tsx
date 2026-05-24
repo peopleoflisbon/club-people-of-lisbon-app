@@ -92,7 +92,7 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-28">
       {/* Avatar */}
       <div className="pol-card p-6">
         <h2 className="font-semibold text-sm text-stone-500 uppercase tracking-wider mb-4">Photo</h2>
@@ -228,9 +228,6 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         </label>
       </div>
 
-      {/* Share Good News */}
-      <GoodNewsSubmit profileId={profile.id} />
-
       {/* Change Password */}
       <ChangePassword />
 
@@ -285,63 +282,3 @@ function ChangePassword() {
   );
 }
 
-function GoodNewsSubmit({ profileId }: { profileId: string }) {
-  const supabase = createClient();
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const [category, setCategory] = useState('Win');
-  const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(false);
-  const [err, setErr] = useState('');
-
-  async function handleSubmit() {
-    if (!title.trim()) { setErr('Please add a title'); return; }
-    setSubmitting(true); setErr('');
-    const { error } = await (supabase as any).from('good_news_posts').insert({
-      title: title.trim(),
-      body: body.trim(),
-      category,
-      author_profile_id: profileId,
-      is_published: false, // goes to admin queue
-    });
-    setSubmitting(false);
-    if (error) setErr(error.message);
-    else { setDone(true); setTitle(''); setBody(''); }
-  }
-
-  return (
-    <div className="pol-card p-6 space-y-4">
-      <div>
-        <h2 className="font-semibold text-sm text-stone-500 uppercase tracking-wider mb-0.5">Share Good News</h2>
-        <p className="text-xs text-stone-400">Did something great happen because of People Of Lisbon? Tell us about it — a deal, collaboration, friendship. Stephen will review and share with the club.</p>
-      </div>
-      {done ? (
-        <div className="bg-green-50 border border-green-200 p-4">
-          <p className="text-green-700 font-semibold text-sm">✓ Submitted! Stephen will review and share it with the club.</p>
-          <button onClick={() => setDone(false)} className="text-green-600 text-xs mt-2 underline">Submit another</button>
-        </div>
-      ) : (
-        <>
-          <div>
-            <label className="pol-label">Category</label>
-            <select className="pol-input" value={category} onChange={e => setCategory(e.target.value)}>
-              {['Win','Deal','Collaboration','Opportunity','Recommendation','Other'].map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="pol-label">Headline</label>
-            <input className="pol-input" value={title} onChange={e => { setTitle(e.target.value); setErr(''); }} placeholder="I got a new client through POL…" />
-          </div>
-          <div>
-            <label className="pol-label">Tell us more (optional)</label>
-            <textarea className="pol-textarea" rows={3} value={body} onChange={e => setBody(e.target.value)} placeholder="What happened? Who was involved?" />
-          </div>
-          {err && <p className="text-red-500 text-sm">{err}</p>}
-          <button onClick={handleSubmit} disabled={submitting || !title} className="pol-btn-primary text-sm">
-            {submitting ? 'Submitting…' : 'Share Good News'}
-          </button>
-        </>
-      )}
-    </div>
-  );
-}
