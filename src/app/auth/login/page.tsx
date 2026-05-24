@@ -19,6 +19,7 @@ function PolLabel() {
       <span style={{
         fontSize: 15, fontWeight: 700, letterSpacing: '0',
         textTransform: 'none', color: 'white',
+        fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
         fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
       }}>
         People Of Lisbon
@@ -165,26 +166,26 @@ export default function GatewayPage() {
         }}>
           {/* Featured */}
           {featuredPerson && (
-            <div style={{ position: 'absolute', top: 40, right: '5vw', textAlign: 'right' }}>
-              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', color: 'rgba(255,255,255,0.9)', margin: '0 0 3px' }}>Featured</p>
-              <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.85)', margin: 0, maxWidth: 200, lineHeight: 1.3, textAlign: 'right' }}>{featuredPerson}</p>
+            <div style={{ position: 'absolute', top: 40, right: 0, textAlign: 'right', background: 'linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)', padding: '10px 24px 10px 48px' }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.75)', margin: '0 0 3px', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif", letterSpacing: '0.02em' }}>Featured</p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: 0, maxWidth: 220, lineHeight: 1.3, textAlign: 'right', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>{featuredPerson}</p>
             </div>
           )}
 
           {/* Hero content block */}
           <div style={{ maxWidth: 680, paddingTop: 0 }}>
             <PolLabel />
-            <h1 style={{ margin: '0 0 40px', lineHeight: 0.92, letterSpacing: '-0.04em' }}>
-              <span style={{ display: 'block', fontSize: 'clamp(72px, 8vw, 112px)', fontWeight: 900, color: 'white' }}>
+            <h1 style={{ margin: '0 0 40px', lineHeight: 0.92, letterSpacing: '-0.04em', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+              <span style={{ display: 'block', fontSize: 'clamp(58px, 6.5vw, 90px)', fontWeight: 900, color: 'white' }}>
                 Lisbon's most
               </span>
-              <span style={{ display: 'block', fontSize: 'clamp(72px, 8vw, 112px)', fontWeight: 900 }}>
+              <span style={{ display: 'block', fontSize: 'clamp(58px, 6.5vw, 90px)', fontWeight: 900 }}>
                 <span style={{ background: POL_RED, color: 'white', padding: '2px 12px 8px', display: 'inline-block' }}>interesting</span>
               </span>
-              <span style={{ display: 'block', fontSize: 'clamp(72px, 8vw, 112px)', fontWeight: 900, color: 'white' }}>
+              <span style={{ display: 'block', fontSize: 'clamp(58px, 6.5vw, 90px)', fontWeight: 900, color: 'white' }}>
                 people, all in
               </span>
-              <span style={{ display: 'block', fontSize: 'clamp(72px, 8vw, 112px)', fontWeight: 900, color: 'white' }}>
+              <span style={{ display: 'block', fontSize: 'clamp(58px, 6.5vw, 90px)', fontWeight: 900, color: 'white' }}>
                 one place.
               </span>
             </h1>
@@ -195,6 +196,7 @@ export default function GatewayPage() {
               fontSize: 14, fontWeight: 700, letterSpacing: '0.02em', textTransform: 'none',
               cursor: 'pointer', boxShadow: '0 8px 40px rgba(200,16,46,0.55)',
               display: 'inline-block',
+              fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
             }}>
               Enter →
             </button>
@@ -210,9 +212,9 @@ export default function GatewayPage() {
           <div style={{ width: '100%', maxWidth: 560, padding: '0 32px calc(env(safe-area-inset-bottom) + 48px)' }}>
 
             {featuredPerson && (
-              <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 24px)', right: 32, textAlign: 'right' }}>
-                <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', margin: '0 0 2px' }}>Featured</p>
-                <p style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.85)', margin: 0, maxWidth: 160, lineHeight: 1.3, textAlign: 'right' }}>{featuredPerson}</p>
+              <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 24px)', right: 0, textAlign: 'right', background: 'linear-gradient(to left, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 100%)', padding: '8px 16px 8px 32px' }}>
+                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.7)', margin: '0 0 2px', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>Featured</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0, maxWidth: 180, lineHeight: 1.3, textAlign: 'right', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>{featuredPerson}</p>
               </div>
             )}
 
