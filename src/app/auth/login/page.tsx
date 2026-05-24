@@ -19,8 +19,7 @@ function PolLabel() {
       <span style={{
         fontSize: 15, fontWeight: 700, letterSpacing: '0',
         textTransform: 'none', color: 'white',
-        fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
-        fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       }}>
         People Of Lisbon
       </span>
@@ -237,8 +236,9 @@ export default function GatewayPage() {
             <button onClick={() => setScreen('choice')} style={{
               width: '100%', padding: '18px 24px',
               background: POL_RED, color: 'white', border: 'none', borderRadius: 2,
-              fontSize: 15, fontWeight: 900, letterSpacing: '0.18em', textTransform: 'uppercase',
+              fontSize: 15, fontWeight: 700, letterSpacing: '0', textTransform: 'none',
               cursor: 'pointer', boxShadow: '0 6px 32px rgba(200,16,46,0.5)',
+              fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
             }}>
               Enter →
             </button>
@@ -285,7 +285,8 @@ export default function GatewayPage() {
                 display: 'block', width: '100%', padding: '15px',
                 background: POL_RED, color: 'white', textDecoration: 'none', textAlign: 'center',
                 border: 'none', borderRadius: 2,
-                fontSize: 13, fontWeight: 900, letterSpacing: '0.16em', textTransform: 'uppercase',
+                fontSize: 13, fontWeight: 700, letterSpacing: '0', textTransform: 'none',
+                fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
                 cursor: 'pointer', boxShadow: '0 4px 20px rgba(200,16,46,0.4)',
                 boxSizing: 'border-box',
               }}>
@@ -312,7 +313,8 @@ export default function GatewayPage() {
               <a href="/auth/join" style={{
                 display: 'block', width: '100%', padding: '15px',
                 background: '#E6B75C', color: '#1C1C1C', textDecoration: 'none', textAlign: 'center',
-                borderRadius: 2, fontSize: 13, fontWeight: 900, letterSpacing: '0.16em', textTransform: 'uppercase',
+                borderRadius: 2, fontSize: 13, fontWeight: 700, letterSpacing: '0', textTransform: 'none',
+                fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
                 boxSizing: 'border-box',
               }}>
                 Join the Club →
@@ -325,7 +327,8 @@ export default function GatewayPage() {
               <a href="/auth/member-login" style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
                 fontSize: 15, fontWeight: 900, color: 'white', textDecoration: 'none',
-                letterSpacing: '0.08em', textTransform: 'uppercase',
+                letterSpacing: '0', textTransform: 'none',
+                fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
                 padding: '13px 28px', border: '2px solid rgba(255,255,255,0.4)', borderRadius: 4,
               }}>
                 Member Sign In →
