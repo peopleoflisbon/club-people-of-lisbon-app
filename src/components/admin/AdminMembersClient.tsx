@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase';
 import Avatar from '@/components/ui/Avatar';
-import { formatDate, cn } from '@/lib/utils';
+import { formatDate, cn, LISBON_NEIGHBORHOODS } from '@/lib/utils';
 
 interface MemberRow {
   id: string;
@@ -42,38 +42,99 @@ export default function AdminMembersClient({ members, invitations }: Props) {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [editingMember, setEditingMember] = useState<MemberRow | null>(null);
   const [editForm, setEditForm] = useState<any>({});
+  const [editAvatarUrl, setEditAvatarUrl] = useState('');
+  const [editUploading, setEditUploading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
+  const [editSaveMsg, setEditSaveMsg] = useState('');
   const [resetMember, setResetMember] = useState<MemberRow | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [resetSaving, setResetSaving] = useState(false);
   const [resetMsg, setResetMsg] = useState('');
+  const fileRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
 
-  function startEditMember(member: MemberRow) {
+  async function startEditMember(member: MemberRow) {
     setEditingMember(member);
+    setEditAvatarUrl(member.avatar_url || '');
+    setEditSaveMsg('');
+    setEditLoading(true);
+    // Fetch full profile on demand so the list stays fast
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', member.id)
+      .single();
     setEditForm({
-      full_name: (member as any).full_name || '',
-      headline: (member as any).headline || '',
-      job_title: (member as any).job_title || '',
-      company: (member as any).company || '',
-      neighborhood: (member as any).neighborhood || '',
-      nationality: (member as any).nationality || '',
-      short_bio: (member as any).short_bio || '',
-      personal_story: (member as any).personal_story || '',
-      favorite_spots: (member as any).favorite_spots || '',
-      instagram_handle: (member as any).instagram_handle || '',
-      linkedin_url: (member as any).linkedin_url || '',
-      website_url: (member as any).website_url || '',
+      full_name: data?.full_name || '',
+      headline: data?.headline || '',
+      job_title: data?.job_title || '',
+      company: data?.company || '',
+      neighborhood: data?.neighborhood || '',
+      nationality: data?.nationality || '',
+      short_bio: data?.short_bio || '',
+      personal_story: data?.personal_story || '',
+      favorite_spots: data?.favorite_spots || '',
+      instagram_handle: data?.instagram_handle || '',
+      linkedin_url: data?.linkedin_url || '',
+      website_url: data?.website_url || '',
+      open_to_feature: data?.open_to_feature || false,
     });
+    setEditAvatarUrl(data?.avatar_url || member.avatar_url || '');
+    setEditLoading(false);
+  }
+
+  async function uploadAvatar(file: File, memberId: string) {
+    setEditUploading(true);
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const path = `avatars/${memberId}-${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(path, file, { upsert: false, contentType: file.type });
+      if (uploadError) {
+        // Fallback: upsert with fixed name
+        const fixedPath = `avatars/${memberId}.${ext}`;
+        const { error: upsertError } = await supabase.storage
+          .from('media')
+          .upload(fixedPath, file, { upsert: true, contentType: file.type });
+        if (upsertError) throw upsertError;
+        const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(fixedPath);
+        setEditAvatarUrl(publicUrl + '?t=' + Date.now());
+      } else {
+        const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(path);
+        setEditAvatarUrl(publicUrl);
+      }
+    } catch (err: any) {
+      alert(`Photo upload failed: ${err?.message || 'Please try again'}`);
+    } finally {
+      setEditUploading(false);
+    }
   }
 
   async function saveEditMember() {
     if (!editingMember) return;
     setEditSaving(true);
-    await supabase.from('profiles').update(editForm).eq('id', editingMember.id);
-    setLocalMembers(prev => prev.map(m => m.id === editingMember.id ? { ...m, ...editForm } : m));
+    setEditSaveMsg('');
+    const { error: saveError } = await supabase
+      .from('profiles')
+      .update({ ...editForm, avatar_url: editAvatarUrl })
+      .eq('id', editingMember.id);
+    if (saveError) {
+      setEditSaveMsg(`Error: ${saveError.message}`);
+    } else {
+      setLocalMembers(prev => prev.map(m =>
+        m.id === editingMember.id
+          ? { ...m, ...editForm, avatar_url: editAvatarUrl }
+          : m
+      ));
+      setEditSaveMsg('✓ Saved');
+      setTimeout(() => {
+        setEditingMember(null);
+        setEditSaveMsg('');
+      }, 800);
+    }
     setEditSaving(false);
-    setEditingMember(null);
   }
 
   async function resetPassword() {
@@ -115,12 +176,10 @@ export default function AdminMembersClient({ members, invitations }: Props) {
         setGeneratedFor(inviteEmail.trim());
         const email = inviteEmail.trim();
         const realUserId = data.userId || '';
-        // Add to invites tab
         setLocalInvites(prev => {
           if (prev.find(i => i.email === email)) return prev;
           return [{ id: Date.now().toString(), email, status: 'pending', created_at: new Date().toISOString() }, ...prev];
         });
-        // Add to Members tab with real userId so Set Password works immediately
         setLocalMembers(prev => {
           if (prev.find(m => m.email === email)) return prev;
           return [{ id: realUserId, email, full_name: '', headline: '', neighborhood: '', role: 'member', is_active: true, joined_at: new Date().toISOString(), avatar_url: '' } as any, ...prev];
@@ -203,7 +262,6 @@ export default function AdminMembersClient({ members, invitations }: Props) {
     if (res.ok) {
       setLocalMembers(prev => prev.map(m => m.id === id ? { ...m, role: newRole } : m));
       if (newRole === 'admin') {
-        // Reload so the promoted user's next page visit picks up fresh role from DB
         alert('Admin rights granted. Ask them to refresh the app or tap any link — they will see Admin access immediately.');
       }
     }
@@ -238,44 +296,160 @@ export default function AdminMembersClient({ members, invitations }: Props) {
       {/* EDIT MEMBER MODAL */}
       {editingMember && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-xl text-ink">Edit {editingMember.full_name || 'Member'}</h2>
-              <button onClick={() => setEditingMember(null)} className="text-stone-400 hover:text-ink text-xl">✕</button>
+          <div className="bg-white w-full max-w-lg max-h-[92vh] overflow-y-auto flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-stone-100 sticky top-0 bg-white z-10">
+              <h2 className="font-display text-xl text-ink">
+                Edit {editingMember.full_name || editingMember.email}
+              </h2>
+              <button onClick={() => setEditingMember(null)} className="text-stone-400 hover:text-ink text-xl leading-none">✕</button>
             </div>
-            {[
-              { label: 'Full Name', key: 'full_name', placeholder: 'Jane Smith' },
-              { label: 'Headline', key: 'headline', placeholder: 'Filmmaker & Lisbon enthusiast' },
-              { label: 'Job Title', key: 'job_title', placeholder: 'Founder, Writer…' },
-              { label: 'Company / Project', key: 'company', placeholder: 'People Of Lisbon' },
-              { label: 'Neighbourhood', key: 'neighborhood', placeholder: 'Alfama' },
-              { label: 'Nationality', key: 'nationality', placeholder: 'Irish' },
-              { label: 'Instagram', key: 'instagram_handle', placeholder: '@handle' },
-              { label: 'LinkedIn URL', key: 'linkedin_url', placeholder: 'https://linkedin.com/in/…' },
-              { label: 'Website', key: 'website_url', placeholder: 'https://…' },
-            ].map(({ label, key, placeholder }) => (
-              <div key={key}>
-                <label className="pol-label">{label}</label>
-                <input className="pol-input" value={editForm[key] || ''} onChange={e => setEditForm((f: any) => ({ ...f, [key]: e.target.value }))} placeholder={placeholder} />
+
+            {editLoading ? (
+              <div className="flex items-center justify-center py-16 text-stone-400 text-sm">Loading profile…</div>
+            ) : (
+              <div className="px-6 py-5 space-y-5 flex-1">
+
+                {/* Photo */}
+                <div>
+                  <label className="pol-label">Photo</label>
+                  <div className="flex items-center gap-4 mt-1">
+                    <div
+                      className="relative flex-shrink-0 cursor-pointer group"
+                      onClick={() => fileRef.current?.click()}
+                    >
+                      <Avatar src={editAvatarUrl} name={editForm.full_name || editingMember.email} size="xl" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">Change</span>
+                      </div>
+                    </div>
+                    <div>
+                      <button
+                        onClick={() => fileRef.current?.click()}
+                        disabled={editUploading}
+                        className="pol-btn-primary text-sm"
+                      >
+                        {editUploading ? 'Uploading…' : editAvatarUrl ? 'Change Photo' : 'Add Photo'}
+                      </button>
+                      <p className="text-xs text-stone-400 mt-1">JPG or PNG · max 5MB</p>
+                    </div>
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          if (file.size > 5 * 1024 * 1024) { alert('Photo must be under 5MB'); return; }
+                          uploadAvatar(file, editingMember.id);
+                        }
+                        e.target.value = '';
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <hr className="border-stone-100" />
+
+                {/* Basic fields */}
+                {[
+                  { label: 'Full Name', key: 'full_name', placeholder: 'Jane Smith' },
+                  { label: 'Headline', key: 'headline', placeholder: 'Filmmaker & Lisbon enthusiast' },
+                  { label: 'Job Title', key: 'job_title', placeholder: 'Founder, Writer…' },
+                  { label: 'Company / Project', key: 'company', placeholder: 'People Of Lisbon' },
+                  { label: 'Nationality', key: 'nationality', placeholder: 'Irish' },
+                  { label: 'Instagram', key: 'instagram_handle', placeholder: '@handle' },
+                  { label: 'LinkedIn URL', key: 'linkedin_url', placeholder: 'https://linkedin.com/in/…' },
+                  { label: 'Website', key: 'website_url', placeholder: 'https://…' },
+                ].map(({ label, key, placeholder }) => (
+                  <div key={key}>
+                    <label className="pol-label">{label}</label>
+                    <input
+                      className="pol-input"
+                      value={editForm[key] || ''}
+                      onChange={e => setEditForm((f: any) => ({ ...f, [key]: e.target.value }))}
+                      placeholder={placeholder}
+                    />
+                  </div>
+                ))}
+
+                {/* Neighbourhood dropdown */}
+                <div>
+                  <label className="pol-label">Neighbourhood</label>
+                  <select
+                    className="pol-input"
+                    value={editForm.neighborhood || ''}
+                    onChange={e => setEditForm((f: any) => ({ ...f, neighborhood: e.target.value }))}
+                  >
+                    <option value="">Select neighbourhood</option>
+                    {LISBON_NEIGHBORHOODS.map(n => <option key={n} value={n}>{n}</option>)}
+                  </select>
+                </div>
+
+                {/* Text areas */}
+                <div>
+                  <label className="pol-label">Short Bio</label>
+                  <textarea
+                    className="pol-textarea"
+                    rows={3}
+                    value={editForm.short_bio || ''}
+                    onChange={e => setEditForm((f: any) => ({ ...f, short_bio: e.target.value }))}
+                    placeholder="A few sentences about them…"
+                  />
+                </div>
+                <div>
+                  <label className="pol-label">My Lisbon Story</label>
+                  <textarea
+                    className="pol-textarea"
+                    rows={3}
+                    value={editForm.personal_story || ''}
+                    onChange={e => setEditForm((f: any) => ({ ...f, personal_story: e.target.value }))}
+                    placeholder="How did they end up in Lisbon?"
+                  />
+                </div>
+                <div>
+                  <label className="pol-label">Favourite Spots</label>
+                  <textarea
+                    className="pol-textarea"
+                    rows={2}
+                    value={editForm.favorite_spots || ''}
+                    onChange={e => setEditForm((f: any) => ({ ...f, favorite_spots: e.target.value }))}
+                    placeholder="Pastéis de Belém…"
+                  />
+                </div>
+
+                {/* Open to feature */}
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editForm.open_to_feature || false}
+                    onChange={e => setEditForm((f: any) => ({ ...f, open_to_feature: e.target.checked }))}
+                    className="mt-0.5 w-4 h-4 rounded border-stone-300 text-brand focus:ring-brand"
+                  />
+                  <div>
+                    <p className="font-semibold text-sm text-ink">Open to being featured</p>
+                    <p className="text-xs text-stone-400 mt-0.5">They may be featured in a People Of Lisbon video.</p>
+                  </div>
+                </label>
               </div>
-            ))}
-            <div>
-              <label className="pol-label">Short Bio</label>
-              <textarea className="pol-textarea" rows={3} value={editForm.short_bio || ''} onChange={e => setEditForm((f: any) => ({ ...f, short_bio: e.target.value }))} />
-            </div>
-            <div>
-              <label className="pol-label">My Lisbon Story</label>
-              <textarea className="pol-textarea" rows={3} value={editForm.personal_story || ''} onChange={e => setEditForm((f: any) => ({ ...f, personal_story: e.target.value }))} />
-            </div>
-            <div>
-              <label className="pol-label">Favourite Spots</label>
-              <textarea className="pol-textarea" rows={2} value={editForm.favorite_spots || ''} onChange={e => setEditForm((f: any) => ({ ...f, favorite_spots: e.target.value }))} />
-            </div>
-            <div className="flex gap-3 pt-2">
-              <button onClick={saveEditMember} disabled={editSaving} className="pol-btn-primary flex-1">
+            )}
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-stone-100 sticky bottom-0 bg-white flex items-center gap-3">
+              <button
+                onClick={saveEditMember}
+                disabled={editSaving || editLoading || editUploading}
+                className="pol-btn-primary flex-1"
+              >
                 {editSaving ? 'Saving…' : 'Save Changes'}
               </button>
               <button onClick={() => setEditingMember(null)} className="pol-btn-secondary">Cancel</button>
+              {editSaveMsg && (
+                <span className={`text-sm font-semibold ${editSaveMsg.startsWith('✓') ? 'text-green-600' : 'text-red-500'}`}>
+                  {editSaveMsg}
+                </span>
+              )}
             </div>
           </div>
         </div>
