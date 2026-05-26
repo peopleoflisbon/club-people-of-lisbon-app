@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { createClient } from '@supabase/supabase-js';
 import AdminMembersClient from '@/components/admin/AdminMembersClient';
 
