@@ -116,23 +116,32 @@ export default function AdminMembersClient({ members, invitations }: Props) {
     if (!editingMember) return;
     setEditSaving(true);
     setEditSaveMsg('');
-    const { error: saveError } = await supabase
-      .from('profiles')
-      .update({ ...editForm, avatar_url: editAvatarUrl })
-      .eq('id', editingMember.id);
-    if (saveError) {
-      setEditSaveMsg(`Error: ${saveError.message}`);
-    } else {
-      setLocalMembers(prev => prev.map(m =>
-        m.id === editingMember.id
-          ? { ...m, ...editForm, avatar_url: editAvatarUrl }
-          : m
-      ));
-      setEditSaveMsg('✓ Saved');
-      setTimeout(() => {
-        setEditingMember(null);
-        setEditSaveMsg('');
-      }, 800);
+    try {
+      const res = await fetch('/api/admin-update-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          memberId: editingMember.id,
+          updates: { ...editForm, avatar_url: editAvatarUrl },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setEditSaveMsg(`Error: ${data.error || 'Save failed'}`);
+      } else {
+        setLocalMembers(prev => prev.map(m =>
+          m.id === editingMember.id
+            ? { ...m, ...editForm, avatar_url: editAvatarUrl }
+            : m
+        ));
+        setEditSaveMsg('✓ Saved');
+        setTimeout(() => {
+          setEditingMember(null);
+          setEditSaveMsg('');
+        }, 800);
+      }
+    } catch (err: any) {
+      setEditSaveMsg(`Error: ${err.message}`);
     }
     setEditSaving(false);
   }
