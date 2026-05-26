@@ -131,7 +131,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
           {profile.short_bio && (
             <div>
               <p className="pol-eyebrow mb-3">About</p>
-              <p className="text-base leading-relaxed" style={{ color: '#3D3D3D', lineHeight: '1.75', maxWidth: '58ch' }}>
+              <p className="text-base leading-relaxed whitespace-pre-wrap" style={{ color: '#3D3D3D', lineHeight: '1.75', maxWidth: '58ch' }}>
                 {profile.short_bio}
               </p>
             </div>
@@ -141,7 +141,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
           {profile.personal_story && (
             <div>
               <p className="pol-eyebrow mb-3">Story</p>
-              <p className="text-base leading-relaxed" style={{ color: '#3D3D3D', lineHeight: '1.75', maxWidth: '58ch' }}>
+              <p className="text-base leading-relaxed whitespace-pre-wrap" style={{ color: '#3D3D3D', lineHeight: '1.75', maxWidth: '58ch' }}>
                 {profile.personal_story}
               </p>
             </div>
@@ -151,7 +151,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
           {profile.favorite_spots && (
             <div>
               <p className="pol-eyebrow mb-3">Favourite Lisbon Spots</p>
-              <p className="text-base leading-relaxed" style={{ color: '#3D3D3D', lineHeight: '1.75', maxWidth: '58ch' }}>
+              <p className="text-base leading-relaxed whitespace-pre-wrap" style={{ color: '#3D3D3D', lineHeight: '1.75', maxWidth: '58ch' }}>
                 {profile.favorite_spots}
               </p>
             </div>
