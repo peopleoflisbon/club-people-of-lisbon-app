@@ -23,8 +23,8 @@ type MemberRow = {
 export default function MembersClient({ initialMembers }: { initialMembers: MemberRow[] }) {
   const [query, setQuery] = useState('');
   const [activeInterests, setActiveInterests] = useState<string[]>([]);
+  const [filterOpen, setFilterOpen] = useState(false);
 
-  // Shuffle once on mount, stable for session
   const shuffled = useMemo(() => {
     return [...initialMembers].sort(() => Math.random() - 0.5);
   }, []); // eslint-disable-line
@@ -42,16 +42,20 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
     );
   }
 
+  function clearAll() {
+    setActiveInterests([]);
+    setFilterOpen(false);
+  }
+
   const filtered = useMemo(() => {
     let list = shuffled;
     if (query.trim()) {
       const q = query.toLowerCase();
-      list = list.filter(
-        m =>
-          m.full_name?.toLowerCase().includes(q) ||
-          m.headline?.toLowerCase().includes(q) ||
-          m.neighborhood?.toLowerCase().includes(q) ||
-          m.job_title?.toLowerCase().includes(q)
+      list = list.filter(m =>
+        m.full_name?.toLowerCase().includes(q) ||
+        m.headline?.toLowerCase().includes(q) ||
+        m.neighborhood?.toLowerCase().includes(q) ||
+        m.job_title?.toLowerCase().includes(q)
       );
     }
     if (activeInterests.length > 0) {
@@ -67,34 +71,67 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
       <div className="max-w-5xl mx-auto">
         <PageHeader title="Members" subtitle={`${initialMembers.length} people`} />
 
-        {/* Search */}
-        <div className="px-4 lg:px-8 mb-4">
-          <div className="relative">
-            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-            </svg>
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by name, headline, neighbourhood…"
-              className="w-full pl-11 pr-4 py-3 border border-stone-200 bg-white text-sm text-ink placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all"
-            />
+        {/* Search + Filter row */}
+        <div className="px-4 lg:px-8 mb-3">
+          <div className="flex gap-2">
+            {/* Search */}
+            <div className="relative flex-1">
+              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by name, headline…"
+                className="w-full pl-11 pr-4 py-3 border border-stone-200 bg-white text-sm text-ink placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all"
+              />
+            </div>
+
+            {/* Filter toggle button */}
+            {usedInterests.length > 0 && (
+              <button
+                onClick={() => setFilterOpen(o => !o)}
+                className={cn(
+                  'flex-shrink-0 flex items-center gap-2 px-4 py-3 border text-sm font-bold transition-all',
+                  filterOpen || activeInterests.length > 0
+                    ? 'bg-brand border-brand text-white'
+                    : 'bg-white border-stone-200 text-stone-600 hover:border-brand hover:text-brand'
+                )}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591L15.75 12.5V19.5a.75.75 0 01-.34.635l-3 1.875A.75.75 0 0111.25 21.375v-8.875L4.659 7.409A2.25 2.25 0 014 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                </svg>
+                {activeInterests.length > 0 ? `${activeInterests.length} active` : 'Filter'}
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Interest filter pills */}
-        {usedInterests.length > 0 && (
-          <div className="mb-5">
-            <div className="flex gap-2 overflow-x-auto px-4 lg:px-8 pb-1 scrollbar-hide">
-              {activeInterests.length > 0 && (
-                <button
-                  onClick={() => setActiveInterests([])}
-                  className="flex-shrink-0 px-4 py-2 text-xs font-bold border border-stone-300 text-stone-500 hover:border-brand hover:text-brand transition-colors whitespace-nowrap"
-                >
-                  Clear
-                </button>
-              )}
+        {/* Active interest chips — always visible when filters on */}
+        {activeInterests.length > 0 && (
+          <div className="px-4 lg:px-8 mb-3 flex flex-wrap gap-2 items-center">
+            {activeInterests.map(interest => (
+              <button
+                key={interest}
+                onClick={() => toggleInterest(interest)}
+                className="flex items-center gap-1.5 px-3 py-1 bg-brand text-white text-xs font-bold"
+              >
+                {interest}
+                <span className="text-white/70 text-sm leading-none">✕</span>
+              </button>
+            ))}
+            <button onClick={clearAll} className="text-xs text-stone-400 hover:text-brand font-semibold underline underline-offset-2">
+              Clear all
+            </button>
+          </div>
+        )}
+
+        {/* Expandable filter panel */}
+        {filterOpen && usedInterests.length > 0 && (
+          <div className="mx-4 lg:mx-8 mb-4 border border-stone-200 bg-white p-4">
+            <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-3">Filter by interest</p>
+            <div className="flex flex-wrap gap-2">
               {usedInterests.map(interest => {
                 const active = activeInterests.includes(interest);
                 return (
@@ -102,7 +139,7 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
                     key={interest}
                     onClick={() => toggleInterest(interest)}
                     className={cn(
-                      'flex-shrink-0 px-4 py-2 text-xs font-bold border transition-all whitespace-nowrap',
+                      'px-3 py-1.5 text-xs font-bold border transition-all',
                       active
                         ? 'bg-brand border-brand text-white'
                         : 'bg-white border-stone-200 text-stone-600 hover:border-brand hover:text-brand'
@@ -113,6 +150,15 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
                 );
               })}
             </div>
+            <div className="mt-4 pt-3 border-t border-stone-100 flex justify-between items-center">
+              <p className="text-xs text-stone-400">{activeInterests.length} selected</p>
+              <button
+                onClick={() => setFilterOpen(false)}
+                className="text-xs font-bold text-ink hover:text-brand"
+              >
+                Done
+              </button>
+            </div>
           </div>
         )}
 
@@ -121,7 +167,7 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
             title="No members found"
             description={
               activeInterests.length > 0
-                ? `No members with those interests yet.`
+                ? 'No members with those interests yet.'
                 : query
                 ? `No results for "${query}"`
                 : 'No members yet.'
@@ -158,7 +204,7 @@ function MemberCard({ member, index }: { member: MemberRow; index: number }) {
           {member.full_name}
         </h3>
         {member.job_title && (
-          <p className="text-sm font-semibold mt-0.5" style={{ color: "#C8102E" }}>{member.job_title}</p>
+          <p className="text-sm font-semibold mt-0.5" style={{ color: '#C8102E' }}>{member.job_title}</p>
         )}
         {member.headline && (
           <p className="text-stone-500 text-sm mt-0.5 leading-snug line-clamp-1">{member.headline}</p>
