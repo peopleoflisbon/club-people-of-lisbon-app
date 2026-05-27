@@ -133,3 +133,24 @@ export const LISBON_NEIGHBORHOODS = [
   'Alto de São João',
   'Other',
 ];
+
+export const MEMBER_INTERESTS = [
+  'Art & Design',
+  'Business & Entrepreneurship',
+  'Cinema & Film',
+  'Creative Industries',
+  'Fashion',
+  'Finance & Investment',
+  'Food & Hospitality',
+  'Health & Wellness',
+  'Music',
+  'Photography',
+  'Politics & Society',
+  'Property & Real Estate',
+  'Sailing & The Sea',
+  'Sport',
+  'Sustainability',
+  'Tech & Startups',
+  'Travel',
+  'Writing & Journalism',
+];

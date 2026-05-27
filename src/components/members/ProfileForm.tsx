@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase';
 import Avatar from '@/components/ui/Avatar';
-import { LISBON_NEIGHBORHOODS, cn } from '@/lib/utils';
+import { LISBON_NEIGHBORHOODS, MEMBER_INTERESTS, cn } from '@/lib/utils';
 import type { Profile } from '@/types';
 
 export default function ProfileForm({ profile }: { profile: Profile }) {
@@ -26,6 +26,8 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
     open_to_feature: profile?.open_to_feature || false,
     nationality: (profile as any)?.nationality || '',
   });
+
+  const [interests, setInterests] = useState<string[]>((profile as any)?.interests || []);
 
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '');
   const [uploading, setUploading] = useState(false);
@@ -77,7 +79,7 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
 
     const { error: saveError } = await supabase
       .from('profiles')
-      .update({ ...form, avatar_url: avatarUrl })
+      .update({ ...form, avatar_url: avatarUrl, interests })
       .eq('id', profile.id);
 
     setSaving(false);
@@ -209,6 +211,34 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
             <span className="px-3 py-3 text-stone-400 text-sm border-r border-stone-200 bg-stone-50 select-none">https://</span>
             <input className="flex-1 px-3 py-3 text-sm text-ink focus:outline-none" value={form.website_url.replace(/^https?:\/\//,'')} onChange={(e) => set('website_url', e.target.value ? 'https://' + e.target.value.replace(/^https?:\/\//,'') : '')} placeholder="yoursite.com" />
           </div>
+        </div>
+      </div>
+
+      {/* Interests */}
+      <div className="pol-card p-6">
+        <div className="mb-4">
+          <h2 className="font-semibold text-sm text-stone-500 uppercase tracking-wider mb-1">Interests</h2>
+          <p className="text-xs text-stone-400">Select what you are interested in. Other members can filter by these.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {MEMBER_INTERESTS.map(interest => {
+            const active = interests.includes(interest);
+            return (
+              <button
+                key={interest}
+                type="button"
+                onClick={() => setInterests(prev => active ? prev.filter(i => i !== interest) : [...prev, interest])}
+                className={cn(
+                  'px-3 py-1.5 text-xs font-bold border transition-all',
+                  active
+                    ? 'bg-brand border-brand text-white'
+                    : 'bg-white border-stone-200 text-stone-600 hover:border-brand hover:text-brand'
+                )}
+              >
+                {interest}
+              </button>
+            );
+          })}
         </div>
       </div>
 

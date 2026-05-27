@@ -24,6 +24,7 @@ export interface Profile {
   favorite_spots: string;
   personal_story: string;
   open_to_feature: boolean;
+  interests?: string[];
   role: UserRole;
   is_active: boolean;
   joined_at: string;
@@ -146,6 +147,7 @@ export interface ProfileFormData {
   favorite_spots: string;
   personal_story: string;
   open_to_feature: boolean;
+  interests?: string[];
 }
 
 export interface EventFormData {

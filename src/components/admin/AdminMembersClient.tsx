@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase';
 import Avatar from '@/components/ui/Avatar';
-import { formatDate, cn, LISBON_NEIGHBORHOODS } from '@/lib/utils';
+import { formatDate, cn, LISBON_NEIGHBORHOODS, MEMBER_INTERESTS } from '@/lib/utils';
 
 interface MemberRow {
   id: string;
@@ -42,6 +42,7 @@ export default function AdminMembersClient({ members, invitations }: Props) {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [editingMember, setEditingMember] = useState<MemberRow | null>(null);
   const [editForm, setEditForm] = useState<any>({});
+  const [editInterests, setEditInterests] = useState<string[]>([]);
   const [editAvatarUrl, setEditAvatarUrl] = useState('');
   const [editUploading, setEditUploading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
@@ -80,6 +81,7 @@ export default function AdminMembersClient({ members, invitations }: Props) {
       website_url: data?.website_url || '',
       open_to_feature: data?.open_to_feature || false,
     });
+    setEditInterests(data?.interests || []);
     setEditAvatarUrl(data?.avatar_url || member.avatar_url || '');
     setEditLoading(false);
   }
@@ -122,7 +124,7 @@ export default function AdminMembersClient({ members, invitations }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           memberId: editingMember.id,
-          updates: { ...editForm, avatar_url: editAvatarUrl },
+          updates: { ...editForm, avatar_url: editAvatarUrl, interests: editInterests },
         }),
       });
       const data = await res.json();
@@ -426,6 +428,33 @@ export default function AdminMembersClient({ members, invitations }: Props) {
                     onChange={e => setEditForm((f: any) => ({ ...f, favorite_spots: e.target.value }))}
                     placeholder="Pastéis de Belém…"
                   />
+                </div>
+
+                {/* Interests */}
+                <div>
+                  <label className="pol-label mb-2 block">Interests</label>
+                  <div className="flex flex-wrap gap-2">
+                    {MEMBER_INTERESTS.map(interest => {
+                      const active = editInterests.includes(interest);
+                      return (
+                        <button
+                          key={interest}
+                          type="button"
+                          onClick={() => setEditInterests(prev =>
+                            active ? prev.filter(i => i !== interest) : [...prev, interest]
+                          )}
+                          className={cn(
+                            'px-3 py-1.5 text-xs font-bold border transition-all',
+                            active
+                              ? 'bg-brand border-brand text-white'
+                              : 'bg-white border-stone-200 text-stone-600 hover:border-brand hover:text-brand'
+                          )}
+                        >
+                          {interest}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Open to feature */}

@@ -10,7 +10,7 @@ export default async function MembersPage() {
 
   const { data: members } = await (supabase as any)
     .from('profiles')
-    .select('id, full_name, headline, job_title, neighborhood, avatar_url, short_bio, joined_at')
+    .select('id, full_name, headline, job_title, neighborhood, avatar_url, short_bio, joined_at, interests')
     .eq('is_active', true)
     .not('avatar_url', 'is', null)
     .neq('avatar_url', '')
