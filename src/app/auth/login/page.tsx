@@ -192,7 +192,7 @@ export default function GatewayPage() {
             <button onClick={() => setScreen('choice')} style={{
               padding: '22px 64px',
               background: POL_RED, color: 'white', border: 'none', borderRadius: 2,
-              fontSize: 17, fontWeight: 700, letterSpacing: '0.02em', textTransform: 'none',
+              fontSize: 22, fontWeight: 700, letterSpacing: '0.02em', textTransform: 'none',
               cursor: 'pointer', boxShadow: '0 8px 40px rgba(200,16,46,0.55)',
               display: 'inline-block',
               fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
@@ -236,7 +236,7 @@ export default function GatewayPage() {
             <button onClick={() => setScreen('choice')} style={{
               width: '100%', padding: '18px 24px',
               background: POL_RED, color: 'white', border: 'none', borderRadius: 2,
-              fontSize: 18, fontWeight: 700, letterSpacing: '0', textTransform: 'none',
+              fontSize: 24, fontWeight: 700, letterSpacing: '0', textTransform: 'none',
               cursor: 'pointer', boxShadow: '0 6px 32px rgba(200,16,46,0.5)',
               fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
             }}>
