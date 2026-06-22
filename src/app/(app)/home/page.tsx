@@ -82,6 +82,7 @@ export default async function HomePage() {
     .from('profiles')
     .select('full_name, avatar_url')
     .eq('role', 'admin')
+    .order('joined_at', { ascending: true })
     .limit(1)
     .single();
 
