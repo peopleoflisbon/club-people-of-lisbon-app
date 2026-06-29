@@ -71,6 +71,62 @@ const styles = StyleSheet.create({
     color: MUTED,
     marginTop: 2,
   },
+
+  // Cover
+  coverPage: {
+    padding: 0,
+    backgroundColor: INK,
+  },
+  coverWrapper: {
+    width: 595.28,
+    height: 841.89,
+    position: 'relative',
+  },
+  coverImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 595.28,
+    height: 841.89,
+    objectFit: 'cover',
+  },
+  coverOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: 595.28,
+    height: 420,
+    backgroundColor: 'rgba(10,10,10,0.62)',
+  },
+  coverContent: {
+    position: 'absolute',
+    bottom: 56,
+    left: 48,
+    right: 48,
+  },
+  coverPageBadge: {
+    backgroundColor: RED,
+    color: 'white',
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 11,
+    letterSpacing: 1,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    alignSelf: 'flex-start',
+    marginBottom: 16,
+  },
+  coverPageTitle: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 46,
+    color: 'white',
+    marginBottom: 10,
+    lineHeight: 1.05,
+  },
+  coverPageSubtitle: {
+    fontFamily: 'Helvetica',
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.85)',
+  },
   footer: {
     position: 'absolute',
     bottom: 24,
@@ -210,17 +266,29 @@ export interface GuideData {
   offers: any[];
   members: any[];
   avatarBuffers: (Buffer | null)[];
+  coverImageBuffer: Buffer | null;
 }
 
-export function GuideDocument({ events, recsByCategory, offers, members, avatarBuffers }: GuideData) {
+export function GuideDocument({ events, recsByCategory, offers, members, avatarBuffers, coverImageBuffer }: GuideData) {
   return (
     <Document title="People Of Lisbon Guide">
+      {/* Cover */}
+      <Page size="A4" style={styles.coverPage}>
+        <View style={styles.coverWrapper}>
+          {coverImageBuffer && <Image src={coverImageBuffer as any} style={styles.coverImage} />}
+          <View style={styles.coverOverlay} />
+          <View style={styles.coverContent}>
+            <Text style={styles.coverPageBadge}>PEOPLE OF LISBON</Text>
+            <Text style={styles.coverPageTitle}>The Guide</Text>
+            <Text style={styles.coverPageSubtitle}>Lisbon's most interesting people, all in one place.</Text>
+          </View>
+        </View>
+      </Page>
+
       {/* Welcome */}
       <Page size="A4" style={styles.page}>
-        <Text style={styles.coverBadge}>PEOPLE OF LISBON</Text>
-        <Text style={styles.coverTitle}>The Guide</Text>
-        <View style={styles.rule} />
         <Text style={styles.eyebrow}>WELCOME</Text>
+        <View style={styles.rule} />
         {INTRO_TEXT.split('\n\n').map((para, i) => (
           <Text key={i} style={styles.body}>{para}</Text>
         ))}
