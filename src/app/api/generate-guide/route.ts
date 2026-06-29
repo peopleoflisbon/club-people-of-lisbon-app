@@ -48,7 +48,7 @@ export async function GET(request: Request) {
 
     const nowIso = new Date().toISOString();
 
-    const [eventsRes, recsRes, offersRes, membersRes, settingsRes] = await Promise.all([
+    const [eventsRes, recsRes, offersRes, membersRes, settingsRes, updateRes] = await Promise.all([
       admin.from('events').select('title, description, location_name, location_address, starts_at')
         .gte('starts_at', nowIso).order('starts_at', { ascending: true }),
       admin.from('recommendations').select('category, name, description, address, neighbourhood, recommended_by, recommender_role')
@@ -58,12 +58,15 @@ export async function GET(request: Request) {
       admin.from('profiles').select('id, full_name, headline, job_title, neighborhood, short_bio, personal_story, favorite_spots, avatar_url')
         .eq('is_active', true).not('full_name', 'is', null).neq('full_name', '').order('full_name', { ascending: true }),
       admin.from('app_settings').select('key, value').eq('key', 'login_background_image_url').maybeSingle(),
+      admin.from('updates').select('title, content, published_at')
+        .eq('is_published', true).order('published_at', { ascending: false }).limit(1).maybeSingle(),
     ]);
 
     const events = eventsRes.data || [];
     const recs = recsRes.data || [];
     const offers = offersRes.data || [];
     const members = membersRes.data || [];
+    const latestUpdate = updateRes.data || null;
 
     const FALLBACK_COVER = 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=85';
     const coverImageUrl = (settingsRes.data as any)?.value || FALLBACK_COVER;
@@ -83,7 +86,7 @@ export async function GET(request: Request) {
     });
 
     const buffer = await renderToBuffer(
-      GuideDocument({ events, recsByCategory, offers, members, avatarBuffers, coverImageBuffer }) as any
+      GuideDocument({ events, recsByCategory, offers, members, avatarBuffers, coverImageBuffer, latestUpdate }) as any
     );
 
     return new NextResponse(buffer, {

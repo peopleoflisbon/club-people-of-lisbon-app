@@ -72,6 +72,32 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
+  // Contents
+  contentsRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 20,
+    paddingBottom: 16,
+    borderBottom: '0.5px solid #E0D9CE',
+  },
+  contentsNum: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 22,
+    color: RED,
+    width: 48,
+  },
+  contentsTitle: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 15,
+    color: INK,
+    marginBottom: 2,
+  },
+  contentsDesc: {
+    fontFamily: 'Helvetica',
+    fontSize: 10,
+    color: MUTED,
+  },
+
   // Cover
   coverPage: {
     padding: 0,
@@ -260,6 +286,40 @@ People Of Lisbon has always been about connecting people. My hope is that this g
 
 See you around Lisbon.`;
 
+const STORY_TEXT = `People Of Lisbon began with a simple idea.
+
+When I moved to Lisbon in 2020, I was fascinated by the people I kept meeting. Artists, entrepreneurs, chefs, musicians, scientists, activists, immigrants, locals—everyone seemed to have an incredible story to tell. I realised that while travel guides celebrate cities, they rarely celebrate the people who truly make those cities special.
+
+So I picked up a camera and started asking one simple question: "Tell me your story."
+
+That first interview led to another. Then another. Before long, People Of Lisbon had become a weekly documentary series, with every episode introducing someone who calls Lisbon home. Each film explores not only what they do, but why they do it, how they arrived here, and what this remarkable city means to them.
+
+Since then, we've produced over 200 documentaries and photo stories featuring people from every walk of life. Along the way we've expanded into podcasts, photography, community events, newsletters, partnerships with local organisations, and now this members community. What began as a filmmaking project has grown into something much bigger—a network of curious, creative and welcoming people who believe that the best way to understand a city is through the people who live in it.
+
+Everything we do is built around one simple belief: interesting people make interesting places.
+
+Thank you for being part of the journey. Whether you've appeared in one of our films, attended an event, joined the club, supported a sponsor, or simply watched a video online, you've helped make People Of Lisbon what it is today.
+
+And we're only just getting started.`;
+
+const CONTENTS_ITEMS = [
+  { num: '01', title: 'Welcome', desc: 'A letter from our founder' },
+  { num: '02', title: 'The Story of People Of Lisbon', desc: 'How it all began' },
+  { num: '03', title: 'Latest From Stephen', desc: "What's new with the club" },
+  { num: '04', title: 'Upcoming Events', desc: "What's on for members" },
+  { num: '05', title: 'Recommendations', desc: 'Places we love in Lisbon' },
+  { num: '06', title: 'Member Offers', desc: 'Discounts from fellow members' },
+  { num: '07', title: 'Members Directory', desc: 'The people behind the club' },
+];
+
+function formatUpdateDate(iso: string) {
+  try {
+    return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  } catch {
+    return '';
+  }
+}
+
 export interface GuideData {
   events: any[];
   recsByCategory: Record<string, any[]>;
@@ -267,9 +327,10 @@ export interface GuideData {
   members: any[];
   avatarBuffers: (Buffer | null)[];
   coverImageBuffer: Buffer | null;
+  latestUpdate: { title: string; content: string; published_at: string } | null;
 }
 
-export function GuideDocument({ events, recsByCategory, offers, members, avatarBuffers, coverImageBuffer }: GuideData) {
+export function GuideDocument({ events, recsByCategory, offers, members, avatarBuffers, coverImageBuffer, latestUpdate }: GuideData) {
   return (
     <Document title="People Of Lisbon Guide">
       {/* Cover */}
@@ -294,6 +355,53 @@ export function GuideDocument({ events, recsByCategory, offers, members, avatarB
         ))}
         <Text style={styles.signature}>Stephen O'Regan</Text>
         <Text style={styles.signatureRole}>Founder, People Of Lisbon</Text>
+        <Footer />
+      </Page>
+
+      {/* Contents */}
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.eyebrow}>IN THIS GUIDE</Text>
+        <Text style={styles.sectionTitle}>Contents</Text>
+        <View style={styles.rule} />
+        {CONTENTS_ITEMS.map((item) => (
+          <View key={item.num} style={styles.contentsRow}>
+            <Text style={styles.contentsNum}>{item.num}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.contentsTitle}>{item.title}</Text>
+              <Text style={styles.contentsDesc}>{item.desc}</Text>
+            </View>
+          </View>
+        ))}
+        <Footer />
+      </Page>
+
+      {/* The Story */}
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.eyebrow}>OUR STORY</Text>
+        <Text style={styles.sectionTitle}>The Story of People Of Lisbon</Text>
+        <View style={styles.rule} />
+        {STORY_TEXT.split('\n\n').map((para, i) => (
+          <Text key={i} style={styles.body}>{para}</Text>
+        ))}
+        <Footer />
+      </Page>
+
+      {/* Latest From Stephen */}
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.eyebrow}>FROM THE FOUNDER</Text>
+        <Text style={styles.sectionTitle}>Latest From Stephen</Text>
+        <View style={styles.rule} />
+        {latestUpdate ? (
+          <>
+            <Text style={styles.eventTitle}>{latestUpdate.title}</Text>
+            <Text style={styles.eventMeta}>{formatUpdateDate(latestUpdate.published_at)}</Text>
+            {latestUpdate.content.split('\n\n').map((para, i) => (
+              <Text key={i} style={[styles.body, { marginTop: i === 0 ? 12 : 0 }]}>{para}</Text>
+            ))}
+          </>
+        ) : (
+          <Text style={styles.body}>No updates yet — check back soon.</Text>
+        )}
         <Footer />
       </Page>
 
