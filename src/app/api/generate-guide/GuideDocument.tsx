@@ -34,24 +34,6 @@ const styles = StyleSheet.create({
     width: 64,
     marginBottom: 24,
   },
-  coverBadge: {
-    backgroundColor: RED,
-    color: 'white',
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 11,
-    letterSpacing: 1,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    alignSelf: 'flex-start',
-    marginBottom: 18,
-  },
-  coverTitle: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 44,
-    color: INK,
-    lineHeight: 1.05,
-    marginBottom: 20,
-  },
   body: {
     fontFamily: 'Helvetica',
     fontSize: 11.5,
@@ -71,30 +53,15 @@ const styles = StyleSheet.create({
     color: MUTED,
     marginTop: 2,
   },
-
-  // Contents
-  contentsRow: {
+  footer: {
+    position: 'absolute',
+    bottom: 24,
+    left: 48,
+    right: 48,
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 20,
-    paddingBottom: 16,
-    borderBottom: '0.5px solid #E0D9CE',
-  },
-  contentsNum: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 22,
-    color: RED,
-    width: 48,
-  },
-  contentsTitle: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 15,
-    color: INK,
-    marginBottom: 2,
-  },
-  contentsDesc: {
+    justifyContent: 'space-between',
     fontFamily: 'Helvetica',
-    fontSize: 10,
+    fontSize: 8,
     color: MUTED,
   },
 
@@ -152,17 +119,45 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
     fontSize: 13,
     color: 'rgba(255,255,255,0.85)',
+    marginBottom: 8,
   },
-  footer: {
-    position: 'absolute',
-    bottom: 24,
-    left: 48,
-    right: 48,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  coverGeneratedDate: {
     fontFamily: 'Helvetica',
-    fontSize: 8,
+    fontSize: 9,
+    color: 'rgba(255,255,255,0.55)',
+  },
+
+  // Contents
+  contentsRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 20,
+    paddingBottom: 16,
+    borderBottom: '0.5px solid #E0D9CE',
+  },
+  contentsNum: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 22,
+    color: RED,
+    width: 48,
+  },
+  contentsTitle: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 15,
+    color: INK,
+    marginBottom: 2,
+  },
+  contentsDesc: {
+    fontFamily: 'Helvetica',
+    fontSize: 10,
     color: MUTED,
+  },
+  contentsPageNum: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 12,
+    color: MUTED,
+    width: 36,
+    textAlign: 'right',
   },
 
   // Events
@@ -229,7 +224,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     borderBottom: '0.5px solid #E0D9CE',
   },
-  avatar: { width: 56, height: 56, borderRadius: 28, marginRight: 14 },
+  avatar: { width: 56, height: 56, borderRadius: 28, marginRight: 14, objectFit: 'cover' },
   avatarPlaceholder: {
     width: 56, height: 56, borderRadius: 28, marginRight: 14,
     backgroundColor: RED, alignItems: 'center', justifyContent: 'center',
@@ -269,10 +264,21 @@ function formatEventMeta(iso: string, location?: string) {
   }
 }
 
+function formatUpdateDate(iso: string) {
+  try {
+    return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  } catch {
+    return '';
+  }
+}
+
+// Footer page numbers exclude the cover: the cover never renders a Footer,
+// so the cover is physical page 1 but should be invisible to the count.
+// Every other page subtracts 1 from react-pdf's internal pageNumber/totalPages.
 const Footer = () => (
   <View style={styles.footer} fixed>
     <Text>PEOPLE OF LISBON</Text>
-    <Text render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
+    <Text render={({ pageNumber, totalPages }) => `${pageNumber - 1} / ${totalPages - 1}`} />
   </View>
 );
 
@@ -302,23 +308,230 @@ Thank you for being part of the journey. Whether you've appeared in one of our f
 
 And we're only just getting started.`;
 
-const CONTENTS_ITEMS = [
-  { num: '01', title: 'Welcome', desc: 'A letter from our founder' },
-  { num: '02', title: 'The Story of People Of Lisbon', desc: 'How it all began' },
-  { num: '03', title: 'Latest From Stephen', desc: "What's new with the club" },
-  { num: '04', title: 'Upcoming Events', desc: "What's on for members" },
-  { num: '05', title: 'Recommendations', desc: 'Places we love in Lisbon' },
-  { num: '06', title: 'Member Offers', desc: 'Discounts from fellow members' },
-  { num: '07', title: 'Members Directory', desc: 'The people behind the club' },
+export const CONTENTS_SECTIONS = [
+  { key: 'welcome', title: 'Welcome', desc: 'A letter from our founder' },
+  { key: 'story', title: 'The Story of People Of Lisbon', desc: 'How it all began' },
+  { key: 'update', title: 'Latest From Stephen', desc: "What's new with the club" },
+  { key: 'events', title: 'Upcoming Events', desc: "What's on for members" },
+  { key: 'recs', title: 'Recommendations', desc: 'Places we love in Lisbon' },
+  { key: 'offers', title: 'Member Offers', desc: 'Discounts from fellow members' },
+  { key: 'directory', title: 'Members Directory', desc: 'The people behind the club' },
 ];
 
-function formatUpdateDate(iso: string) {
-  try {
-    return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-  } catch {
-    return '';
-  }
+// ---------------------------------------------------------------------------
+// Individual section page builders.
+// Each one starts on its own fresh <Page>, which lets us render any single
+// section in isolation (for page-counting purposes) before assembling the
+// final combined document with accurate Contents page numbers.
+// ---------------------------------------------------------------------------
+
+export function CoverPage({ coverImageBuffer, generatedDate }: { coverImageBuffer: Buffer | null; generatedDate: string }) {
+  return (
+    <Page size="A4" style={styles.coverPage}>
+      <View style={styles.coverWrapper}>
+        {coverImageBuffer && <Image src={coverImageBuffer as any} style={styles.coverImage} />}
+        <View style={styles.coverOverlay} />
+        <View style={styles.coverContent}>
+          <Text style={styles.coverPageBadge}>PEOPLE OF LISBON</Text>
+          <Text style={styles.coverPageTitle}>The Guide</Text>
+          <Text style={styles.coverPageSubtitle}>Lisbon's most interesting people, all in one place.</Text>
+          <Text style={styles.coverGeneratedDate}>Generated on {generatedDate}</Text>
+        </View>
+      </View>
+    </Page>
+  );
 }
+
+export function WelcomePage() {
+  return (
+    <Page size="A4" style={styles.page}>
+      <Text style={styles.eyebrow}>WELCOME</Text>
+      <View style={styles.rule} />
+      {INTRO_TEXT.split('\n\n').map((para, i) => (
+        <Text key={i} style={styles.body}>{para}</Text>
+      ))}
+      <Text style={styles.signature}>Stephen O'Regan</Text>
+      <Text style={styles.signatureRole}>Founder, People Of Lisbon</Text>
+      <Footer />
+    </Page>
+  );
+}
+
+export function ContentsPage({ pages }: { pages: Record<string, number> }) {
+  return (
+    <Page size="A4" style={styles.page}>
+      <Text style={styles.eyebrow}>IN THIS GUIDE</Text>
+      <Text style={styles.sectionTitle}>Contents</Text>
+      <View style={styles.rule} />
+      {CONTENTS_SECTIONS.map((item, i) => (
+        <View key={item.key} style={styles.contentsRow}>
+          <Text style={styles.contentsNum}>{String(i + 1).padStart(2, '0')}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.contentsTitle}>{item.title}</Text>
+            <Text style={styles.contentsDesc}>{item.desc}</Text>
+          </View>
+          <Text style={styles.contentsPageNum}>{pages[item.key] ? `p.${pages[item.key]}` : ''}</Text>
+        </View>
+      ))}
+      <Footer />
+    </Page>
+  );
+}
+
+export function StoryPage() {
+  return (
+    <Page size="A4" style={styles.page}>
+      <Text style={styles.eyebrow}>OUR STORY</Text>
+      <Text style={styles.sectionTitle}>The Story of People Of Lisbon</Text>
+      <View style={styles.rule} />
+      {STORY_TEXT.split('\n\n').map((para, i) => (
+        <Text key={i} style={styles.body}>{para}</Text>
+      ))}
+      <Footer />
+    </Page>
+  );
+}
+
+export function LatestUpdatePage({ latestUpdate }: { latestUpdate: { title: string; content: string; published_at: string } | null }) {
+  return (
+    <Page size="A4" style={styles.page}>
+      <Text style={styles.eyebrow}>FROM THE FOUNDER</Text>
+      <Text style={styles.sectionTitle}>Latest From Stephen</Text>
+      <View style={styles.rule} />
+      {latestUpdate ? (
+        <>
+          <Text style={styles.eventTitle}>{latestUpdate.title}</Text>
+          <Text style={styles.eventMeta}>{formatUpdateDate(latestUpdate.published_at)}</Text>
+          {latestUpdate.content.split('\n\n').map((para, i) => (
+            <Text key={i} style={[styles.body, i === 0 ? { marginTop: 12 } : {}]}>{para}</Text>
+          ))}
+        </>
+      ) : (
+        <Text style={styles.body}>No updates yet — check back soon.</Text>
+      )}
+      <Footer />
+    </Page>
+  );
+}
+
+export function EventsPage({ events }: { events: any[] }) {
+  return (
+    <Page size="A4" style={styles.page}>
+      <Text style={styles.eyebrow}>WHAT'S ON</Text>
+      <Text style={styles.sectionTitle}>Upcoming Events</Text>
+      <View style={styles.rule} />
+      {events.length === 0 && <Text style={styles.body}>No upcoming events at the moment.</Text>}
+      {events.map((e: any, i: number) => {
+        const { day, month } = formatDateBadge(e.starts_at);
+        return (
+          <View key={i} style={styles.eventRow} wrap={false}>
+            <View style={styles.dateBadge}>
+              <Text style={styles.dateDay}>{day}</Text>
+              <Text style={styles.dateMonth}>{month}</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.eventTitle}>{e.title}</Text>
+              <Text style={styles.eventMeta}>{formatEventMeta(e.starts_at, e.location_name)}</Text>
+              {e.description && <Text style={styles.eventDesc}>{e.description}</Text>}
+            </View>
+          </View>
+        );
+      })}
+      <Footer />
+    </Page>
+  );
+}
+
+export function RecommendationsPage({ recsByCategory }: { recsByCategory: Record<string, any[]> }) {
+  return (
+    <Page size="A4" style={styles.page}>
+      <Text style={styles.eyebrow}>OUR PICKS</Text>
+      <Text style={styles.sectionTitle}>Recommendations</Text>
+      <View style={styles.rule} />
+      {Object.keys(recsByCategory).length === 0 && <Text style={styles.body}>No recommendations yet.</Text>}
+      {Object.entries(recsByCategory).map(([category, items]) => (
+        <View key={category}>
+          <Text style={styles.catHeader}>{category}</Text>
+          {items.map((r: any, i: number) => (
+            <View key={i} style={styles.recRow} wrap={false}>
+              <Text style={styles.recName}>{r.name}</Text>
+              {r.description && <Text style={styles.recDesc}>{r.description}</Text>}
+              <Text style={styles.recMeta}>
+                {[r.neighbourhood, r.address].filter(Boolean).join(' · ')}
+                {r.recommended_by ? `  —  Recommended by ${r.recommended_by}` : ''}
+              </Text>
+            </View>
+          ))}
+        </View>
+      ))}
+      <Footer />
+    </Page>
+  );
+}
+
+export function OffersPage({ offers }: { offers: any[] }) {
+  return (
+    <Page size="A4" style={styles.page}>
+      <Text style={styles.eyebrow}>FOR MEMBERS</Text>
+      <Text style={styles.sectionTitle}>Member Offers</Text>
+      <View style={styles.rule} />
+      {offers.length === 0 && <Text style={styles.body}>No active offers right now.</Text>}
+      {offers.map((o: any, i: number) => (
+        <View key={i} style={styles.offerRow} wrap={false}>
+          <View style={styles.offerTopRow}>
+            <Text style={styles.offerTitle}>{o.title}</Text>
+            {o.discount && <Text style={styles.discountPill}>{o.discount}</Text>}
+          </View>
+          {o.partner_name && <Text style={styles.offerPartner}>{o.partner_name}</Text>}
+          {o.description && <Text style={styles.offerDesc}>{o.description}</Text>}
+          {o.how_to_redeem && <Text style={styles.offerRedeem}>How to redeem: {o.how_to_redeem}</Text>}
+        </View>
+      ))}
+      <Footer />
+    </Page>
+  );
+}
+
+export function DirectoryPage({ members, avatarBuffers }: { members: any[]; avatarBuffers: (Buffer | null)[] }) {
+  return (
+    <Page size="A4" style={styles.page}>
+      <Text style={styles.eyebrow}>THE PEOPLE</Text>
+      <Text style={styles.sectionTitle}>Members Directory</Text>
+      <View style={styles.rule} />
+      {members.map((m: any, i: number) => {
+        const buf = avatarBuffers[i];
+        const bioParts = [m.short_bio, m.personal_story, m.favorite_spots ? `Favourite spots: ${m.favorite_spots}` : null]
+          .filter(Boolean);
+        return (
+          <View key={m.id} style={styles.memberRow} wrap={false}>
+            {buf ? (
+              <Image src={buf as any} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Text style={styles.avatarInitials}>{getInitials(m.full_name)}</Text>
+              </View>
+            )}
+            <View style={{ flex: 1 }}>
+              <Text style={styles.memberName}>{m.full_name}</Text>
+              {(m.headline || m.job_title) && (
+                <Text style={styles.memberHeadline}>{m.headline || m.job_title}</Text>
+              )}
+              {m.neighborhood && <Text style={styles.memberMeta}>{m.neighborhood}</Text>}
+              {bioParts.map((b, bi) => (
+                <Text key={bi} style={styles.memberBio}>{b}</Text>
+              ))}
+            </View>
+          </View>
+        );
+      })}
+      <Footer />
+    </Page>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Full assembled document
+// ---------------------------------------------------------------------------
 
 export interface GuideData {
   events: any[];
@@ -328,185 +541,25 @@ export interface GuideData {
   avatarBuffers: (Buffer | null)[];
   coverImageBuffer: Buffer | null;
   latestUpdate: { title: string; content: string; published_at: string } | null;
+  generatedDate: string;
+  sectionPages: Record<string, number>;
 }
 
-export function GuideDocument({ events, recsByCategory, offers, members, avatarBuffers, coverImageBuffer, latestUpdate }: GuideData) {
+export function GuideDocument({
+  events, recsByCategory, offers, members, avatarBuffers,
+  coverImageBuffer, latestUpdate, generatedDate, sectionPages,
+}: GuideData) {
   return (
     <Document title="People Of Lisbon Guide">
-      {/* Cover */}
-      <Page size="A4" style={styles.coverPage}>
-        <View style={styles.coverWrapper}>
-          {coverImageBuffer && <Image src={coverImageBuffer as any} style={styles.coverImage} />}
-          <View style={styles.coverOverlay} />
-          <View style={styles.coverContent}>
-            <Text style={styles.coverPageBadge}>PEOPLE OF LISBON</Text>
-            <Text style={styles.coverPageTitle}>The Guide</Text>
-            <Text style={styles.coverPageSubtitle}>Lisbon's most interesting people, all in one place.</Text>
-          </View>
-        </View>
-      </Page>
-
-      {/* Welcome */}
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.eyebrow}>WELCOME</Text>
-        <View style={styles.rule} />
-        {INTRO_TEXT.split('\n\n').map((para, i) => (
-          <Text key={i} style={styles.body}>{para}</Text>
-        ))}
-        <Text style={styles.signature}>Stephen O'Regan</Text>
-        <Text style={styles.signatureRole}>Founder, People Of Lisbon</Text>
-        <Footer />
-      </Page>
-
-      {/* Contents */}
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.eyebrow}>IN THIS GUIDE</Text>
-        <Text style={styles.sectionTitle}>Contents</Text>
-        <View style={styles.rule} />
-        {CONTENTS_ITEMS.map((item) => (
-          <View key={item.num} style={styles.contentsRow}>
-            <Text style={styles.contentsNum}>{item.num}</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.contentsTitle}>{item.title}</Text>
-              <Text style={styles.contentsDesc}>{item.desc}</Text>
-            </View>
-          </View>
-        ))}
-        <Footer />
-      </Page>
-
-      {/* The Story */}
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.eyebrow}>OUR STORY</Text>
-        <Text style={styles.sectionTitle}>The Story of People Of Lisbon</Text>
-        <View style={styles.rule} />
-        {STORY_TEXT.split('\n\n').map((para, i) => (
-          <Text key={i} style={styles.body}>{para}</Text>
-        ))}
-        <Footer />
-      </Page>
-
-      {/* Latest From Stephen */}
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.eyebrow}>FROM THE FOUNDER</Text>
-        <Text style={styles.sectionTitle}>Latest From Stephen</Text>
-        <View style={styles.rule} />
-        {latestUpdate ? (
-          <>
-            <Text style={styles.eventTitle}>{latestUpdate.title}</Text>
-            <Text style={styles.eventMeta}>{formatUpdateDate(latestUpdate.published_at)}</Text>
-            {latestUpdate.content.split('\n\n').map((para, i) => (
-              <Text key={i} style={[styles.body, { marginTop: i === 0 ? 12 : 0 }]}>{para}</Text>
-            ))}
-          </>
-        ) : (
-          <Text style={styles.body}>No updates yet — check back soon.</Text>
-        )}
-        <Footer />
-      </Page>
-
-      {/* Upcoming Events */}
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.eyebrow}>WHAT'S ON</Text>
-        <Text style={styles.sectionTitle}>Upcoming Events</Text>
-        <View style={styles.rule} />
-        {events.length === 0 && <Text style={styles.body}>No upcoming events at the moment.</Text>}
-        {events.map((e: any, i: number) => {
-          const { day, month } = formatDateBadge(e.starts_at);
-          return (
-            <View key={i} style={styles.eventRow} wrap={false}>
-              <View style={styles.dateBadge}>
-                <Text style={styles.dateDay}>{day}</Text>
-                <Text style={styles.dateMonth}>{month}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.eventTitle}>{e.title}</Text>
-                <Text style={styles.eventMeta}>{formatEventMeta(e.starts_at, e.location_name)}</Text>
-                {e.description && <Text style={styles.eventDesc}>{e.description}</Text>}
-              </View>
-            </View>
-          );
-        })}
-        <Footer />
-      </Page>
-
-      {/* Recommendations */}
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.eyebrow}>OUR PICKS</Text>
-        <Text style={styles.sectionTitle}>Recommendations</Text>
-        <View style={styles.rule} />
-        {Object.keys(recsByCategory).length === 0 && <Text style={styles.body}>No recommendations yet.</Text>}
-        {Object.entries(recsByCategory).map(([category, items]) => (
-          <View key={category}>
-            <Text style={styles.catHeader}>{category}</Text>
-            {items.map((r: any, i: number) => (
-              <View key={i} style={styles.recRow} wrap={false}>
-                <Text style={styles.recName}>{r.name}</Text>
-                {r.description && <Text style={styles.recDesc}>{r.description}</Text>}
-                <Text style={styles.recMeta}>
-                  {[r.neighbourhood, r.address].filter(Boolean).join(' · ')}
-                  {r.recommended_by ? `  —  Recommended by ${r.recommended_by}` : ''}
-                </Text>
-              </View>
-            ))}
-          </View>
-        ))}
-        <Footer />
-      </Page>
-
-      {/* Offers */}
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.eyebrow}>FOR MEMBERS</Text>
-        <Text style={styles.sectionTitle}>Member Offers</Text>
-        <View style={styles.rule} />
-        {offers.length === 0 && <Text style={styles.body}>No active offers right now.</Text>}
-        {offers.map((o: any, i: number) => (
-          <View key={i} style={styles.offerRow} wrap={false}>
-            <View style={styles.offerTopRow}>
-              <Text style={styles.offerTitle}>{o.title}</Text>
-              {o.discount && <Text style={styles.discountPill}>{o.discount}</Text>}
-            </View>
-            {o.partner_name && <Text style={styles.offerPartner}>{o.partner_name}</Text>}
-            {o.description && <Text style={styles.offerDesc}>{o.description}</Text>}
-            {o.how_to_redeem && <Text style={styles.offerRedeem}>How to redeem: {o.how_to_redeem}</Text>}
-          </View>
-        ))}
-        <Footer />
-      </Page>
-
-      {/* Members Directory */}
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.eyebrow}>THE PEOPLE</Text>
-        <Text style={styles.sectionTitle}>Members Directory</Text>
-        <View style={styles.rule} />
-        {members.map((m: any, i: number) => {
-          const buf = avatarBuffers[i];
-          const bioParts = [m.short_bio, m.personal_story, m.favorite_spots ? `Favourite spots: ${m.favorite_spots}` : null]
-            .filter(Boolean);
-          return (
-            <View key={m.id} style={styles.memberRow} wrap={false}>
-              {buf ? (
-                <Image src={buf as any} style={styles.avatar} />
-              ) : (
-                <View style={styles.avatarPlaceholder}>
-                  <Text style={styles.avatarInitials}>{getInitials(m.full_name)}</Text>
-                </View>
-              )}
-              <View style={{ flex: 1 }}>
-                <Text style={styles.memberName}>{m.full_name}</Text>
-                {(m.headline || m.job_title) && (
-                  <Text style={styles.memberHeadline}>{m.headline || m.job_title}</Text>
-                )}
-                {m.neighborhood && <Text style={styles.memberMeta}>{m.neighborhood}</Text>}
-                {bioParts.map((b, bi) => (
-                  <Text key={bi} style={styles.memberBio}>{b}</Text>
-                ))}
-              </View>
-            </View>
-          );
-        })}
-        <Footer />
-      </Page>
+      <CoverPage coverImageBuffer={coverImageBuffer} generatedDate={generatedDate} />
+      <WelcomePage />
+      <ContentsPage pages={sectionPages} />
+      <StoryPage />
+      <LatestUpdatePage latestUpdate={latestUpdate} />
+      <EventsPage events={events} />
+      <RecommendationsPage recsByCategory={recsByCategory} />
+      <OffersPage offers={offers} />
+      <DirectoryPage members={members} avatarBuffers={avatarBuffers} />
     </Document>
   );
 }
