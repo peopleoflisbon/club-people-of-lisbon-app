@@ -2,6 +2,7 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import sharp from 'sharp';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { PDFDocument as PdfLibDocument } from 'pdf-lib';
 import {
@@ -43,17 +44,29 @@ function sanitize<T extends Record<string, any>>(obj: T): T {
   return clean;
 }
 
-// Safely fetch an image as a buffer; never throws, returns null on any failure.
-async function safeFetchImage(url: string | null | undefined): Promise<Buffer | null> {
+// Fetches an image and resizes/compresses it with sharp before it's embedded
+// in the PDF. Member avatars only ever display at ~56pt in a small circle, so
+// embedding the original multi-megabyte phone photo is pure waste — this is
+// what was driving the PDF up to 50+MB. Never throws; returns null on any
+// failure so one broken photo can't take down the whole guide.
+async function safeFetchImage(
+  url: string | null | undefined,
+  opts: { width: number; height: number; quality: number }
+): Promise<Buffer | null> {
   if (!url) return null;
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
+    const timeout = setTimeout(() => controller.abort(), 8000);
     const res = await fetch(url, { signal: controller.signal });
     clearTimeout(timeout);
     if (!res.ok) return null;
     const arrayBuffer = await res.arrayBuffer();
-    return Buffer.from(arrayBuffer);
+    const original = Buffer.from(arrayBuffer);
+    const resized = await sharp(original)
+      .resize(opts.width, opts.height, { fit: 'cover' })
+      .jpeg({ quality: opts.quality })
+      .toBuffer();
+    return resized;
   } catch {
     return null;
   }
@@ -118,8 +131,8 @@ export async function GET(request: Request) {
 
     // Pre-fetch cover image + all member avatars in parallel, safely (never throws)
     const [coverImageBuffer, ...avatarBuffers] = await Promise.all([
-      safeFetchImage(coverImageUrl),
-      ...members.map((m: any) => safeFetchImage(m.avatar_url)),
+      safeFetchImage(coverImageUrl, { width: 1240, height: 1754, quality: 78 }),
+      ...members.map((m: any) => safeFetchImage(m.avatar_url, { width: 200, height: 200, quality: 75 })),
     ]);
 
     // Group recommendations by category
