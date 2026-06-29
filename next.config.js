@@ -2,6 +2,9 @@
 const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
+  experimental: {
+    serverComponentsExternalPackages: ['@react-pdf/renderer'],
+  },
   async redirects() {
     return [
       { source: '/members', destination: '/home', permanent: false, has: [{ type: 'cookie', key: 'sb-access-token' }] },
