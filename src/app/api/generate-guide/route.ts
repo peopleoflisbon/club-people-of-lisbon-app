@@ -21,6 +21,28 @@ import { Document } from '@react-pdf/renderer';
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
+// Strip emojis and other pictographic characters from any text pulled from
+// the database. Helvetica (the PDF's built-in font) has no emoji glyphs, so
+// any emoji left in admin-entered text (event titles, posts, bios, etc.)
+// would render as broken boxes or risk breaking the PDF entirely.
+function stripEmojis(text: string | null | undefined): string {
+  if (!text) return text || '';
+  return text
+    .replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu, '')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/ \n/g, '\n')
+    .trim();
+}
+
+// Shallow-clones an object, running every string property through stripEmojis.
+function sanitize<T extends Record<string, any>>(obj: T): T {
+  const clean: any = { ...obj };
+  for (const key in clean) {
+    if (typeof clean[key] === 'string') clean[key] = stripEmojis(clean[key]);
+  }
+  return clean;
+}
+
 // Safely fetch an image as a buffer; never throws, returns null on any failure.
 async function safeFetchImage(url: string | null | undefined): Promise<Buffer | null> {
   if (!url) return null;
@@ -85,11 +107,11 @@ export async function GET(request: Request) {
         .eq('is_published', true).order('published_at', { ascending: false }).limit(1).maybeSingle(),
     ]);
 
-    const events = eventsRes.data || [];
-    const recs = recsRes.data || [];
-    const offers = offersRes.data || [];
-    const members = membersRes.data || [];
-    const latestUpdate = updateRes.data || null;
+    const events = (eventsRes.data || []).map(sanitize);
+    const recs = (recsRes.data || []).map(sanitize);
+    const offers = (offersRes.data || []).map(sanitize);
+    const members = (membersRes.data || []).map(sanitize);
+    const latestUpdate = updateRes.data ? sanitize(updateRes.data) : null;
 
     const FALLBACK_COVER = 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=85';
     const coverImageUrl = (settingsRes.data as any)?.value || FALLBACK_COVER;
