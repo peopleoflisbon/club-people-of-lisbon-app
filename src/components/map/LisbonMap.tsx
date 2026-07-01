@@ -214,7 +214,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8102E" strokeWidth="2.5">
               <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#C8102E' }}>Exit Map</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#C8102E', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>Exit Map</span>
           </button>
         ) : null}
       </div>

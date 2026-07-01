@@ -8,7 +8,7 @@ const FALLBACK_BG = 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w
 const POL_RED = '#C8102E';
 
 // Text label — replaces logo image on splash screen only
-function PolLabel() {
+function PolLabel({ fontSize = 22 }: { fontSize?: number }) {
   return (
     <div style={{
       display: 'inline-block',
@@ -17,7 +17,7 @@ function PolLabel() {
       marginBottom: 16,
     }}>
       <span style={{
-        fontSize: 15, fontWeight: 700, letterSpacing: '0',
+        fontSize, fontWeight: 700, letterSpacing: '0',
         textTransform: 'none', color: 'white',
         fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       }}>
@@ -166,15 +166,14 @@ export default function GatewayPage() {
           {/* Featured */}
           {featuredPerson && (
             <div style={{ position: 'absolute', top: 40, right: 0, textAlign: 'right', background: 'linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)', padding: '10px 24px 10px 48px' }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.75)', margin: '0 0 3px', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif", letterSpacing: '0.02em' }}>Featured</p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.75)', margin: '0 0 3px', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif", letterSpacing: '0.02em' }}>Featured</p>
               <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: 0, maxWidth: 220, lineHeight: 1.3, textAlign: 'right', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>{featuredPerson}</p>
             </div>
           )}
 
           {/* Hero content block */}
           <div style={{ maxWidth: 680, paddingTop: 0 }}>
-            <PolLabel />
-            <h1 style={{ margin: '0 0 40px', lineHeight: 0.92, letterSpacing: '-0.04em', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+            <PolLabel fontSize={22} />
               <span style={{ display: 'block', fontSize: 'clamp(58px, 6.5vw, 90px)', fontWeight: 900, color: 'white' }}>
                 Lisbon's most
               </span>
@@ -212,12 +211,12 @@ export default function GatewayPage() {
 
             {featuredPerson && (
               <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 24px)', right: 0, textAlign: 'right', background: 'linear-gradient(to left, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 100%)', padding: '8px 16px 8px 32px' }}>
-                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.7)', margin: '0 0 2px', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>Featured</p>
+                <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.7)', margin: '0 0 2px', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>Featured</p>
                 <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0, maxWidth: 180, lineHeight: 1.3, textAlign: 'right', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>{featuredPerson}</p>
               </div>
             )}
 
-            <PolLabel />
+            <PolLabel fontSize={24} />
             <h1 style={{ margin: '0 0 32px', lineHeight: 0.95, letterSpacing: '-0.03em' }}>
               <span style={{ display: 'block', fontSize: 'clamp(46px, 11vw, 66px)', fontWeight: 900, color: 'white' }}>
                 Lisbon's most
@@ -290,7 +289,7 @@ export default function GatewayPage() {
                 cursor: 'pointer', boxShadow: '0 4px 20px rgba(200,16,46,0.4)',
                 boxSizing: 'border-box',
               }}>
-                Enter the Map →
+                Enter The Map →
               </a>
             </div>
 
@@ -303,7 +302,7 @@ export default function GatewayPage() {
             }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
                 <p style={{ margin: 0, fontSize: 16, fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#E6B75C' }}>
-                  Join the Club
+                  Join The Club
                 </p>
                 <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>€10 / month</span>
               </div>
@@ -317,7 +316,7 @@ export default function GatewayPage() {
                 fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
                 boxSizing: 'border-box',
               }}>
-                Join the Club →
+                Join The Club →
               </a>
             </div>
 
@@ -384,7 +383,7 @@ export default function GatewayPage() {
                   fontSize: 13, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase',
                   cursor: loading ? 'not-allowed' : 'pointer',
                 }}>
-                  {loading ? 'Entering…' : 'Enter the Map →'}
+                  {loading ? 'Entering…' : 'Enter The Map →'}
                 </button>
               </form>
             </>) : (<>
