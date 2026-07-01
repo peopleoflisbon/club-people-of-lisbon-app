@@ -278,6 +278,8 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
             background: '#FFFFFF',
             borderTop: '1px solid #EDE7DC',
             paddingBottom: 'max(env(safe-area-inset-bottom), 8px)',
+            transform: 'translateZ(0)',
+            WebkitTransform: 'translateZ(0)',
           }}>
           {NAV_ITEMS.map((item) => {
             const active = isActive(item.href);

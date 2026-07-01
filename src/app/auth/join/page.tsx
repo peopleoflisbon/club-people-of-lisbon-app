@@ -1,9 +1,13 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase';
+
 const POL_RED = '#C8102E';
 const GOLD = '#E6B75C';
-const FF = "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif";
+const FF = "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif";
 const STRIPE_URL = 'https://buy.stripe.com/bIY7tn8AfasP99ebII';
+const FALLBACK_BG = 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1920&q=85';
 
 const PERKS = [
   {
@@ -45,19 +49,41 @@ const PERKS = [
 ];
 
 export default function JoinPage() {
+  const supabase = createClient();
+  const [bgImage, setBgImage] = useState(FALLBACK_BG);
+  const [bgLoaded, setBgLoaded] = useState(false);
+
+  useEffect(() => {
+    supabase.from('app_settings').select('key, value').then(({ data }) => {
+      (data || []).forEach((row: any) => {
+        if (row.key === 'login_background_image_url' && row.value) setBgImage(row.value);
+      });
+    });
+  }, []); // eslint-disable-line
+
   return (
     <div style={{
       minHeight: '100dvh', background: '#0a0a0a',
       fontFamily: FF, display: 'flex', flexDirection: 'column', alignItems: 'center',
+      position: 'relative',
     }}>
-      <div style={{ width: '100%', maxWidth: 480, padding: '0 0 48px' }}>
+      {/* Background image */}
+      <img src={bgImage} alt="" onLoad={() => setBgLoaded(true)} style={{
+        position: 'fixed', inset: 0, width: '100%', height: '100%',
+        objectFit: 'cover', objectPosition: 'center top',
+        transition: 'opacity 0.6s ease', opacity: bgLoaded ? 1 : 0,
+        zIndex: 0,
+      }} />
+      {/* Dark overlay */}
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.78)', zIndex: 1 }} />
+
+      <div style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: 480, padding: '0 0 48px' }}>
 
         {/* Header */}
-        <div style={{ padding: 'max(env(safe-area-inset-top), 20px) 24px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <a href="/auth/login" style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>
+        <div style={{ padding: 'max(env(safe-area-inset-top), 20px) 24px 0', display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+          <a href="/auth/login" style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>
             Back
           </a>
-          <img src="/pol-logo.png" alt="People Of Lisbon" style={{ width: 36, height: 36, objectFit: 'contain' }} />
         </div>
 
         {/* Hero */}

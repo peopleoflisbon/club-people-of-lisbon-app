@@ -19,7 +19,7 @@ function PolLabel({ fontSize = 22 }: { fontSize?: number }) {
       <span style={{
         fontSize, fontWeight: 700, letterSpacing: '0',
         textTransform: 'none', color: 'white',
-        fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif",
       }}>
         People Of Lisbon
       </span>
@@ -104,7 +104,7 @@ export default function GatewayPage() {
     setForgotSent(true); setLoading(false);
   }
 
-  const ff = "'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif";
+  const ff = "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif";
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#0a0a0a', overflow: 'hidden', fontFamily: ff }}>
@@ -166,15 +166,15 @@ export default function GatewayPage() {
           {/* Featured */}
           {featuredPerson && (
             <div style={{ position: 'absolute', top: 40, right: 0, textAlign: 'right', background: 'linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)', padding: '10px 24px 10px 48px' }}>
-              <p style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.75)', margin: '0 0 3px', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif", letterSpacing: '0.02em' }}>Featured</p>
-              <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: 0, maxWidth: 220, lineHeight: 1.3, textAlign: 'right', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>{featuredPerson}</p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.75)', margin: '0 0 3px', fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif", letterSpacing: '0.02em' }}>Featured</p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: 0, maxWidth: 220, lineHeight: 1.3, textAlign: 'right', fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif" }}>{featuredPerson}</p>
             </div>
           )}
 
           {/* Hero content block */}
           <div style={{ maxWidth: 680, paddingTop: 0 }}>
             <PolLabel fontSize={22} />
-            <h1 style={{ margin: '0 0 40px', lineHeight: 0.92, letterSpacing: '-0.04em', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+            <h1 style={{ margin: '0 0 40px', lineHeight: 0.92, letterSpacing: '-0.04em', fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif" }}>
               <span style={{ display: 'block', fontSize: 'clamp(58px, 6.5vw, 90px)', fontWeight: 900, color: 'white' }}>
                 Lisbon's most
               </span>
@@ -195,7 +195,7 @@ export default function GatewayPage() {
               fontSize: 22, fontWeight: 700, letterSpacing: '0.02em', textTransform: 'none',
               cursor: 'pointer', boxShadow: '0 8px 40px rgba(200,16,46,0.55)',
               display: 'inline-block',
-              fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+              fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif",
             }}>
               Enter →
             </button>
@@ -212,8 +212,8 @@ export default function GatewayPage() {
 
             {featuredPerson && (
               <div style={{ position: 'absolute', top: 'max(env(safe-area-inset-top), 24px)', right: 0, textAlign: 'right', background: 'linear-gradient(to left, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 100%)', padding: '8px 16px 8px 32px' }}>
-                <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.7)', margin: '0 0 2px', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>Featured</p>
-                <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0, maxWidth: 180, lineHeight: 1.3, textAlign: 'right', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>{featuredPerson}</p>
+                <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.7)', margin: '0 0 2px', fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif" }}>Featured</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: 0, maxWidth: 180, lineHeight: 1.3, textAlign: 'right', fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif" }}>{featuredPerson}</p>
               </div>
             )}
 
@@ -238,7 +238,7 @@ export default function GatewayPage() {
               background: POL_RED, color: 'white', border: 'none', borderRadius: 2,
               fontSize: 24, fontWeight: 700, letterSpacing: '0', textTransform: 'none',
               cursor: 'pointer', boxShadow: '0 6px 32px rgba(200,16,46,0.5)',
-              fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+              fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif",
             }}>
               Enter →
             </button>
@@ -257,9 +257,8 @@ export default function GatewayPage() {
         }}>
           <div style={{ width: '100%', maxWidth: 500, padding: '72px 24px calc(env(safe-area-inset-bottom) + 24px)' }}>
 
-            {/* Logo + back */}
-            <div style={{ position: 'fixed', top: 'max(env(safe-area-inset-top), 20px)', left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 28px', zIndex: 20 }}>
-              <LogoImg size={40} />
+            {/* Back */}
+            <div style={{ position: 'fixed', top: 'max(env(safe-area-inset-top), 20px)', right: 28, zIndex: 20 }}>
               <button onClick={() => setScreen('splash')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.45)', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0 }}>
                 ← Back
               </button>
@@ -286,7 +285,7 @@ export default function GatewayPage() {
                 background: POL_RED, color: 'white', textDecoration: 'none', textAlign: 'center',
                 border: 'none', borderRadius: 2,
                 fontSize: 13, fontWeight: 700, letterSpacing: '0', textTransform: 'none',
-                fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+                fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif",
                 cursor: 'pointer', boxShadow: '0 4px 20px rgba(200,16,46,0.4)',
                 boxSizing: 'border-box',
               }}>
@@ -314,7 +313,7 @@ export default function GatewayPage() {
                 display: 'block', width: '100%', padding: '15px',
                 background: '#E6B75C', color: '#1C1C1C', textDecoration: 'none', textAlign: 'center',
                 borderRadius: 2, fontSize: 13, fontWeight: 700, letterSpacing: '0', textTransform: 'none',
-                fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+                fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif",
                 boxSizing: 'border-box',
               }}>
                 Join The Club →
@@ -328,7 +327,7 @@ export default function GatewayPage() {
                 display: 'inline-flex', alignItems: 'center', gap: 8,
                 fontSize: 15, fontWeight: 900, color: 'white', textDecoration: 'none',
                 letterSpacing: '0', textTransform: 'none',
-                fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+                fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif",
                 padding: '13px 28px', border: '2px solid rgba(255,255,255,0.4)', borderRadius: 4,
               }}>
                 Member Sign In →

@@ -32,10 +32,9 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Unified SF UI Display font system ── */
+/* ── Cross-platform system font stack ── */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF UI Display',
-    'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif;
   background-color: var(--bg);
   color: var(--text);
   overscroll-behavior: none;
@@ -47,7 +46,7 @@ body {
 p, span, div { color: inherit; }
 
 /* ============================================================
-   Typography — SF UI Display hierarchy
+   Typography
    ============================================================ */
 
 /* H1: large, bold — strong editorial presence */
@@ -80,8 +79,7 @@ p {
 
 /* Display class — large editorial headings */
 .font-display {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF UI Display',
-    'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif;
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.1;
@@ -89,16 +87,14 @@ p {
 
 /* Subheading / label */
 .font-subheading {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF UI Display',
-    'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
 /* Body text — slightly more readable spacing */
 .font-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF UI Text',
-    'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif;
   font-weight: 400;
   line-height: 1.65;
 }

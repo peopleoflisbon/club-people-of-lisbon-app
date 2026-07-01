@@ -253,14 +253,16 @@ export default function MessagesClient({ conversations, userId, initialConversat
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => {
-                    // Enter always adds a new line — send via button only
-                    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                    // Enter sends, Shift+Enter adds new line
+                    if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
                       sendMessage();
                     }
                   }}
                   placeholder="Write a message…"
                   rows={1}
+                  autoCapitalize="sentences"
+                  autoCorrect="on"
                   className="flex-1 resize-none px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 text-sm text-ink placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all max-h-32 overflow-y-auto"
                 />
                 <button
