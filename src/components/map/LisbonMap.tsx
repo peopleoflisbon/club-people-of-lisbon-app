@@ -42,6 +42,14 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
   const [hoverPin,         setHoverPin]         = useState<MapPin | null>(null);
   const [hoverPos,         setHoverPos]         = useState({ x: 0, y: 0 });
 
+  // Fix iOS overscroll bounce strip — set body bg to match the bottom bar
+  useEffect(() => {
+    if (!isMapUser) return;
+    const prev = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = '#C8102E';
+    return () => { document.body.style.backgroundColor = prev; };
+  }, [isMapUser]); // eslint-disable-line
+
   useEffect(() => {
     if (!isMapUser) return;
     if (!localStorage.getItem(FIRST_VISIT_KEY)) setShowOverlay(true);
