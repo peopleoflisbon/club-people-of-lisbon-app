@@ -300,7 +300,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             onClick={() => { setSelectedPin(null); setPlayingVideo(false); }} />
 
           <div className="fixed left-0 right-0 z-30 lg:absolute lg:bottom-6 lg:top-auto lg:right-4 lg:left-auto lg:w-80"
-            style={{ bottom: isMapUser ? 56 : 'calc(env(safe-area-inset-bottom) + 72px)' }}>
+            style={{ bottom: isMapUser ? 52 : 'calc(env(safe-area-inset-bottom) + 72px)' }}>
             <div style={{ background: 'rgba(250,248,244,0.98)', backdropFilter: 'blur(20px)', borderRadius: '20px 20px 0 0', boxShadow: '0 -8px 40px rgba(0,0,0,0.15)', overflow: 'hidden' }}
               className="lg:rounded-2xl">
               {/* Drag handle */}
@@ -412,7 +412,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
           fontSize: 13,
           fontWeight: 700,
           fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
-          height: 56,
+          height: 52,
           letterSpacing: '0.01em',
         }}>
           Join the Club →
