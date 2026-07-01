@@ -98,7 +98,7 @@ export function memberToSticker(m: any, rank: number): StickerDef {
     type: 'member',
     source_id: m.id,
     name: m.full_name,
-    subtitle: [m.job_title || m.headline, m.neighborhood].filter(Boolean).join(' · '),
+    subtitle: m.job_title || m.headline || '',
     image_url: m.avatar_url || null,
     number: 1 + rank,
   };

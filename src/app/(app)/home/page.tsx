@@ -82,7 +82,7 @@ export default async function HomePage() {
   const todayLisbon = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Lisbon' });
   const { data: packetRow } = await (supabase as any).from('user_sticker_packets')
     .select('last_opened_date').eq('user_id', userId).maybeSingle();
-  const { data: stickerCount } = await (supabase as any).from('user_sticker_collection')
+  const { count: stickerCount } = await (supabase as any).from('user_sticker_collection')
     .select('id', { count: 'exact', head: true }).eq('user_id', userId);
   const stickerPacketAvailable = !packetRow || packetRow.last_opened_date !== todayLisbon;
 

@@ -250,13 +250,6 @@ export default function AppShell({ children, profile, brandLogoUrl }: AppShellPr
             <BrandLogo src={brandLogoUrl} size={36} />
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            {profile.role === 'admin' && (
-              <Link href="/admin"
-                className="text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"
-                style={{ background: '#E6B75C', color: '#1C1C1C' }}>
-                Admin
-              </Link>
-            )}
             <Link href="/profile">
               <Avatar src={profile.avatar_url} name={profile.full_name} size="sm" />
             </Link>
