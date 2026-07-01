@@ -78,6 +78,14 @@ export default async function HomePage() {
     admin.from('membership_offers').select('id, title, partner_name, partner_url, discount').eq('is_active', true).order('display_order', { ascending: true }),
   ]);
 
+  // Check if user has a sticker packet available today (Lisbon timezone)
+  const todayLisbon = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Lisbon' });
+  const { data: packetRow } = await (supabase as any).from('user_sticker_packets')
+    .select('last_opened_date').eq('user_id', userId).maybeSingle();
+  const { data: stickerCount } = await (supabase as any).from('user_sticker_collection')
+    .select('id', { count: 'exact', head: true }).eq('user_id', userId);
+  const stickerPacketAvailable = !packetRow || packetRow.last_opened_date !== todayLisbon;
+
   const { data: stephenProfile } = await (supabase as any)
     .from('profiles')
     .select('full_name, avatar_url')
@@ -109,6 +117,8 @@ export default async function HomePage() {
       latestRec={latestRec}
       nextMemberEvent={nextMemberEvent}
       latestOffer={latestOffer}
+      stickerPacketAvailable={stickerPacketAvailable}
+      stickerCount={(stickerCount as any)?.count || 0}
     />
   );
 }

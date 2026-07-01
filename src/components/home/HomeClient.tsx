@@ -98,9 +98,11 @@ interface Props {
   latestRec?: { id: string; name: string; category: string; neighbourhood: string; image_url?: string } | null;
   nextMemberEvent?: { id: string; name: string; event_date: string; event_time: string; location: string; submitted_by: string } | null;
   latestOffer?: { id: string; title: string; partner_name: string; partner_url: string; discount: string } | null;
+  stickerPacketAvailable?: boolean;
+  stickerCount?: number;
 }
 
-export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl, latestRec, nextMemberEvent, latestOffer }: Props) {
+export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl, latestRec, nextMemberEvent, latestOffer, stickerPacketAvailable, stickerCount }: Props) {
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
   const gap = 18;
   const pad = '0 16px';
@@ -386,6 +388,53 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
             </Link>
           </div>
         )}
+
+        {/* ─── STICKER COLLECTION ───────────────────────── */}
+        <div style={{ padding: pad, marginBottom: gap }}>
+          <Head eye="Daily Drop" title="Sticker Collection" href="/stickers" seeMore="See collection" />
+          <Link href={stickerPacketAvailable ? '/stickers/open' : '/stickers'} style={{ display: 'block', textDecoration: 'none' }}>
+            <div style={{
+              background: INK,
+              borderRadius: RADIUS,
+              overflow: 'hidden',
+              position: 'relative',
+            }}>
+              {/* Subtle red glow */}
+              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 60% at 50% 30%, rgba(200,16,46,0.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
+              <div style={{ position: 'relative', zIndex: 1, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
+                {/* Mini packet icon */}
+                <div style={{
+                  width: 52, height: 68, borderRadius: 5, background: RED,
+                  border: '2px solid #C8A84B', flexShrink: 0, display: 'flex',
+                  flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
+                }}>
+                  <span style={{ fontSize: 7, fontWeight: 800, letterSpacing: '.1em', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>POL</span>
+                  <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>🃏</span>
+                  <span style={{ fontSize: 5.5, color: '#C8A84B', letterSpacing: 3 }}>◆◆◆</span>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <Eye t="People Of Lisbon" color={RED} />
+                  <h3 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: '0 0 4px', letterSpacing: '-0.02em', lineHeight: 1.1, fontFamily: FF }}>
+                    {stickerPacketAvailable ? 'Your packet is ready' : 'Sticker Collection'}
+                  </h3>
+                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', margin: '0 0 10px', fontFamily: FF }}>
+                    {stickerPacketAvailable
+                      ? 'Tap to open today\'s sticker'
+                      : `${stickerCount || 0} stickers collected · New one tomorrow`}
+                  </p>
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    background: stickerPacketAvailable ? RED : 'rgba(255,255,255,0.1)',
+                    color: '#fff', padding: '7px 14px', borderRadius: 4,
+                    fontSize: 10, fontWeight: 900, letterSpacing: '.12em', textTransform: 'uppercase', fontFamily: FF,
+                  }}>
+                    {stickerPacketAvailable ? 'Open Packet →' : 'View Collection →'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
 
       </div>
     </ScrollPage>
