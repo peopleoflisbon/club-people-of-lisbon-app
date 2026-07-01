@@ -8,6 +8,8 @@ export default function ScrollPage({ children, className = '' }: { children: Rea
   return (
     <div className={`flex-1 overflow-y-auto overscroll-contain ${className}`}>
       {children}
+      {/* Spacer so content clears the fixed mobile bottom nav bar */}
+      <div className="h-24 lg:h-0 flex-shrink-0" />
     </div>
   );
 }

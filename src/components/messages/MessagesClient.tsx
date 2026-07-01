@@ -275,6 +275,9 @@ export default function MessagesClient({ conversations, userId, initialConversat
                 </button>
               </div>
             </div>
+            {/* Mobile nav spacer — pushes input above fixed bottom nav */}
+            <div className="lg:hidden bg-white flex-shrink-0"
+              style={{ height: 'calc(52px + max(env(safe-area-inset-bottom), 8px))' }} />
           </>
         )}
       </div>
