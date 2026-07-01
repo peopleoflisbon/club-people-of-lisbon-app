@@ -54,7 +54,7 @@ export default async function HomePage() {
   ] = await Promise.all([
     supabase.from('profiles').select('full_name, avatar_url, neighborhood').eq('id', userId).single(),
     supabase.from('profiles')
-      .select('id, full_name, avatar_url, headline, neighborhood, joined_at')
+      .select('id, full_name, avatar_url, headline, job_title, neighborhood, joined_at')
       .eq('is_active', true)
       .neq('id', userId)
       .not('avatar_url', 'is', null).neq('avatar_url', '')

@@ -88,7 +88,7 @@ const imgText: React.CSSProperties = {
 
 interface Props {
   profile: { full_name: string; avatar_url: string; neighborhood: string } | null;
-  recentMembers: { id: string; full_name: string; avatar_url: string; headline: string; neighborhood: string; joined_at: string }[];
+  recentMembers: { id: string; full_name: string; avatar_url: string; headline: string; job_title?: string; neighborhood: string; joined_at: string }[];
   upcomingEvents: { id: string; title: string; starts_at: string; location_name: string; status: string; image_url?: string }[];
   latestPhoto: { id: string; image_url: string; title: string; caption: string } | null;
   latestUpdate: { id: string; title: string; published_at: string } | null;
@@ -227,11 +227,16 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                   style={{ display: 'flex', alignItems: 'center', gap: 14, ...card, padding: '16px 18px', textDecoration: 'none' }}>
                   <Avatar src={member.avatar_url} name={member.full_name} size="xl" />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 18, fontWeight: 900, color: INK, margin: '0 0 3px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+                    <p style={{ fontSize: 18, fontWeight: 900, color: INK, margin: '0 0 2px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
                       {member.full_name}
                     </p>
+                    {member.job_title && (
+                      <p style={{ fontSize: 13, fontWeight: 700, color: RED, margin: '0 0 2px' }}>
+                        {member.job_title}
+                      </p>
+                    )}
                     {member.headline && (
-                      <p style={{ fontSize: 13, color: MUTED, margin: '0 0 7px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <p style={{ fontSize: 13, color: MUTED, margin: '0 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {member.headline}
                       </p>
                     )}
@@ -318,18 +323,21 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
 
             {/* Latest offer */}
             {latestOffer && (
-              <div style={{ background: '#fff', borderRadius: RADIUS, border: '1px solid #EDE7DC', borderLeft: `4px solid ${RED}`, padding: '16px 18px', marginTop: 2 }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    {latestOffer.partner_name && <p style={{ fontSize: 11, fontWeight: 700, color: RED, letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 3px', fontFamily: FF }}>{latestOffer.partner_name}</p>}
-                    <p style={{ fontSize: 22, fontWeight: 900, color: INK, margin: 0, fontFamily: FF, letterSpacing: '-0.02em', lineHeight: 1.1 }}>{latestOffer.title}</p>
+              <div>
+                <Head eye="For members" title="Member Offers" href="/membership-card" seeMore="See more" />
+                <div style={{ background: '#fff', borderRadius: RADIUS, border: '1px solid #EDE7DC', borderLeft: `4px solid ${RED}`, padding: '16px 18px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      {latestOffer.partner_name && <p style={{ fontSize: 11, fontWeight: 700, color: RED, letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 3px', fontFamily: FF }}>{latestOffer.partner_name}</p>}
+                      <p style={{ fontSize: 22, fontWeight: 900, color: INK, margin: 0, fontFamily: FF, letterSpacing: '-0.02em', lineHeight: 1.1 }}>{latestOffer.title}</p>
+                    </div>
+                    {latestOffer.discount && (
+                      <span style={{ flexShrink: 0, background: '#FDECEA', border: `1.5px solid ${RED}`, color: RED, borderRadius: 8, padding: '5px 12px', fontSize: 13, fontWeight: 800, fontFamily: FF }}>{latestOffer.discount}</span>
+                    )}
                   </div>
-                  {latestOffer.discount && (
-                    <span style={{ flexShrink: 0, background: '#FDECEA', border: `1.5px solid ${RED}`, color: RED, borderRadius: 8, padding: '5px 12px', fontSize: 13, fontWeight: 800, fontFamily: FF }}>{latestOffer.discount}</span>
-                  )}
                 </div>
-                <Link href="/membership-card" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: INK, color: '#fff', borderRadius: 6, padding: '9px 16px', fontSize: 12, fontWeight: 700, textDecoration: 'none', fontFamily: FF, letterSpacing: '0.03em', marginTop: 4 }}>
-                  More Offers →
+                <Link href="/membership-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 8, padding: '10px', background: '#fff', border: `1.5px solid ${RED}`, borderRadius: 6, fontSize: 13, fontWeight: 700, color: RED, textDecoration: 'none', fontFamily: FF }}>
+                  See more →
                 </Link>
               </div>
             )}

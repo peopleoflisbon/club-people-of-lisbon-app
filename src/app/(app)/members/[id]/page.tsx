@@ -198,6 +198,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
 
         </div>
       </div>
+      <div className="h-24 lg:h-0 flex-shrink-0" />
     </div>
   );
 }

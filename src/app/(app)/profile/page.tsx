@@ -56,6 +56,7 @@ export default async function ProfilePage() {
 
         <ProfileForm profile={profile} />
       </div>
+      <div className="h-24 lg:h-0 flex-shrink-0" />
     </div>
   );
 }

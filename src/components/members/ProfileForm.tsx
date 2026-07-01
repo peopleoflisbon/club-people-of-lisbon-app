@@ -151,13 +151,6 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
             <label className="pol-label">Full Name</label>
             <input className="pol-input" value={form.full_name} onChange={(e) => set('full_name', e.target.value)} placeholder="Ana Rodrigues" />
           </div>
-          <div>
-            <label className="pol-label">Neighborhood</label>
-            <select className="pol-input" value={form.neighborhood} onChange={(e) => set('neighborhood', e.target.value)}>
-              <option value="">Select neighborhood</option>
-              {LISBON_NEIGHBORHOODS.map((n) => <option key={n} value={n}>{n}</option>)}
-            </select>
-          </div>
         </div>
 
         <div>
@@ -171,23 +164,8 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         </div>
 
         <div>
-          <label className="pol-label">Company / Project</label>
-          <input className="pol-input" value={form.company} onChange={(e) => set('company', e.target.value)} placeholder="People Of Lisbon, Acme Corp…" />
-        </div>
-
-        <div>
           <label className="pol-label">Short Bio</label>
           <textarea className="pol-textarea" rows={5} value={form.short_bio} onChange={(e) => set('short_bio', e.target.value)} placeholder="A few sentences about you…" />
-        </div>
-
-        <div>
-          <label className="pol-label">My Lisbon Story</label>
-          <textarea className="pol-textarea" rows={6} value={form.personal_story} onChange={(e) => set('personal_story', e.target.value)} placeholder="How did you end up in Lisbon? What keeps you here?" />
-        </div>
-
-        <div>
-          <label className="pol-label">Favourite Lisbon Spots</label>
-          <textarea className="pol-textarea" rows={3} value={form.favorite_spots} onChange={(e) => set('favorite_spots', e.target.value)} placeholder="Pastéis de Belém for breakfast, sunset at Miradouro da Graça…" />
         </div>
       </div>
 

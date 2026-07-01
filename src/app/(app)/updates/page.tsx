@@ -91,6 +91,7 @@ export default async function UpdatesPage() {
           </div>
         )}
       </div>
+      <div className="h-24 lg:h-0 flex-shrink-0" />
     </div></div>
   );
 }
