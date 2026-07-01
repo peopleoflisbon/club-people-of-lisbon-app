@@ -42,12 +42,17 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
   const [hoverPin,         setHoverPin]         = useState<MapPin | null>(null);
   const [hoverPos,         setHoverPos]         = useState({ x: 0, y: 0 });
 
-  // Fix iOS overscroll bounce strip — set body bg to match the bottom bar
+  // Fix iOS overscroll bounce strip — set body AND html bg to match the bottom bar
   useEffect(() => {
     if (!isMapUser) return;
-    const prev = document.body.style.backgroundColor;
+    const prevBody = document.body.style.backgroundColor;
+    const prevHtml = document.documentElement.style.backgroundColor;
     document.body.style.backgroundColor = '#C8102E';
-    return () => { document.body.style.backgroundColor = prev; };
+    document.documentElement.style.backgroundColor = '#C8102E';
+    return () => {
+      document.body.style.backgroundColor = prevBody;
+      document.documentElement.style.backgroundColor = prevHtml;
+    };
   }, [isMapUser]); // eslint-disable-line
 
   useEffect(() => {
@@ -308,7 +313,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             onClick={() => { setSelectedPin(null); setPlayingVideo(false); }} />
 
           <div className="fixed left-0 right-0 z-30 lg:absolute lg:bottom-6 lg:top-auto lg:right-4 lg:left-auto lg:w-80"
-            style={{ bottom: isMapUser ? 56 : 'calc(env(safe-area-inset-bottom) + 72px)' }}>
+            style={{ bottom: isMapUser ? 140 : 'calc(env(safe-area-inset-bottom) + 72px)' }}>
             <div style={{ background: 'rgba(250,248,244,0.98)', backdropFilter: 'blur(20px)', borderRadius: '20px 20px 0 0', boxShadow: '0 -8px 40px rgba(0,0,0,0.15)', overflow: 'hidden' }}
               className="lg:rounded-2xl">
               {/* Drag handle */}
@@ -420,7 +425,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
           fontSize: 13,
           fontWeight: 700,
           fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
-          height: 56,
+          height: 140,
           letterSpacing: '0.01em',
         }}>
           Join the Club →
