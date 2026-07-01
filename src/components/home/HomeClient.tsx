@@ -38,7 +38,7 @@ const Eye = ({ t, color = MUTED }: { t: string; color?: string }) => (
 );
 
 // ─── Section row header ───────────────────────────────────
-const Head = ({ eye, title, href }: { eye: string; title: string; href?: string }) => (
+const Head = ({ eye, title, href, seeMore = 'See all' }: { eye: string; title: string; href?: string; seeMore?: string }) => (
   <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 14 }}>
     <div>
       <Eye t={eye} color={RED} />
@@ -46,7 +46,7 @@ const Head = ({ eye, title, href }: { eye: string; title: string; href?: string 
     </div>
     {href && (
       <Link href={href} style={{ fontSize: 12, fontWeight: 700, color: RED, textDecoration: 'none', whiteSpace: 'nowrap', marginLeft: 12, paddingBottom: 2, fontFamily: FF }}>
-        See all →
+        {seeMore} →
       </Link>
     )}
   </div>
@@ -102,7 +102,6 @@ interface Props {
 
 export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl, latestRec, nextMemberEvent, latestOffer }: Props) {
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
-  const newestMember = recentMembers[0] || null;
   const gap = 18;
   const pad = '0 16px';
 
@@ -218,31 +217,35 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
           </div>
         )}
 
-        {/* ─── 4. NEW MEMBER ────────────────────────────── */}
-        {newestMember && (
+        {/* ─── 4. NEW MEMBERS ───────────────────────────── */}
+        {recentMembers.length > 0 && (
           <div style={{ padding: pad, marginBottom: gap }}>
-            <Head eye="New to the club" title="Say Hello" href="/members" />
-            <Link href={`/members/${newestMember.id}`}
-              style={{ display: 'flex', alignItems: 'center', gap: 14, ...card, padding: '16px 18px', textDecoration: 'none' }}>
-              <Avatar src={newestMember.avatar_url} name={newestMember.full_name} size="xl" />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 22, fontWeight: 900, color: INK, margin: '0 0 3px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
-                  {newestMember.full_name}
-                </p>
-                {newestMember.headline && (
-                  <p style={{ fontSize: 13, color: MUTED, margin: '0 0 7px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {newestMember.headline}
-                  </p>
-                )}
-                {newestMember.neighborhood && (
-                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', color: RED,
-                    background: '#EAF2F8', padding: '3px 8px', borderRadius: 5, display: 'inline-block' }}>
-                    {newestMember.neighborhood}
-                  </span>
-                )}
-              </div>
-              <Chev />
-            </Link>
+            <Head eye="New to the club" title="Say Hello" href="/members" seeMore="See more" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {recentMembers.slice(0, 3).map((member) => (
+                <Link key={member.id} href={`/members/${member.id}`}
+                  style={{ display: 'flex', alignItems: 'center', gap: 14, ...card, padding: '16px 18px', textDecoration: 'none' }}>
+                  <Avatar src={member.avatar_url} name={member.full_name} size="xl" />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 18, fontWeight: 900, color: INK, margin: '0 0 3px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+                      {member.full_name}
+                    </p>
+                    {member.headline && (
+                      <p style={{ fontSize: 13, color: MUTED, margin: '0 0 7px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {member.headline}
+                      </p>
+                    )}
+                    {member.neighborhood && (
+                      <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', color: RED,
+                        background: '#EAF2F8', padding: '3px 8px', borderRadius: 5, display: 'inline-block' }}>
+                        {member.neighborhood}
+                      </span>
+                    )}
+                  </div>
+                  <Chev />
+                </Link>
+              ))}
+            </div>
           </div>
         )}
 
@@ -266,48 +269,52 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
 
         {/* ─── 7. PORTUGUESE PHRASE ─────────────────────── */}
         <div style={{ padding: pad, marginBottom: gap }}>
+          <Head eye="Language" title="Practice Portuguese" />
           <PortuguesePhrase />
         </div>
 
         {/* ─── 8. MODULES ───────────────────────────────── */}
         <div style={{ padding: pad, marginBottom: gap }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {/* Recommendations — with image preview */}
-            <Link href="/recommendations" style={{ display: 'block', ...card, textDecoration: 'none' }}>
-              {latestRec?.image_url ? (
-                <div style={{ position: 'relative', height: 150, overflow: 'hidden' }}>
-                  <img src={latestRec.image_url} alt={latestRec.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                  <ImgOverlay />
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 16px' }}>
-                    <p style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 3px', lineHeight: 1.1, letterSpacing: '-0.02em', ...imgText }}>{latestRec.name}</p>
-                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, ...imgText }}>
-                      {latestRec.category}{latestRec.neighbourhood ? ` · ${latestRec.neighbourhood}` : ''}
-                    </p>
-                  </div>
-                  <div style={{ position: 'absolute', top: 12, left: 12, background: RED, borderRadius: 8, padding: '5px 10px' }}>
-                    <p style={{ fontSize: 10, fontWeight: 700, color: '#fff', textTransform: 'uppercase', margin: 0, letterSpacing: '0.08em' }}>Our Recommendations</p>
-                  </div>
-                </div>
-              ) : (
-                <div style={{ borderLeft: `4px solid ${RED}`, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ flex: 1 }}>
-                    <Eye t="Curated by POL" color={RED} />
-                    <p style={{ fontSize: 16, fontWeight: 700, color: INK, margin: '0 0 2px', fontFamily: FF }}>Our Recommendations</p>
-                    {latestRec ? (
-                      <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>
-                        Latest: <span style={{ fontWeight: 600, color: INK }}>{latestRec.name}</span>
-                        {latestRec.neighbourhood ? ` · ${latestRec.neighbourhood}` : ''}
+
+            {/* Our Recommendations heading + card */}
+            <div>
+              <Head eye="Curated by POL" title="Our Recommendations" />
+              <Link href="/recommendations" style={{ display: 'block', ...card, textDecoration: 'none' }}>
+                {latestRec?.image_url ? (
+                  <div style={{ position: 'relative', height: 150, overflow: 'hidden' }}>
+                    <img src={latestRec.image_url} alt={latestRec.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    <ImgOverlay />
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 16px' }}>
+                      <p style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 3px', lineHeight: 1.1, letterSpacing: '-0.02em', ...imgText }}>{latestRec.name}</p>
+                      <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, ...imgText }}>
+                        {latestRec.category}{latestRec.neighbourhood ? ` · ${latestRec.neighbourhood}` : ''}
                       </p>
-                    ) : (
-                      <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>Restaurants, cafés & experiences</p>
-                    )}
+                    </div>
                   </div>
-                  <Chev />
-                </div>
-              )}
-            </Link>
-            <Mod href="/member-events" eye="Community"    title="Member Events"            sub="Events posted by club members" />
-            <Mod href="/membership-card" eye="Members only"  title="Membership Card + Offers" sub="Your card and member discounts" />
+                ) : (
+                  <div style={{ borderLeft: `4px solid ${RED}`, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ flex: 1 }}>
+                      {latestRec ? (
+                        <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>
+                          Latest: <span style={{ fontWeight: 600, color: INK }}>{latestRec.name}</span>
+                          {latestRec.neighbourhood ? ` · ${latestRec.neighbourhood}` : ''}
+                        </p>
+                      ) : (
+                        <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>Restaurants, cafes and experiences</p>
+                      )}
+                    </div>
+                    <Chev />
+                  </div>
+                )}
+              </Link>
+              <Link href="/recommendations" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 8, padding: '10px', background: '#fff', border: `1.5px solid ${RED}`, borderRadius: 6, fontSize: 13, fontWeight: 700, color: RED, textDecoration: 'none', fontFamily: FF }}>
+                See more →
+              </Link>
+            </div>
+
+            <Mod href="/member-events" eye="Community" title="Member Events" sub="Events posted by club members" />
+            <Mod href="/membership-card" eye="Members only" title="Membership Card + Offers" sub="Your card and member discounts" />
 
             {/* Latest offer */}
             {latestOffer && (
@@ -352,8 +359,6 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
             </Link>
           </div>
         </div>
-
-        {/* ─── 9. RITA'S PHOTOS ─────────────────────────── */}
         {latestPhoto && (
           <div style={{ padding: pad, marginBottom: gap }}>
             <Head eye="Photography" title="Rita's Latest Photos" href="/photos" />
@@ -373,29 +378,6 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
             </Link>
           </div>
         )}
-
-        {/* ─── 10. BREAK TILES ──────────────────────────── */}
-        <div style={{ padding: pad, marginBottom: 8 }}>
-          <Link href="/break-tiles" style={{ display: 'block', ...card, textDecoration: 'none', overflow: 'hidden' }}>
-            <div style={{ position: 'relative' }}>
-              <div style={{ backgroundImage: "url('/tile-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center', minHeight: 110 }}>
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,28,28,0.72)' }} />
-                <div style={{ position: 'relative', padding: '22px 20px', display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'space-between' }}>
-                  <div>
-                    <Eye t="Game" color={RED} />
-                    <p style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 3px', letterSpacing: '-0.02em', lineHeight: 1.1, ...imgText }}>Break The Tiles</p>
-                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', margin: 0 }}>Smash Portuguese azulejos</p>
-                  </div>
-                  <Chev color={RED} />
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-
-        <div style={{ padding: pad, marginBottom: 32 }}>
-          <Mod href="/tile-leaderboard" eye="Leaderboard" title="Tile Smashers" sub="See who's smashing the most tiles" />
-        </div>
 
       </div>
     </ScrollPage>

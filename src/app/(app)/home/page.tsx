@@ -60,8 +60,7 @@ export default async function HomePage() {
       .not('avatar_url', 'is', null).neq('avatar_url', '')
       .not('full_name', 'is', null).neq('full_name', '')
       .order('joined_at', { ascending: false })
-      .limit(1),
-    supabase.from('rita_photos')
+      .limit(3),
       .select('id, image_url, title, caption')
       .eq('is_published', true)
       .order('sort_order', { ascending: true })
