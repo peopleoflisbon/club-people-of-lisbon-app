@@ -35,6 +35,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
   const [selectedPin,      setSelectedPin]      = useState<MapPin | null>(null);
   const [mapReady,         setMapReady]         = useState(false);
   const [playingVideo,     setPlayingVideo]     = useState(false);
+  const mediaRef           = useRef<HTMLDivElement>(null);
   const [showOverlay,      setShowOverlay]      = useState(false);
   const [showFilters,      setShowFilters]      = useState(false);
   const [activeCategories, setActiveCategories] = useState<string[]>([]);
@@ -47,6 +48,28 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
   }, [isMapUser]);
 
   function dismissOverlay() { localStorage.setItem(FIRST_VISIT_KEY, '1'); setShowOverlay(false); }
+
+  // Reset media container when the selected pin changes
+  useEffect(() => {
+    if (mediaRef.current) mediaRef.current.innerHTML = '';
+    setPlayingVideo(false);
+  }, [selectedPin?.id]); // eslint-disable-line
+
+  // Inject iframe directly into the DOM on the same synchronous user gesture.
+  // iOS Safari requires autoplay to be triggered in the same callstack as the
+  // user interaction — going through React state + re-render breaks that chain.
+  function handlePlayClick() {
+    if (!selectedPin?.youtube_url || !mediaRef.current) return;
+    const videoId = getYouTubeVideoId(selectedPin.youtube_url);
+    if (!videoId) return;
+    mediaRef.current.innerHTML = `<iframe
+      src="https://www.youtube.com/embed/${videoId}?rel=0&autoplay=1&playsinline=1&modestbranding=1"
+      style="position:absolute;inset:0;width:100%;height:100%;border:0"
+      allow="autoplay; fullscreen; picture-in-picture; web-share"
+      allowfullscreen
+    ></iframe>`;
+    setPlayingVideo(true);
+  }
 
   async function handleSignOut() {
     const { createClient } = await import('@/lib/supabase');
@@ -76,7 +99,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
         center: LISBON_CENTER, zoom: 12.5, minZoom: 9, maxZoom: 19,
       });
       map.addControl(new (mapboxgl.default as any).NavigationControl({ showCompass: false }), 'bottom-right');
-      map.on('load', () => setMapReady(true));
+      map.on('load', () => { map.resize(); setMapReady(true); });
       mapRef.current = { map, mapboxgl: mapboxgl.default };
     });
     return () => { mapRef.current?.map?.remove(); mapRef.current = null; };
@@ -189,10 +212,10 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
           </button>
         ) : null}
       </div>
-      {/* ── Top-right: Join + Filter + Count ── */}
+      {/* ── Top-right: Join + Filter + Count stacked ── */}
       <div className="absolute right-4 z-10" style={{ top: isMapUser ? safeTop : `calc(${safeTop} + 72px)`, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
         {isMapUser && (
-          <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer"
+          <a href="/auth/join"
             style={{
               pointerEvents: 'auto',
               display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px',
@@ -203,40 +226,38 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             Join the Club ↗
           </a>
         )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {categories.length > 0 && (
-            <button onClick={() => setShowFilters(true)} style={{
-              pointerEvents: 'auto',
-              display: 'flex', alignItems: 'center', gap: 7,
-              padding: '10px 16px', borderRadius: 12,
-              background: hasFilters ? '#C8102E' : 'rgba(250,248,244,0.93)',
-              backdropFilter: 'blur(12px)',
-              boxShadow: hasFilters ? '0 4px 16px rgba(200,16,46,0.35)' : '0 4px 20px rgba(0,0,0,0.1)',
-              border: 'none', cursor: 'pointer',
-              fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
-            }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={hasFilters ? 'white' : '#C8102E'} strokeWidth="2.5">
-                <path d="M22 3H2l8 9.46V19l4 2v-9.54z"/>
-              </svg>
-              <span style={{ fontSize: 12, fontWeight: 700, color: hasFilters ? 'white' : '#1C1C1C' }}>
-                {hasFilters ? `${activeCategories.length} filter${activeCategories.length > 1 ? 's' : ''}` : 'Filter'}
-              </span>
-            </button>
-          )}
-          {pins.length > 0 && (
-            <div style={{
-              pointerEvents: 'none',
-              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px',
-              background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)',
-              borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#C8102E', flexShrink: 0 }} />
-              <span style={{ fontSize: 11, fontWeight: 600, color: '#1C1C1C', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
-                {visiblePins.length}{hasFilters ? `/${pins.length}` : ''} {visiblePins.length === 1 ? 'story' : 'stories'}
-              </span>
-            </div>
-          )}
-        </div>
+        {categories.length > 0 && (
+          <button onClick={() => setShowFilters(true)} style={{
+            pointerEvents: 'auto',
+            display: 'flex', alignItems: 'center', gap: 7,
+            padding: '10px 16px', borderRadius: 12,
+            background: hasFilters ? '#C8102E' : 'rgba(250,248,244,0.93)',
+            backdropFilter: 'blur(12px)',
+            boxShadow: hasFilters ? '0 4px 16px rgba(200,16,46,0.35)' : '0 4px 20px rgba(0,0,0,0.1)',
+            border: 'none', cursor: 'pointer',
+            fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={hasFilters ? 'white' : '#C8102E'} strokeWidth="2.5">
+              <path d="M22 3H2l8 9.46V19l4 2v-9.54z"/>
+            </svg>
+            <span style={{ fontSize: 12, fontWeight: 700, color: hasFilters ? 'white' : '#1C1C1C' }}>
+              {hasFilters ? `${activeCategories.length} filter${activeCategories.length > 1 ? 's' : ''}` : 'Filter'}
+            </span>
+          </button>
+        )}
+        {pins.length > 0 && (
+          <div style={{
+            pointerEvents: 'none',
+            display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px',
+            background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)',
+            borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#C8102E', flexShrink: 0 }} />
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#1C1C1C', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+              {visiblePins.length}{hasFilters ? `/${pins.length}` : ''} {visiblePins.length === 1 ? 'story' : 'stories'}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* ── Intro blurb — non-mapUser only, at very top ── */}
@@ -301,11 +322,10 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
 
               {/* Media */}
               <div className="relative bg-stone-100" style={{ height: 190 }}>
-                {playingVideo && selectedPin.youtube_url ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${getYouTubeVideoId(selectedPin.youtube_url)}?rel=0&autoplay=1&playsinline=1&modestbranding=1`}
-                    className="w-full h-full" allow="autoplay; fullscreen; picture-in-picture; web-share" allowFullScreen />
-                ) : (
+                {/* iframe injected directly here on play click */}
+                <div ref={mediaRef} style={{ position: 'absolute', inset: 0, zIndex: playingVideo ? 2 : -1 }} />
+                {/* Thumbnail + play button — hidden once video is playing */}
+                {!playingVideo && (
                   <>
                     {selectedThumbnail && (
                       <img src={selectedThumbnail} alt={selectedPin.title} className="w-full h-full object-cover"
@@ -313,7 +333,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
                     )}
                     <div className="absolute inset-0" style={{ background: 'linear-gradient(to top,rgba(0,0,0,0.5) 0%,transparent 55%)' }} />
                     {selectedPin.youtube_url && (
-                      <button onClick={() => setPlayingVideo(true)} className="absolute inset-0 flex items-center justify-center group">
+                      <button onClick={handlePlayClick} className="absolute inset-0 flex items-center justify-center group">
                         <div className="w-14 h-14 rounded-full flex items-center justify-center transition-all group-hover:scale-110"
                           style={{ background: 'rgba(255,255,255,0.92)', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
                           <svg className="w-6 h-6 ml-1" style={{ color: '#C8102E' }} viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
@@ -445,7 +465,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.65, margin: '0 0 22px' }}>
               Meet the people behind the stories. Join the club to unlock events, members, and the full Lisbon network.
             </p>
-            <a href="https://www.peopleoflisbon.com" target="_blank" rel="noopener noreferrer" onClick={dismissOverlay}
+            <a href="/auth/join" onClick={dismissOverlay}
               style={{ display: 'block', width: '100%', padding: '13px', background: '#C8102E', color: 'white', fontSize: 15, fontWeight: 700, borderRadius: 10, textAlign: 'center', textDecoration: 'none', marginBottom: 10 }}>
               Join the Club ↗
             </a>

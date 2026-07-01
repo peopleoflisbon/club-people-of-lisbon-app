@@ -20,6 +20,7 @@ import React from 'react';
 import { Document } from '@react-pdf/renderer';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 // Strip emojis and other pictographic characters from any text pulled from
@@ -185,6 +186,7 @@ export async function GET(request: Request) {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="People-Of-Lisbon-Guide.pdf"',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
       },
     });
   } catch (err: any) {

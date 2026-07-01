@@ -10,7 +10,7 @@ export default function AdminGuideClient() {
     setDownloading(true);
     setError('');
     try {
-      const res = await fetch('/api/generate-guide');
+      const res = await fetch('/api/generate-guide', { cache: 'no-store' });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to generate the guide');
