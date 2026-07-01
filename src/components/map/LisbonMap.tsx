@@ -51,7 +51,10 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
 
   // Reset media container when the selected pin changes
   useEffect(() => {
-    if (mediaRef.current) mediaRef.current.innerHTML = '';
+    if (mediaRef.current) {
+      mediaRef.current.innerHTML = '';
+      mediaRef.current.style.zIndex = '-1';
+    }
     setPlayingVideo(false);
   }, [selectedPin?.id]); // eslint-disable-line
 
@@ -62,6 +65,9 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
     if (!selectedPin?.youtube_url || !mediaRef.current) return;
     const videoId = getYouTubeVideoId(selectedPin.youtube_url);
     if (!videoId) return;
+    // Make visible BEFORE injecting iframe — iOS requires element to be
+    // visible at the moment the iframe is created for autoplay to fire
+    mediaRef.current.style.zIndex = '10';
     mediaRef.current.innerHTML = `<iframe
       src="https://www.youtube.com/embed/${videoId}?rel=0&autoplay=1&playsinline=1&modestbranding=1"
       style="position:absolute;inset:0;width:100%;height:100%;border:0"
@@ -208,7 +214,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8102E" strokeWidth="2.5">
               <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#C8102E' }}>Exit map</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#C8102E' }}>Exit Map</span>
           </button>
         ) : null}
       </div>
@@ -242,7 +248,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
           }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#C8102E', flexShrink: 0 }} />
             <span style={{ fontSize: 13, fontWeight: 700, color: '#1C1C1C', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
-              {visiblePins.length}{hasFilters ? `/${pins.length}` : ''} {visiblePins.length === 1 ? 'story' : 'stories'}
+              {visiblePins.length}{hasFilters ? `/${pins.length}` : ''} {visiblePins.length === 1 ? 'Story' : 'Stories'}
             </span>
           </div>
         )}
@@ -300,7 +306,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             onClick={() => { setSelectedPin(null); setPlayingVideo(false); }} />
 
           <div className="fixed left-0 right-0 z-30 lg:absolute lg:bottom-6 lg:top-auto lg:right-4 lg:left-auto lg:w-80"
-            style={{ bottom: isMapUser ? 'calc(52px + max(env(safe-area-inset-bottom), 8px))' : 'calc(env(safe-area-inset-bottom) + 72px)' }}>
+            style={{ bottom: isMapUser ? 0 : 'calc(env(safe-area-inset-bottom) + 72px)' }}>
             <div style={{ background: 'rgba(250,248,244,0.98)', backdropFilter: 'blur(20px)', borderRadius: '20px 20px 0 0', boxShadow: '0 -8px 40px rgba(0,0,0,0.15)', overflow: 'hidden' }}
               className="lg:rounded-2xl">
               {/* Drag handle */}
@@ -397,35 +403,6 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             </div>
           </div>
         </>
-      )}
-
-      {/* ── Bottom: Join the Club bar (public map only) — fills the nav bar gap ── */}
-      {isMapUser && (
-        <a href="/auth/join" style={{
-          position: 'fixed',
-          left: 0, right: 0, bottom: 0,
-          zIndex: 20,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'stretch',
-          background: '#C8102E',
-          textDecoration: 'none',
-        }}>
-          <div style={{
-            height: 52,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: 13,
-            fontWeight: 700,
-            fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
-            letterSpacing: '0.01em',
-          }}>
-            Join the Club →
-          </div>
-          <div style={{ height: 'max(env(safe-area-inset-bottom), 8px)' }} />
-        </a>
       )}
 
       {/* ── Category filter sheet ── */}
