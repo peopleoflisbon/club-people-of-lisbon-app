@@ -174,6 +174,7 @@ export default function GatewayPage() {
           {/* Hero content block */}
           <div style={{ maxWidth: 680, paddingTop: 0 }}>
             <PolLabel fontSize={22} />
+            <h1 style={{ margin: '0 0 40px', lineHeight: 0.92, letterSpacing: '-0.04em', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
               <span style={{ display: 'block', fontSize: 'clamp(58px, 6.5vw, 90px)', fontWeight: 900, color: 'white' }}>
                 Lisbon's most
               </span>
