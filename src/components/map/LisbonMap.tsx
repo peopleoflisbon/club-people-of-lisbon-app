@@ -300,7 +300,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             onClick={() => { setSelectedPin(null); setPlayingVideo(false); }} />
 
           <div className="fixed left-0 right-0 z-30 lg:absolute lg:bottom-6 lg:top-auto lg:right-4 lg:left-auto lg:w-80"
-            style={{ bottom: isMapUser ? 52 : 'calc(env(safe-area-inset-bottom) + 72px)' }}>
+            style={{ bottom: isMapUser ? 'calc(52px + max(env(safe-area-inset-bottom), 8px))' : 'calc(env(safe-area-inset-bottom) + 72px)' }}>
             <div style={{ background: 'rgba(250,248,244,0.98)', backdropFilter: 'blur(20px)', borderRadius: '20px 20px 0 0', boxShadow: '0 -8px 40px rgba(0,0,0,0.15)', overflow: 'hidden' }}
               className="lg:rounded-2xl">
               {/* Drag handle */}
@@ -405,17 +405,26 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
           position: 'fixed',
           left: 0, right: 0, bottom: 0,
           zIndex: 20,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'stretch',
           background: '#C8102E',
-          color: 'white',
           textDecoration: 'none',
-          fontSize: 13,
-          fontWeight: 700,
-          fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
-          height: 52,
-          letterSpacing: '0.01em',
         }}>
-          Join the Club →
+          <div style={{
+            height: 52,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: 13,
+            fontWeight: 700,
+            fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+            letterSpacing: '0.01em',
+          }}>
+            Join the Club →
+          </div>
+          <div style={{ height: 'max(env(safe-area-inset-bottom), 8px)' }} />
         </a>
       )}
 
