@@ -208,24 +208,12 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8102E" strokeWidth="2.5">
               <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#C8102E' }}>Exit map</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#C8102E' }}>Exit map</span>
           </button>
         ) : null}
       </div>
-      {/* ── Top-right: Join + Filter + Count stacked ── */}
+      {/* ── Top-right: Filter + Count stacked ── */}
       <div className="absolute right-4 z-10" style={{ top: isMapUser ? safeTop : `calc(${safeTop} + 72px)`, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-        {isMapUser && (
-          <a href="/auth/join"
-            style={{
-              pointerEvents: 'auto',
-              display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px',
-              background: '#C8102E', color: 'white', borderRadius: 999, fontSize: 13,
-              fontWeight: 700, textDecoration: 'none', boxShadow: '0 2px 12px rgba(47,109,165,0.45)',
-              fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
-            }}>
-            Join the Club ↗
-          </a>
-        )}
         {categories.length > 0 && (
           <button onClick={() => setShowFilters(true)} style={{
             pointerEvents: 'auto',
@@ -237,10 +225,10 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             border: 'none', cursor: 'pointer',
             fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
           }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={hasFilters ? 'white' : '#C8102E'} strokeWidth="2.5">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={hasFilters ? 'white' : '#C8102E'} strokeWidth="2.5">
               <path d="M22 3H2l8 9.46V19l4 2v-9.54z"/>
             </svg>
-            <span style={{ fontSize: 12, fontWeight: 700, color: hasFilters ? 'white' : '#1C1C1C' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: hasFilters ? 'white' : '#1C1C1C' }}>
               {hasFilters ? `${activeCategories.length} filter${activeCategories.length > 1 ? 's' : ''}` : 'Filter'}
             </span>
           </button>
@@ -248,12 +236,12 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
         {pins.length > 0 && (
           <div style={{
             pointerEvents: 'none',
-            display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px',
+            display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px',
             background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)',
             borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
           }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#C8102E', flexShrink: 0 }} />
-            <span style={{ fontSize: 11, fontWeight: 600, color: '#1C1C1C', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#1C1C1C', fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif" }}>
               {visiblePins.length}{hasFilters ? `/${pins.length}` : ''} {visiblePins.length === 1 ? 'story' : 'stories'}
             </span>
           </div>
@@ -312,7 +300,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             onClick={() => { setSelectedPin(null); setPlayingVideo(false); }} />
 
           <div className="fixed left-0 right-0 z-30 lg:absolute lg:bottom-6 lg:top-auto lg:right-4 lg:left-auto lg:w-80"
-            style={{ bottom: isMapUser ? 0 : 'calc(env(safe-area-inset-bottom) + 72px)' }}>
+            style={{ bottom: isMapUser ? 56 : 'calc(env(safe-area-inset-bottom) + 72px)' }}>
             <div style={{ background: 'rgba(250,248,244,0.98)', backdropFilter: 'blur(20px)', borderRadius: '20px 20px 0 0', boxShadow: '0 -8px 40px rgba(0,0,0,0.15)', overflow: 'hidden' }}
               className="lg:rounded-2xl">
               {/* Drag handle */}
@@ -409,6 +397,28 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             </div>
           </div>
         </>
+      )}
+
+      {/* ── Bottom: Join the Club bar (public map only) — fills the nav bar gap ── */}
+      {isMapUser && (
+        <a href="/auth/join" style={{
+          position: 'fixed',
+          left: 0, right: 0, bottom: 0,
+          zIndex: 20,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          gap: 8,
+          background: '#C8102E',
+          color: 'white',
+          textDecoration: 'none',
+          fontSize: 13,
+          fontWeight: 700,
+          fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+          paddingTop: 16,
+          paddingBottom: `max(env(safe-area-inset-bottom), 16px)`,
+          letterSpacing: '0.01em',
+        }}>
+          Join the Club →
+        </a>
       )}
 
       {/* ── Category filter sheet ── */}
