@@ -105,7 +105,7 @@ export async function GET() {
 
     const pick = pool[Math.floor(Math.random() * pool.length)];
 
-    await admin.from('user_sticker_collection').insert({
+    const { error: insertError } = await admin.from('user_sticker_collection').insert({
       user_id: userId,
       sticker_type: pick.type,
       source_id: pick.source_id,
@@ -115,6 +115,11 @@ export async function GET() {
       description: pick.description || '',
       image_url: pick.image_url,
     });
+
+    if (insertError) {
+      console.error('Sticker insert failed:', insertError);
+      return NextResponse.json({ error: `Failed to save sticker: ${insertError.message}` }, { status: 500 });
+    }
 
     await admin.from('user_sticker_packets').upsert({
       user_id: userId,
