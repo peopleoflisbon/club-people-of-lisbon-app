@@ -138,16 +138,27 @@ export default function OpenPacketPage() {
 
       {state === 'revealed' && sticker && (
         <div style={{
-          textAlign: 'center', position: 'relative', zIndex: 1,
+          textAlign: 'center', position: 'relative', zIndex: 1, padding: '0 28px',
           animation: 'slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
         }}>
-          <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.18em', textTransform: 'uppercase', color: GOLD, marginBottom: 8 }}>
-            {sticker.type === 'member' ? 'New Member' : sticker.type === 'landmark' ? 'Lisbon Landmark' : 'Recommendation'}
+          <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.18em', textTransform: 'uppercase', color: GOLD, marginBottom: 6 }}>
+            New sticker unlocked
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+          <h2 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 20px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+            Congratulations!<br />You got a new sticker.
+          </h2>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
             <StickerCard sticker={sticker} size="lg" />
           </div>
-          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 20 }}>Added to your collection</p>
+          {sticker.description && (
+            <p style={{
+              fontSize: 14, color: 'rgba(255,255,255,0.7)', margin: '0 0 20px',
+              lineHeight: 1.6, fontStyle: 'italic', maxWidth: 280, marginLeft: 'auto', marginRight: 'auto',
+            }}>
+              "{sticker.description}"
+            </p>
+          )}
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 20 }}>Added to your collection</p>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
             <button onClick={() => router.push('/stickers')} style={{
               background: RED, color: '#fff', border: 'none', padding: '13px 22px',

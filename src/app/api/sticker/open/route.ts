@@ -74,6 +74,7 @@ export async function GET() {
         ...s,
         name: o.custom_name ?? s.name,
         subtitle: (o.custom_subtitle !== null && o.custom_subtitle !== undefined) ? o.custom_subtitle : s.subtitle,
+        description: (o.custom_description !== null && o.custom_description !== undefined) ? o.custom_description : s.description,
       };
     }
 
@@ -111,6 +112,7 @@ export async function GET() {
       sticker_number: pick.number,
       name: pick.name,
       subtitle: pick.subtitle,
+      description: pick.description || '',
       image_url: pick.image_url,
     });
 

@@ -13,10 +13,11 @@ const MUTED = '#9B8A7A';
 const FF = "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Arial, sans-serif";
 
 type AlbumSticker = {
-  type: 'member' | 'recommendation' | 'landmark';
+  type: 'member' | 'recommendation' | 'landmark' | 'rita';
   source_id: string;
   name: string;
   subtitle: string;
+  description?: string;
   image_url: string | null;
   number: number;
   collected: boolean;
@@ -112,21 +113,26 @@ export default function StickersPage() {
         <div
           onClick={() => setEnlarged(null)}
           style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.82)', zIndex: 100,
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', zIndex: 100,
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             padding: 24,
           }}
         >
-          <div onClick={e => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 280 }}>
             <StickerCard sticker={enlarged} size="lg" />
-            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 16, fontFamily: FF }}>
+            {enlarged.description && (
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', marginTop: 16, fontStyle: 'italic', lineHeight: 1.6, textAlign: 'center' }}>
+                "{enlarged.description}"
+              </p>
+            )}
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 12, fontFamily: FF }}>
               Collected {enlarged.collected_at ? new Date(enlarged.collected_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
             </p>
             <button
               onClick={() => setEnlarged(null)}
               style={{
                 marginTop: 20, background: 'none', border: '1px solid rgba(255,255,255,0.25)',
-                color: 'rgba(255,255,255,0.6)', padding: '10px 24px', fontSize: 12, fontWeight: 700,
+                color: 'rgba(255,255,255,0.6)', padding: '10px 28px', fontSize: 12, fontWeight: 700,
                 cursor: 'pointer', fontFamily: FF, borderRadius: 4,
               }}
             >
