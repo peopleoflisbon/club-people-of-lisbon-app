@@ -18,6 +18,7 @@ const ADMIN_NAV = [
   { href: '/admin/member-events', label: 'Member Events', emoji: '🎉' },
   { href: '/admin/recommendations', label: 'Recommendations', emoji: '💡' },
   { href: '/admin/offers', label: 'Offers', emoji: '🎁' },
+  { href: '/admin/stickers', label: 'Sticker Editor', emoji: '🃏' },
   { href: '/admin/guide', label: 'Member Guide (PDF)', emoji: '📖' },
   { href: '/admin/settings', label: 'Settings', emoji: '⚙️' },
 ];

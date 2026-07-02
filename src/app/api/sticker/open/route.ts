@@ -2,7 +2,7 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { LANDMARKS, landmarkToSticker, memberToSticker, recToSticker } from '@/lib/stickers';
+import { customToSticker, memberToSticker, recToSticker } from '@/lib/stickers';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,10 +19,8 @@ export async function GET() {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Today's date in Lisbon timezone
     const todayLisbon = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Lisbon' });
 
-    // Check if already opened today
     const { data: packetRow } = await admin
       .from('user_sticker_packets')
       .select('last_opened_date, last_sticker_type, last_sticker_source_id')
@@ -30,7 +28,6 @@ export async function GET() {
       .maybeSingle();
 
     if (packetRow?.last_opened_date === todayLisbon) {
-      // Already opened — return what they got today
       const { data: todaySticker } = await admin
         .from('user_sticker_collection')
         .select('*')
@@ -52,52 +49,61 @@ export async function GET() {
       });
     }
 
-    // Build the full pool of possible stickers
-    const [{ data: members }, { data: recs }, { data: collected }] = await Promise.all([
+    const [{ data: members }, { data: recs }, { data: customStickers }, { data: collected }, { data: overrides }] = await Promise.all([
       admin.from('profiles')
         .select('id, full_name, avatar_url, job_title, headline, neighborhood')
-        .eq('is_active', true)
-        .not('full_name', 'is', null).neq('full_name', '')
+        .eq('is_active', true).not('full_name', 'is', null).neq('full_name', '')
         .order('joined_at', { ascending: true }),
       admin.from('recommendations')
         .select('id, name, category, neighbourhood, image_url')
-        .eq('is_active', true)
-        .order('created_at', { ascending: true }),
+        .eq('is_active', true).order('created_at', { ascending: true }),
+      admin.from('custom_stickers')
+        .select('*').eq('is_active', true).order('sort_order', { ascending: true }),
       admin.from('user_sticker_collection')
-        .select('sticker_type, source_id')
-        .eq('user_id', userId),
+        .select('sticker_type, source_id').eq('user_id', userId),
+      admin.from('sticker_overrides').select('*'),
     ]);
+
+    const overrideMap = new Map(
+      (overrides || []).map((o: any) => [`${o.sticker_type}:${o.source_id}`, o])
+    );
+    function applyOverride(s: any): any {
+      const o = overrideMap.get(`${s.type}:${s.source_id}`);
+      if (!o) return s;
+      return {
+        ...s,
+        name: o.custom_name ?? s.name,
+        subtitle: (o.custom_subtitle !== null && o.custom_subtitle !== undefined) ? o.custom_subtitle : s.subtitle,
+      };
+    }
 
     const collectedSet = new Set(
       (collected || []).map((c: any) => `${c.sticker_type}:${c.source_id}`)
     );
 
-    // Build full pool and filter out already collected
+    const landmarks = (customStickers || []).filter((s: any) => s.type === 'landmark');
+    const ritaSeries = (customStickers || []).filter((s: any) => s.type === 'rita');
+
     const pool: any[] = [];
-
     (members || []).forEach((m: any, i: number) => {
-      const s = memberToSticker(m, i);
-      if (!collectedSet.has(`member:${m.id}`)) pool.push(s);
+      if (!collectedSet.has(`member:${m.id}`)) pool.push(applyOverride(memberToSticker(m, i)));
     });
-
-    LANDMARKS.forEach((lm, i) => {
-      const s = landmarkToSticker(lm, i);
-      if (!collectedSet.has(`landmark:${lm.id}`)) pool.push(s);
+    landmarks.forEach((lm: any, i: number) => {
+      if (!collectedSet.has(`landmark:${lm.id}`)) pool.push(applyOverride(customToSticker(lm, 201, i)));
     });
-
     (recs || []).forEach((r: any, i: number) => {
-      const s = recToSticker(r, i);
-      if (!collectedSet.has(`recommendation:${r.id}`)) pool.push(s);
+      if (!collectedSet.has(`recommendation:${r.id}`)) pool.push(applyOverride(recToSticker(r, i)));
+    });
+    ritaSeries.forEach((r: any, i: number) => {
+      if (!collectedSet.has(`rita:${r.id}`)) pool.push(applyOverride(customToSticker(r, 451, i)));
     });
 
     if (pool.length === 0) {
-      return NextResponse.json({ complete: true, message: 'Collection complete! You have every sticker.' });
+      return NextResponse.json({ complete: true });
     }
 
-    // Pick a random uncollected sticker
     const pick = pool[Math.floor(Math.random() * pool.length)];
 
-    // Save to collection
     await admin.from('user_sticker_collection').insert({
       user_id: userId,
       sticker_type: pick.type,
@@ -108,7 +114,6 @@ export async function GET() {
       image_url: pick.image_url,
     });
 
-    // Update packet record
     await admin.from('user_sticker_packets').upsert({
       user_id: userId,
       last_opened_date: todayLisbon,

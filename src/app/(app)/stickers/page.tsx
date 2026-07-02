@@ -29,6 +29,7 @@ export default function StickersPage() {
     members: AlbumSticker[];
     landmarks: AlbumSticker[];
     recommendations: AlbumSticker[];
+    rita: AlbumSticker[];
     totalCollected: number;
     totalPossible: number;
     packetAvailable: boolean;
@@ -97,6 +98,9 @@ export default function StickersPage() {
             <div style={{ padding: '8px 16px' }}>
               <Section title="Members" stickers={data.members} onEnlarge={setEnlarged} />
               <Section title="Lisbon Landmarks" stickers={data.landmarks} onEnlarge={setEnlarged} />
+              {data.rita?.length > 0 && (
+                <Section title="Rita's Series" stickers={data.rita} onEnlarge={setEnlarged} />
+              )}
               <Section title="Recommendations" stickers={data.recommendations} onEnlarge={setEnlarged} />
             </div>
           )}
