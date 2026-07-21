@@ -65,9 +65,12 @@ const NAV_ITEMS = [
 const SECONDARY_NAV = [
   { href: '/updates', label: 'Latest from Stephen' },
   { href: '/recommendations', label: 'Recommendations' },
+  { href: '/board', label: 'Message Board' },
   { href: '/membership-card', label: 'Membership Card' },
   { href: '/sponsors', label: 'Sponsors' },
+  { href: '/map', label: 'Map' },
   { href: '/photos', label: "Rita's Photos" },
+  { href: '/break-tiles', label: 'Break The Tiles' },
 ];
 
 interface AppShellProps {

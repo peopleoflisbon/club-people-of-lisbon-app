@@ -5,7 +5,6 @@ export interface StickerDef {
   source_id: string;
   name: string;
   subtitle: string;
-  description: string;
   image_url: string | null;
   number: number;
 }
@@ -26,7 +25,6 @@ export function customToSticker(row: any, baseNumber: number, index: number): St
     source_id: row.id,
     name: row.name,
     subtitle: row.subtitle || '',
-    description: row.description || '',
     image_url: row.image_url || null,
     number: baseNumber + index,
   };
@@ -38,7 +36,6 @@ export function memberToSticker(m: any, rank: number): StickerDef {
     source_id: m.id,
     name: m.full_name,
     subtitle: m.job_title || m.headline || '',
-    description: '',
     image_url: m.avatar_url || null,
     number: 1 + rank,
   };
@@ -50,7 +47,6 @@ export function recToSticker(r: any, rank: number): StickerDef {
     source_id: r.id,
     name: r.name,
     subtitle: [r.category, r.neighbourhood].filter(Boolean).join(' · '),
-    description: '',
     image_url: r.image_url || null,
     number: 251 + rank,
   };

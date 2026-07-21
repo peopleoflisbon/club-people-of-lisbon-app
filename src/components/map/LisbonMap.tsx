@@ -219,7 +219,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
         ) : null}
       </div>
       {/* ── Top-right: Filter + Count stacked ── */}
-      <div className="absolute right-4 z-10" style={{ top: safeTop, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+      <div className="absolute right-4 z-10" style={{ top: isMapUser ? safeTop : `calc(${safeTop} + 72px)`, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
         {categories.length > 0 && (
           <button onClick={() => setShowFilters(true)} style={{
             pointerEvents: 'auto',
@@ -255,6 +255,24 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
       </div>
 
       {/* ── Intro blurb — non-mapUser only, at very top ── */}
+      {!isMapUser && (
+        <div style={{
+          position: 'absolute', left: 16, right: 16, zIndex: 9, pointerEvents: 'none',
+          top: safeTop,
+        }}>
+          <p style={{
+            margin: 0, fontSize: 22, fontWeight: 900, color: '#1C1C1C',
+            background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(8px)',
+            padding: '10px 16px', borderRadius: 10, display: 'inline-block',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.10)',
+            fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+            letterSpacing: '-0.01em', lineHeight: 1.2,
+          }}>
+            Explore Lisbon Through The People
+          </p>
+        </div>
+      )}
+
       {/* ── Hover tooltip (desktop) ── */}
       {hoverPin && !selectedPin && (
         <div style={{
