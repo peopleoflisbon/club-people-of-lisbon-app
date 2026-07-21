@@ -118,25 +118,35 @@ export default function OpenPacketPage() {
             opacity: state === 'opening' ? 0 : 1,
             transition: 'transform 0.4s ease, opacity 0.3s ease',
           }}>
-            {/* Big packet — 180px wide */}
-            <div style={{ width: 180, borderRadius: 10, overflow: 'hidden', border: `3px solid ${GOLD}`, background: INK, boxShadow: '0 20px 60px rgba(200,16,46,0.4)' }}>
-              <div style={{ background: RED, padding: '16px 16px 12px', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: 0, left: '-40%', width: '25%', height: '100%', background: 'rgba(255,255,255,0.12)', transform: 'skewX(-18deg)' }} />
-                <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.16em', color: 'rgba(255,255,255,0.75)', textTransform: 'uppercase', textAlign: 'center', marginBottom: 6 }}>People Of Lisbon</div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', textAlign: 'center', lineHeight: 1.05 }}>Sticker<br />Collection</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.55)', textAlign: 'center', marginTop: 6, letterSpacing: '.1em' }}>Series 1 · 2025</div>
+            {/* Big packet — 260px wide */}
+            <div style={{ width: 260, borderRadius: 14, overflow: 'hidden', border: `3px solid ${GOLD}`, background: INK, boxShadow: '0 24px 80px rgba(200,16,46,0.5), 0 0 0 1px rgba(230,183,92,0.3)', position: 'relative' }}>
+              {/* Shimmer overlay */}
+              <div style={{
+                position: 'absolute', inset: 0, zIndex: 10, pointerEvents: 'none',
+                background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.12) 50%, transparent 65%)',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 2.2s ease-in-out infinite',
+              }} />
+              {/* Top section */}
+              <div style={{ background: RED, padding: '22px 20px 18px', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: 0, left: '-40%', width: '25%', height: '100%', background: 'rgba(255,255,255,0.1)', transform: 'skewX(-18deg)' }} />
+                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.18em', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', textAlign: 'center', marginBottom: 8 }}>People Of Lisbon</div>
+                <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', textAlign: 'center', lineHeight: 1.0, letterSpacing: '-0.02em' }}>Sticker<br />Collection</div>
               </div>
-              <div style={{ background: '#111', padding: '22px 16px', textAlign: 'center' }}>
-                <div style={{ width: 72, height: 72, borderRadius: '50%', background: RED, border: `2.5px solid ${GOLD}`, margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-                  <div style={{ fontSize: 8.5, fontWeight: 800, letterSpacing: '.1em', color: 'rgba(255,255,255,0.85)', textTransform: 'uppercase' }}>POL</div>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: GOLD }}>25</div>
+              {/* Mid section */}
+              <div style={{ background: '#0d0d0d', padding: '28px 20px 24px', textAlign: 'center' }}>
+                <div style={{ width: 90, height: 90, borderRadius: '50%', background: RED, border: `3px solid ${GOLD}`, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', boxShadow: '0 0 30px rgba(200,16,46,0.4)' }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase' }}>POL</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: GOLD, lineHeight: 1 }}>25</div>
                 </div>
-                <div style={{ color: GOLD, fontSize: 14, letterSpacing: 6, marginBottom: 10 }}>◆ ◆ ◆</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', letterSpacing: '.1em', textTransform: 'uppercase' }}>1 sticker inside</div>
+                <div style={{ color: GOLD, fontSize: 18, letterSpacing: 8, marginBottom: 12 }}>◆ ◆ ◆</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '.14em', textTransform: 'uppercase' }}>1 sticker inside</div>
               </div>
-              <div style={{ borderTop: '2px dashed rgba(255,255,255,0.2)', margin: '0 14px' }} />
-              <div style={{ background: RED, padding: '10px 16px', textAlign: 'center' }}>
-                <div style={{ fontSize: 10, fontWeight: 800, color: '#fff', letterSpacing: '.08em' }}>Tap to tear open ↓</div>
+              {/* Tear line */}
+              <div style={{ borderTop: '2px dashed rgba(255,255,255,0.18)', margin: '0 16px' }} />
+              {/* Bottom */}
+              <div style={{ background: RED, padding: '14px 20px', textAlign: 'center' }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#fff', letterSpacing: '.08em' }}>Tap to tear open ↓</div>
               </div>
             </div>
           </div>
@@ -189,6 +199,10 @@ export default function OpenPacketPage() {
         @keyframes slideUp {
           from { opacity: 0; transform: translateY(50px) scale(0.92); }
           to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes shimmer {
+          0%   { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
         }
       `}</style>
     </div>
