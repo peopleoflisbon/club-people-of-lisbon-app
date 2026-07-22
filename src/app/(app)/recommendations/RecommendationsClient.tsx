@@ -46,7 +46,7 @@ export default function RecommendationsClient({ recs }: { recs: any[] }) {
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.13em', textTransform: 'uppercase', color: '#2F6DA5', marginBottom: 8 }}>People Of Lisbon</p>
           <h1 style={{ fontSize: 28, fontWeight: 700, color: '#1C1C1C', margin: '0 0 8px', letterSpacing: '-0.02em' }}>Recommendations</h1>
           <p style={{ fontSize: 14, color: '#8A7C6E', margin: 0, lineHeight: 1.5 }}>
-            Places we love in Lisbon — curated by Stephen, Rita and the people we film.
+            Places we love in Lisbon.
           </p>
         </div>
 

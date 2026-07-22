@@ -350,10 +350,10 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                 <div>
                   <Eye t="Explore Lisbon" color={RED} />
                   <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 5px', letterSpacing: '-0.02em', lineHeight: 1.1, fontFamily: FF, textTransform: 'none' }}>
-                    Through The People
+                    On Our Map
                   </h3>
                   <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', margin: '0 0 16px', fontFamily: FF }}>
-                    200+ stories and videos across the city.
+                    See where we filmed our videos and visit locations across the city.
                   </p>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: RED, color: '#fff', padding: '9px 16px', borderRadius: 4, fontSize: 11, fontWeight: 900, letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: FF }}>
                     Open the Map →

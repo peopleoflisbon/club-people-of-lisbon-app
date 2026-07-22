@@ -29,9 +29,38 @@ export default function AdminEventsClient({ events: initialEvents }: Props) {
   const [saving, setSaving] = useState(false);
   const [rsvpList, setRsvpList] = useState<{ name: string; email: string; avatar_url: string }[] | null>(null);
   const [rsvpEventTitle, setRsvpEventTitle] = useState('');
+  const [duplicatingEvent, setDuplicatingEvent] = useState<Event | null>(null);
+  const [duplicateDate, setDuplicateDate] = useState('');
+  const [duplicating, setDuplicating] = useState(false);
   const supabase = createClient();
 
   function startCreate() { setForm(EMPTY_FORM); setEditingId(null); setShowForm(true); }
+
+  function startDuplicate(event: Event) {
+    setDuplicatingEvent(event);
+    setDuplicateDate(event.starts_at.slice(0, 16));
+  }
+
+  async function confirmDuplicate() {
+    if (!duplicatingEvent || !duplicateDate) return;
+    setDuplicating(true);
+    const payload = {
+      title: duplicatingEvent.title,
+      description: duplicatingEvent.description,
+      location_name: duplicatingEvent.location_name,
+      location_address: duplicatingEvent.location_address,
+      starts_at: new Date(duplicateDate).toISOString(),
+      ends_at: duplicatingEvent.ends_at || null,
+      capacity: duplicatingEvent.capacity || null,
+      status: 'upcoming',
+      cover_image_url: duplicatingEvent.cover_image_url || '',
+    };
+    const { data } = await supabase.from('events').insert(payload).select().single();
+    if (data) setEvents((prev) => [data, ...prev]);
+    setDuplicatingEvent(null);
+    setDuplicateDate('');
+    setDuplicating(false);
+  }
 
   function startEdit(event: Event) {
     setForm({
@@ -198,6 +227,29 @@ export default function AdminEventsClient({ events: initialEvents }: Props) {
         </div>
       )}
 
+      {/* Duplicate event modal */}
+      {duplicatingEvent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-xl w-full max-w-sm p-6 space-y-4">
+            <h3 className="font-semibold text-lg text-ink">Duplicate Event</h3>
+            <p className="text-sm text-stone-500">
+              Creating a copy of <strong>{duplicatingEvent.title}</strong>. RSVPs will be cleared. Set the new date:
+            </p>
+            <div>
+              <label className="pol-label">New Date & Time</label>
+              <input type="datetime-local" className="pol-input" value={duplicateDate}
+                onChange={e => setDuplicateDate(e.target.value)} />
+            </div>
+            <div className="flex gap-3">
+              <button onClick={confirmDuplicate} disabled={duplicating || !duplicateDate} className="pol-btn-primary flex-1">
+                {duplicating ? 'Creating…' : 'Create Duplicate'}
+              </button>
+              <button onClick={() => setDuplicatingEvent(null)} className="pol-btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Events list */}
       <div className="space-y-3">
         {events.length === 0 && <p className="text-stone-400 text-center py-8 text-sm">No events yet. Create one above.</p>}
@@ -227,6 +279,9 @@ export default function AdminEventsClient({ events: initialEvents }: Props) {
               </button>
               <button onClick={() => startEdit(event)} className="text-xs px-3 py-1.5 border border-stone-200 hover:border-brand hover:text-brand transition-colors">
                 Edit
+              </button>
+              <button onClick={() => startDuplicate(event)} className="text-xs px-3 py-1.5 border border-emerald-200 text-emerald-600 hover:bg-emerald-50 transition-colors">
+                Duplicate
               </button>
               {event.status !== 'cancelled' && (
                 <button onClick={() => cancelEvent(event.id)} className="text-xs px-3 py-1.5 border border-amber-200 text-amber-600 hover:bg-amber-50 transition-colors">

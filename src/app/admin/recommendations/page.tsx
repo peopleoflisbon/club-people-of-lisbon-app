@@ -26,7 +26,19 @@ const EMPTY: Rec = {
   website_url: '', google_maps_url: '', image_url: '', is_active: true, display_order: 0,
 };
 
-const CATEGORIES = ['Restaurant', 'Coffee', 'Bar', 'Experience', 'Shop', 'Culture', 'Hotel', 'Beach', 'Other'];
+const CATEGORIES = [
+  'Restaurant', 'Coffee', 'Bar', 'Wine Bar', 'Cocktail Bar',
+  'Brunch', 'Bakery & Pastries', 'Fine Dining', 'Street Food',
+  'Experience', 'Activity', 'Nightlife', 'Music & Live Music',
+  'Art & Gallery', 'Culture & Museums', 'Cinema',
+  'Shop', 'Market', 'Fashion & Clothing', 'Books',
+  'Wellness & Spa', 'Gym & Fitness', 'Yoga',
+  'Hotel', 'Accommodation',
+  'Beach & Coast', 'Nature & Parks', 'Viewpoint',
+  'Day Trip', 'Transport',
+  'Services', 'Co-working',
+  'Other',
+];
 
 const iStyle: React.CSSProperties = {
   width: '100%', padding: '10px 14px', borderRadius: '8px',

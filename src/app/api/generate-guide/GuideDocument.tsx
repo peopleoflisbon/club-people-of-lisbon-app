@@ -85,46 +85,55 @@ const styles = StyleSheet.create({
   },
   coverOverlay: {
     position: 'absolute',
-    bottom: 0,
+    top: 0,
     left: 0,
     width: 595.28,
-    height: 420,
-    backgroundColor: 'rgba(10,10,10,0.62)',
+    height: 841.89,
+    backgroundColor: 'rgba(10,10,10,0.55)',
+  },
+  coverRedBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 8,
+    height: 841.89,
+    backgroundColor: RED,
   },
   coverContent: {
     position: 'absolute',
-    bottom: 56,
-    left: 48,
-    right: 48,
+    bottom: 72,
+    left: 56,
+    right: 56,
   },
   coverPageBadge: {
     backgroundColor: RED,
     color: 'white',
     fontFamily: 'Helvetica-Bold',
-    fontSize: 11,
-    letterSpacing: 1,
+    fontSize: 10,
+    letterSpacing: 2,
     paddingVertical: 5,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     alignSelf: 'flex-start',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   coverPageTitle: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 46,
+    fontSize: 64,
     color: 'white',
-    marginBottom: 10,
-    lineHeight: 1.05,
+    marginBottom: 6,
+    lineHeight: 1.0,
+    letterSpacing: -1,
   },
   coverPageSubtitle: {
     fontFamily: 'Helvetica',
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.85)',
-    marginBottom: 8,
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 10,
   },
   coverGeneratedDate: {
     fontFamily: 'Helvetica',
     fontSize: 9,
-    color: 'rgba(255,255,255,0.55)',
+    color: 'rgba(255,255,255,0.4)',
   },
 
   // Contents
@@ -331,11 +340,12 @@ export function CoverPage({ coverImageBuffer, generatedDate }: { coverImageBuffe
       <View style={styles.coverWrapper}>
         {coverImageBuffer && <Image src={coverImageBuffer as any} style={styles.coverImage} />}
         <View style={styles.coverOverlay} />
+        <View style={styles.coverRedBar} />
         <View style={styles.coverContent}>
           <Text style={styles.coverPageBadge}>PEOPLE OF LISBON</Text>
-          <Text style={styles.coverPageTitle}>The Guide</Text>
+          <Text style={styles.coverPageTitle}>The{'\n'}Guide.</Text>
           <Text style={styles.coverPageSubtitle}>Lisbon's most interesting people, all in one place.</Text>
-          <Text style={styles.coverGeneratedDate}>Generated on {generatedDate}</Text>
+          <Text style={styles.coverGeneratedDate}>Generated {generatedDate}</Text>
         </View>
       </View>
     </Page>
@@ -500,8 +510,6 @@ export function DirectoryPage({ members, avatarBuffers }: { members: any[]; avat
       <View style={styles.rule} />
       {members.map((m: any, i: number) => {
         const buf = avatarBuffers[i];
-        const bioParts = [m.short_bio, m.personal_story, m.favorite_spots ? `Favourite spots: ${m.favorite_spots}` : null]
-          .filter(Boolean);
         return (
           <View key={m.id} style={styles.memberRow} wrap={false}>
             {buf ? (
@@ -513,13 +521,12 @@ export function DirectoryPage({ members, avatarBuffers }: { members: any[]; avat
             )}
             <View style={{ flex: 1 }}>
               <Text style={styles.memberName}>{m.full_name}</Text>
-              {(m.headline || m.job_title) && (
-                <Text style={styles.memberHeadline}>{m.headline || m.job_title}</Text>
+              {m.job_title && (
+                <Text style={styles.memberHeadline}>{m.job_title}</Text>
               )}
-              {m.neighborhood && <Text style={styles.memberMeta}>{m.neighborhood}</Text>}
-              {bioParts.map((b, bi) => (
-                <Text key={bi} style={styles.memberBio}>{b}</Text>
-              ))}
+              {m.headline && (
+                <Text style={styles.memberMeta}>{m.headline}</Text>
+              )}
             </View>
           </View>
         );
