@@ -29,6 +29,7 @@ export default function AdminStickersClient() {
   const [editName, setEditName] = useState('');
   const [editSubtitle, setEditSubtitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
+  const [editSortOrder, setEditSortOrder] = useState(1);
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState<StickerRow | null>(null);
   const [addingNew, setAddingNew] = useState(false);
@@ -83,13 +84,16 @@ export default function AdminStickersClient() {
 
   async function saveEdit(s: StickerRow) {
     setSaving(true);
-    await fetch('/api/admin-sticker-override', {
+    // Save directly to custom_stickers — this is the source of truth for rita stickers
+    // and ensures description/quote shows correctly on the reveal screen
+    await fetch('/api/admin-sticker', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        sticker_type: s.sticker_type, source_id: s.source_id,
-        custom_name: editName.trim() || null,
-        custom_subtitle: editSubtitle || null,
-        custom_description: editDescription || null,
+        id: s.source_id,
+        name: editName.trim() || s.default_name,
+        subtitle: editSubtitle,
+        description: editDescription,
+        sort_order: editSortOrder,
       }),
     });
     setEditingId(null);
@@ -214,7 +218,11 @@ export default function AdminStickersClient() {
                         <input className="pol-input text-sm py-1.5" value={editName} onChange={e => setEditName(e.target.value)} placeholder="Name" />
                         <input className="pol-input text-sm py-1.5" value={editSubtitle} onChange={e => setEditSubtitle(e.target.value)} placeholder="Subtitle" />
                       </div>
-                      <textarea className="pol-textarea text-sm py-1.5" rows={2} value={editDescription} onChange={e => setEditDescription(e.target.value)} placeholder="Description shown on reveal…" />
+                      <textarea className="pol-textarea text-sm py-1.5" rows={2} value={editDescription} onChange={e => setEditDescription(e.target.value)} placeholder="Quote / description shown on reveal…" />
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-stone-500 font-semibold">Sticker #</label>
+                        <input type="number" className="pol-input text-sm py-1 w-20" value={editSortOrder} onChange={e => setEditSortOrder(parseInt(e.target.value) || 1)} />
+                      </div>
                     </div>
                   ) : (
                     <div className="flex-1 min-w-0">
@@ -237,7 +245,7 @@ export default function AdminStickersClient() {
                       </>
                     ) : (
                       <>
-                        <button onClick={() => { setEditingId(id); setEditName(s.custom_name ?? s.default_name); setEditSubtitle(s.custom_subtitle ?? s.default_subtitle); setEditDescription(s.custom_description ?? s.default_description ?? ''); }} className="text-xs px-3 py-1.5 border border-stone-200 hover:border-brand hover:text-brand transition-colors">Edit</button>
+                        <button onClick={() => { setEditingId(id); setEditName(s.custom_name ?? s.default_name); setEditSubtitle(s.custom_subtitle ?? s.default_subtitle); setEditDescription(s.custom_description ?? s.default_description ?? ''); setEditSortOrder(s.number); }} className="text-xs px-3 py-1.5 border border-stone-200 hover:border-brand hover:text-brand transition-colors">Edit</button>
                         <button onClick={() => deleteSticker(s.source_id)} className="text-xs px-2 py-1.5 border border-red-200 text-red-400 hover:bg-red-50 transition-colors">✕</button>
                       </>
                     )}

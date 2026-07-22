@@ -134,7 +134,7 @@ export default function StickersPage() {
       {enlarged && (
         <div onClick={() => setEnlarged(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', zIndex: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <div onClick={e => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 300 }}>
-            <StickerCard sticker={enlarged} size="lg" />
+            <StickerCard sticker={enlarged} size="xl" />
             {enlarged.description && (
               <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', marginTop: 18, fontStyle: 'italic', lineHeight: 1.65, textAlign: 'center' }}>
                 "{enlarged.description}"

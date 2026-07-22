@@ -11,29 +11,43 @@ const FF = "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Aria
 
 type State = 'loading' | 'ready' | 'opening' | 'revealed' | 'already' | 'complete' | 'error';
 
-// Tear sound using Web Audio API — no external file needed
+// Tear sound — works on iOS by resuming AudioContext inside user gesture
 function playTearSound() {
   try {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const duration = 0.35;
-    const bufferSize = ctx.sampleRate * duration;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      // White noise with exponential decay — sounds like a paper tear
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 1.5);
-    }
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    // Bandpass filter to make it sound papery
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.value = 1800;
-    filter.Q.value = 0.8;
-    source.connect(filter);
-    filter.connect(ctx.destination);
-    source.start();
-    source.stop(ctx.currentTime + duration);
+    const resume = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve();
+    resume.then(() => {
+      // Layer 1: white noise burst (the rip)
+      const ripDuration = 0.3;
+      const buf1 = ctx.createBuffer(1, ctx.sampleRate * ripDuration, ctx.sampleRate);
+      const d1 = buf1.getChannelData(0);
+      for (let i = 0; i < d1.length; i++) {
+        d1[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d1.length, 0.8);
+      }
+      const src1 = ctx.createBufferSource();
+      src1.buffer = buf1;
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass'; bp.frequency.value = 2200; bp.Q.value = 0.6;
+      const gain1 = ctx.createGain();
+      gain1.gain.setValueAtTime(1.8, ctx.currentTime);
+      gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + ripDuration);
+      src1.connect(bp); bp.connect(gain1); gain1.connect(ctx.destination);
+      src1.start();
+
+      // Layer 2: short crinkle tail
+      const crinkleDuration = 0.15;
+      const buf2 = ctx.createBuffer(1, ctx.sampleRate * crinkleDuration, ctx.sampleRate);
+      const d2 = buf2.getChannelData(0);
+      for (let i = 0; i < d2.length; i++) {
+        d2[i] = (Math.random() * 2 - 1) * 0.3 * Math.pow(1 - i / d2.length, 2);
+      }
+      const src2 = ctx.createBufferSource();
+      src2.buffer = buf2;
+      const hp = ctx.createBiquadFilter();
+      hp.type = 'highpass'; hp.frequency.value = 3000;
+      src2.connect(hp); hp.connect(ctx.destination);
+      src2.start(ctx.currentTime + 0.12);
+    });
   } catch {}
 }
 
@@ -164,7 +178,7 @@ export default function OpenPacketPage() {
             Congratulations!<br />You got a new sticker.
           </h2>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
-            <StickerCard sticker={sticker} size="lg" />
+            <StickerCard sticker={sticker} size="xl" />
           </div>
           {sticker.description && (
             <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', margin: '0 0 20px', lineHeight: 1.6, fontStyle: 'italic', maxWidth: 280, marginLeft: 'auto', marginRight: 'auto' }}>
@@ -187,7 +201,7 @@ export default function OpenPacketPage() {
           <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>Come back tomorrow for your next sticker</p>
           {todaySticker && (
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
-              <StickerCard sticker={todaySticker} size="lg" />
+              <StickerCard sticker={todaySticker} size="xl" />
             </div>
           )}
           <button onClick={() => router.push('/stickers')} style={{ background: RED, color: '#fff', border: 'none', padding: '13px 22px', fontSize: 12, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: FF, borderRadius: 4 }}>View Collection →</button>

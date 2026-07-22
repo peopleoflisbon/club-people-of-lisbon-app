@@ -56,14 +56,14 @@ export const BORDER_COLORS: Record<StickerType, string> = {
   member: '#C8A84B',
   recommendation: '#C8102E',
   landmark: '#2B6CB0',
-  rita: '#7B3F8C',
+  rita: '#C8102E',
 };
 
 export const PLATE_COLORS: Record<StickerType, string> = {
   member: '#1C1C1C',
   recommendation: '#C8102E',
   landmark: '#2B6CB0',
-  rita: '#7B3F8C',
+  rita: '#C8102E',
 };
 
 export const TYPE_LABELS: Record<StickerType, string> = {

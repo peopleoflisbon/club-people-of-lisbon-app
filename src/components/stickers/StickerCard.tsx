@@ -4,14 +4,15 @@ import { StickerDef, BORDER_COLORS, PLATE_COLORS } from '@/lib/stickers';
 
 interface Props {
   sticker: Partial<StickerDef> & { type: 'member' | 'recommendation' | 'landmark'; name: string };
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   dimmed?: boolean;
 }
 
 const SIZES = {
-  sm: { w: 70, h: 98, pad: 4, headerSize: 4.5, nameSize: 5.5, subSize: 4.5, borderInset: 3, imgFontSize: 18 },
-  md: { w: 96, h: 135, pad: 6, headerSize: 5.5, nameSize: 7, subSize: 5.5, borderInset: 4, imgFontSize: 26 },
-  lg: { w: 160, h: 224, pad: 9, headerSize: 7, nameSize: 11, subSize: 8.5, borderInset: 6, imgFontSize: 42 },
+  sm: { w: 70,  h: 98,  pad: 4, headerSize: 4.5, nameSize: 5.5, subSize: 4.5, borderInset: 3, imgFontSize: 18 },
+  md: { w: 96,  h: 135, pad: 6, headerSize: 5.5, nameSize: 7,   subSize: 5.5, borderInset: 4, imgFontSize: 26 },
+  lg: { w: 160, h: 224, pad: 9, headerSize: 7,   nameSize: 11,  subSize: 8.5, borderInset: 6, imgFontSize: 42 },
+  xl: { w: 210, h: 294, pad: 11,headerSize: 8,   nameSize: 14,  subSize: 10,  borderInset: 7, imgFontSize: 54 },
 };
 
 const TYPE_EMOJI: Record<string, string> = {
@@ -36,7 +37,7 @@ export default function StickerCard({ sticker, size = 'md', dimmed = false }: Pr
       flexShrink: 0,
       opacity: dimmed ? 0.35 : 1,
       filter: dimmed ? 'grayscale(1)' : 'none',
-      border: `${size === 'lg' ? 3 : 2}px solid ${borderColor}`,
+      border: `${size === 'xl' || size === 'lg' ? 3 : 2}px solid ${borderColor}`,
       overflow: 'hidden',
     }}>
       {/* Inner inset border */}
@@ -73,7 +74,7 @@ export default function StickerCard({ sticker, size = 'md', dimmed = false }: Pr
           position: 'relative', marginBottom: s.pad * 0.6,
         }}>
           {sticker.image_url ? (
-            <img
+            <img loading="lazy"
               src={sticker.image_url}
               alt={sticker.name}
               style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
