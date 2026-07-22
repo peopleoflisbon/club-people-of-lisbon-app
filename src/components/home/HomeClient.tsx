@@ -326,7 +326,7 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
             {/* Latest offer */}
             {latestOffer && (
               <div>
-                <Head eye="For members" title="Member Offers" href="/membership-card" seeMore="See more" />
+                <Head eye="For members" title="Featured Offer" href="/membership-card" seeMore="See more" />
                 <div style={{ background: '#fff', borderRadius: RADIUS, border: '1px solid #EDE7DC', borderLeft: `4px solid ${RED}`, padding: '16px 18px' }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>

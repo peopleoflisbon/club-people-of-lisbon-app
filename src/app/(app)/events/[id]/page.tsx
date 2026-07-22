@@ -130,11 +130,10 @@ export default async function EventDetailPage({ params }: { params: { id: string
           )}
         </div>
       </div>
+      <div className="h-24 lg:h-0 flex-shrink-0" />
     </div>
   );
-}
-
-function RsvpButton({ eventId, userId, initialRsvp }: { eventId: string; userId: string | undefined; initialRsvp: string | null }) {
+}({ eventId, userId, initialRsvp }: { eventId: string; userId: string | undefined; initialRsvp: string | null }) {
   if (!userId) return null;
   return (
     <form action={`/api/events/rsvp`} method="POST">

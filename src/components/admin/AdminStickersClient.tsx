@@ -84,8 +84,7 @@ export default function AdminStickersClient() {
 
   async function saveEdit(s: StickerRow) {
     setSaving(true);
-    // Save directly to custom_stickers — this is the source of truth for rita stickers
-    // and ensures description/quote shows correctly on the reveal screen
+    // Save directly to custom_stickers (read by the open route)
     await fetch('/api/admin-sticker', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -94,6 +93,16 @@ export default function AdminStickersClient() {
         subtitle: editSubtitle,
         description: editDescription,
         sort_order: editSortOrder,
+      }),
+    });
+    // Also save to overrides (read by the collection route) so it's consistent everywhere
+    await fetch('/api/admin-sticker-override', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sticker_type: s.sticker_type, source_id: s.source_id,
+        custom_name: editName.trim() || null,
+        custom_subtitle: editSubtitle || null,
+        custom_description: editDescription || null,
       }),
     });
     setEditingId(null);
@@ -245,7 +254,7 @@ export default function AdminStickersClient() {
                       </>
                     ) : (
                       <>
-                        <button onClick={() => { setEditingId(id); setEditName(s.custom_name ?? s.default_name); setEditSubtitle(s.custom_subtitle ?? s.default_subtitle); setEditDescription(s.custom_description ?? s.default_description ?? ''); setEditSortOrder(s.number); }} className="text-xs px-3 py-1.5 border border-stone-200 hover:border-brand hover:text-brand transition-colors">Edit</button>
+                        <button onClick={() => { setEditingId(id); setEditName(s.custom_name ?? s.default_name); setEditSubtitle(s.custom_subtitle ?? s.default_subtitle); setEditDescription(s.display_description || s.custom_description || s.default_description || ''); setEditSortOrder(s.number); }} className="text-xs px-3 py-1.5 border border-stone-200 hover:border-brand hover:text-brand transition-colors">Edit</button>
                         <button onClick={() => deleteSticker(s.source_id)} className="text-xs px-2 py-1.5 border border-red-200 text-red-400 hover:bg-red-50 transition-colors">✕</button>
                       </>
                     )}
