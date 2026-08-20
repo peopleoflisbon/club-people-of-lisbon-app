@@ -69,6 +69,7 @@ export default function StickersPage() {
                   <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 3, height: 4, overflow: 'hidden' }}>
                     <div style={{ background: RED, height: '100%', width: `${pct}%`, transition: 'width 0.5s ease', borderRadius: 3 }} />
                   </div>
+                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: '10px 0 0', letterSpacing: '.04em' }}>Open a new sticker every day ✦</p>
                 </>
               )}
             </div>
@@ -142,7 +143,7 @@ export default function StickersPage() {
               </p>
             )}
             {enlarged.youtube_url && (
-              <a href={enlarged.youtube_url} target="_blank" rel="noopener noreferrer" style={{ marginTop: 14, display: 'inline-flex', alignItems: 'center', gap: 8, background: '#FF0000', color: '#fff', padding: '10px 20px', borderRadius: 4, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+              <a href={enlarged.youtube_url} target="_blank" rel="noopener noreferrer" style={{ marginTop: 14, display: 'inline-flex', alignItems: 'center', gap: 8, background: '#C8102E', color: '#fff', padding: '10px 20px', borderRadius: 4, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
                 ▶ Watch on YouTube
               </a>
             )}

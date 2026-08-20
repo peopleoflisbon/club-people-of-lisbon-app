@@ -14,6 +14,8 @@ interface MemberEvent {
   name: string;
   event_date: string;
   event_time: string;
+  event_end_date?: string;
+  event_end_time?: string;
   description: string;
   link: string;
   location: string;
@@ -22,6 +24,7 @@ interface MemberEvent {
   avatar_url: string;
   user_id: string;
   created_at: string;
+  image_url?: string;
 }
 
 interface Props {
@@ -118,6 +121,34 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
 
   const chars = charCount(form.description);
 
+  // Edit own event
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Partial<MemberEvent>>({});
+  const [editSaving, setEditSaving] = useState(false);
+
+  function startEdit(event: MemberEvent) {
+    setEditingId(event.id);
+    setEditForm({ ...event });
+  }
+
+  async function saveEdit() {
+    setEditSaving(true);
+    await (supabase as any).from('member_events').update({
+      name: editForm.name,
+      event_date: editForm.event_date,
+      event_time: editForm.event_time,
+      event_end_date: editForm.event_end_date || null,
+      event_end_time: editForm.event_end_time || null,
+      description: editForm.description,
+      link: editForm.link,
+      location: editForm.location,
+      google_maps_url: editForm.google_maps_url,
+    }).eq('id', editingId);
+    setEditingId(null);
+    setEditSaving(false);
+    router.refresh();
+  }
+
   return (
     <ScrollPage>
     <div style={{ maxWidth: 600, margin: '0 auto', padding: '24px 16px 120px', fontFamily: FF }}>
@@ -144,7 +175,7 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
             <input className="pol-input" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Name of your event" required />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 14 }}>
             <div>
               <label style={lbl}>Start Date *</label>
               <input className="pol-input" type="date" value={form.event_date} onChange={e => set('event_date', e.target.value)} required />
@@ -155,7 +186,7 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 14 }}>
             <div>
               <label style={lbl}>End Date (optional)</label>
               <input className="pol-input" type="date" value={form.event_end_date} onChange={e => set('event_end_date', e.target.value)} />
@@ -254,49 +285,88 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {events.map((event) => (
           <div key={event.id} style={{ background: 'white', borderRadius: 12, border: '1px solid #EDE7DC', overflow: 'hidden' }}>
-            <div style={{ borderLeft: `4px solid ${POL_RED}`, padding: '16px 18px' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
-                <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1C1C1C', margin: 0, lineHeight: 1.2 }}>{event.name}</h3>
-                <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: POL_RED, display: 'block' }}>{formatDate(event.event_date)}</span>
-                  {event.event_time && <span style={{ fontSize: 11, color: '#A89A8C', display: 'block' }}>{event.event_time}</span>}
+            {editingId === event.id ? (
+              <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <input className="pol-input" value={editForm.name || ''} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} placeholder="Event name" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <label style={lbl}>Start Date</label>
+                  <input className="pol-input" type="date" value={editForm.event_date || ''} onChange={e => setEditForm(f => ({ ...f, event_date: e.target.value }))} />
+                  <label style={lbl}>Start Time</label>
+                  <input className="pol-input" type="time" value={editForm.event_time || ''} onChange={e => setEditForm(f => ({ ...f, event_time: e.target.value }))} />
+                  <label style={lbl}>End Date (optional)</label>
+                  <input className="pol-input" type="date" value={editForm.event_end_date || ''} onChange={e => setEditForm(f => ({ ...f, event_end_date: e.target.value }))} />
+                  <label style={lbl}>End Time (optional)</label>
+                  <input className="pol-input" type="time" value={editForm.event_end_time || ''} onChange={e => setEditForm(f => ({ ...f, event_end_time: e.target.value }))} />
+                </div>
+                <input className="pol-input" value={editForm.location || ''} onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))} placeholder="Location" />
+                <textarea className="pol-textarea" rows={3} value={editForm.description || ''} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} placeholder="Description" />
+                <input className="pol-input" value={editForm.link || ''} onChange={e => setEditForm(f => ({ ...f, link: e.target.value }))} placeholder="Link (optional)" />
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button onClick={saveEdit} disabled={editSaving} style={{ padding: '10px 20px', background: POL_RED, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                    {editSaving ? 'Saving…' : 'Save'}
+                  </button>
+                  <button onClick={() => setEditingId(null)} style={{ padding: '10px 20px', background: '#F5F1EA', color: '#6B5E52', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                    Cancel
+                  </button>
                 </div>
               </div>
-              {event.location && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#A89A8C" strokeWidth="2">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-                  </svg>
-                  {event.google_maps_url ? (
-                    <a href={event.google_maps_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: POL_RED, textDecoration: 'none', fontWeight: 600 }}>{event.location}</a>
-                  ) : (
-                    <span style={{ fontSize: 12, color: '#8A7C6E' }}>{event.location}</span>
-                  )}
-                </div>
-              )}
-              <p style={{ fontSize: 13, color: '#6B5E52', margin: '0 0 10px', lineHeight: 1.6 }}>{event.description}</p>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {event.user_id ? (
-                    <a href={`/members/${event.user_id}`} style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-                      {event.avatar_url && <Avatar src={event.avatar_url} name={event.submitted_by} size="xs" />}
-                      <p style={{ fontSize: 12, color: '#A89A8C', margin: 0 }}>Posted by <strong style={{ color: '#1C1C1C' }}>{event.submitted_by}</strong></p>
-                    </a>
-                  ) : (
-                    <>
-                      {event.avatar_url && <Avatar src={event.avatar_url} name={event.submitted_by} size="xs" />}
-                      <p style={{ fontSize: 12, color: '#A89A8C', margin: 0 }}>Posted by <strong style={{ color: '#1C1C1C' }}>{event.submitted_by}</strong></p>
-                    </>
-                  )}
-                </div>
-                {event.link && (
-                  <a href={event.link} target="_blank" rel="noopener noreferrer" style={{
-                    fontSize: 12, fontWeight: 700, color: POL_RED, textDecoration: 'none',
-                    padding: '5px 12px', border: `1px solid ${POL_RED}`, borderRadius: 6,
-                  }}>More info →</a>
+            ) : (
+              <>
+                {event.image_url && (
+                  <img src={event.image_url} alt={event.name} style={{ width: '100%', height: 160, objectFit: 'cover', display: 'block' }} />
                 )}
-              </div>
-            </div>
+                <div style={{ borderLeft: `4px solid ${POL_RED}`, padding: '16px 18px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
+                    <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1C1C1C', margin: 0, lineHeight: 1.2 }}>{event.name}</h3>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: POL_RED, display: 'block' }}>{formatDate(event.event_date)}</span>
+                      {event.event_time && <span style={{ fontSize: 11, color: '#A89A8C', display: 'block' }}>{event.event_time}{event.event_end_time ? ` – ${event.event_end_time}` : ''}</span>}
+                      {event.event_end_date && event.event_end_date !== event.event_date && (
+                        <span style={{ fontSize: 10, color: '#A89A8C', display: 'block' }}>until {formatDate(event.event_end_date)}</span>
+                      )}
+                    </div>
+                  </div>
+                  {event.location && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#A89A8C" strokeWidth="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                      </svg>
+                      {event.google_maps_url ? (
+                        <a href={event.google_maps_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: POL_RED, textDecoration: 'none', fontWeight: 600 }}>{event.location}</a>
+                      ) : (
+                        <span style={{ fontSize: 12, color: '#8A7C6E' }}>{event.location}</span>
+                      )}
+                    </div>
+                  )}
+                  <p style={{ fontSize: 13, color: '#6B5E52', margin: '0 0 10px', lineHeight: 1.6 }}>{event.description}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {event.user_id ? (
+                        <a href={`/members/${event.user_id}`} style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+                          {event.avatar_url && <Avatar src={event.avatar_url} name={event.submitted_by} size="xs" />}
+                          <p style={{ fontSize: 12, color: '#A89A8C', margin: 0 }}>Posted by <strong style={{ color: '#1C1C1C' }}>{event.submitted_by}</strong></p>
+                        </a>
+                      ) : (
+                        <>
+                          {event.avatar_url && <Avatar src={event.avatar_url} name={event.submitted_by} size="xs" />}
+                          <p style={{ fontSize: 12, color: '#A89A8C', margin: 0 }}>Posted by <strong style={{ color: '#1C1C1C' }}>{event.submitted_by}</strong></p>
+                        </>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      {event.user_id === userId && (
+                        <button onClick={() => startEdit(event)} style={{ fontSize: 12, fontWeight: 600, color: '#6B5E52', background: '#F5F1EA', border: '1px solid #D1C9BE', padding: '5px 10px', borderRadius: 6, cursor: 'pointer' }}>
+                          Edit
+                        </button>
+                      )}
+                      {event.link && (
+                        <a href={event.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, fontWeight: 700, color: POL_RED, textDecoration: 'none', padding: '5px 12px', border: `1px solid ${POL_RED}`, borderRadius: 6 }}>More info →</a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         ))}
       </div>
