@@ -168,7 +168,7 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
 
   return (
     <ScrollPage>
-    <div style={{ maxWidth: 600, margin: '0 auto', padding: '24px 16px 120px', fontFamily: FF }}>
+    <div style={{ maxWidth: 600, margin: '0 auto', padding: '24px 16px 120px', fontFamily: FF, overflowX: 'hidden' }}>
 
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 28, fontWeight: 900, color: '#1C1C1C', margin: '0 0 6px', letterSpacing: '-0.02em' }}>Member Events</h1>
@@ -184,12 +184,12 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
       )}
 
       {showForm && (
-        <form onSubmit={handleSubmit} style={{ background: 'white', borderRadius: 12, border: '1px solid #EDE7DC', padding: '20px', marginBottom: 28 }}>
+        <form onSubmit={handleSubmit} style={{ background: 'white', borderRadius: 12, border: '1px solid #EDE7DC', padding: '20px', marginBottom: 28, overflow: 'hidden', boxSizing: 'border-box' }}>
           <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 16px', color: '#1C1C1C' }}>Post an Event</h2>
 
           <div style={{ marginBottom: 14 }}>
             <label style={lbl}>Event Name *</label>
-            <input className="pol-input" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Name of your event" required />
+            <input className="pol-input" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Name of your event" required style={{ boxSizing: 'border-box', width: '100%' }} />
           </div>
 
           <div style={{ marginBottom: 14 }}>
@@ -200,7 +200,7 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
               value={form.start_datetime}
               onChange={e => set('start_datetime', e.target.value)}
               required
-              style={{ width: '100%', boxSizing: 'border-box' }}
+              style={{ boxSizing: 'border-box', width: '100%', display: 'block', minWidth: 0, maxWidth: '100%' }}
             />
           </div>
 
@@ -211,7 +211,7 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
               type="datetime-local"
               value={form.end_datetime}
               onChange={e => set('end_datetime', e.target.value)}
-              style={{ width: '100%', boxSizing: 'border-box' }}
+              style={{ boxSizing: 'border-box', width: '100%', display: 'block', minWidth: 0, maxWidth: '100%' }}
             />
           </div>
 
