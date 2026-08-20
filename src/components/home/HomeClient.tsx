@@ -96,7 +96,7 @@ interface Props {
   brandLogoUrl?: string;
   latestEpisodeUrl?: string;
   latestRec?: { id: string; name: string; category: string; neighbourhood: string; image_url?: string } | null;
-  nextMemberEvents?: { id: string; name: string; event_date: string; event_time: string; location: string; submitted_by: string; image_url?: string }[];
+  nextMemberEvents?: { id: string; name: string; event_date: string; event_time: string; event_end_date?: string; event_end_time?: string; location: string; submitted_by: string; image_url?: string }[];
   latestOffer?: { id: string; title: string; partner_name: string; partner_url: string; discount: string } | null;
   stickerPacketAvailable?: boolean;
   stickerCount?: number;
@@ -227,6 +227,13 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                             return t ? `${d} · ${t}` : d;
                           })()}
                         </p>
+                        {ev.event_end_date && (
+                          <p style={{ fontSize: 10, color: MUTED, margin: '2px 0 0' }}>
+                            {`→ ${/^\d{4}-\d{2}-\d{2}/.test(ev.event_end_date)
+                              ? new Date(ev.event_end_date + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                              : ev.event_end_date}${ev.event_end_time && /^\d{1,2}:\d{2}/.test(ev.event_end_time) ? ` · ${ev.event_end_time}` : ''}`}
+                          </p>
+                        )}
                       </div>
                     </div>
                     {ev.location && <p style={{ fontSize: 12, color: MUTED, margin: '4px 0 0' }}>📍 {ev.location}</p>}
