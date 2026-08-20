@@ -160,13 +160,15 @@ export default function AdminStickersClient() {
             <textarea className="pol-textarea" rows={2} value={newForm.description} onChange={e => setNewForm(f => ({ ...f, description: e.target.value }))} placeholder="A filmmaker who fell in love with Lisbon and never left." />
           </div>
           <div>
-            <label className="pol-label">Photo</label>
-            <input className="pol-input" value={newForm.youtube_url || ''} onChange={e => setNewForm(f => ({ ...f, youtube_url: e.target.value }))} placeholder="https://youtube.com/watch?v=..." />
-          </div>
+            <label className="pol-label">YouTube URL (optional — links to the POL video)</label>
+            <input className="pol-input" value={(newForm as any).youtube_url || ''} onChange={e => setNewForm(f => ({ ...f, youtube_url: e.target.value } as any))} placeholder="https://youtube.com/watch?v=..." />
           </div>
           <div>
             <label className="pol-label">Sticker Number (sort order)</label>
             <input type="number" className="pol-input w-28" value={newForm.sort_order} onChange={e => setNewForm(f => ({ ...f, sort_order: parseInt(e.target.value) || 1 }))} />
+          </div>
+          <div>
+            <label className="pol-label">Photo</label>
             <div className="flex items-center gap-3 mt-1">
               {newForm.image_url && (
                 <img src={newForm.image_url} alt="" className="w-14 h-20 object-cover object-top rounded" />
