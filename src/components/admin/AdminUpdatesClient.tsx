@@ -30,6 +30,11 @@ export default function AdminUpdatesClient({ updates: initial }: { updates: Upda
       const { data } = await supabase.from('updates').update(form).eq('id', editingId).select().single();
       if (data) setUpdates((p) => p.map((u) => u.id === editingId ? data : u));
     } else {
+      // Unpublish all previous updates when publishing a new one
+      if (form.is_published) {
+        await supabase.from('updates').update({ is_published: false }).eq('is_published', true);
+        setUpdates((p) => p.map((u) => ({ ...u, is_published: false })));
+      }
       const { data } = await supabase.from('updates').insert(payload).select().single();
       if (data) setUpdates((p) => [data, ...p]);
     }

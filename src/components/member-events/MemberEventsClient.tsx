@@ -57,15 +57,32 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
     name: '', event_date: '', event_time: '',
+    event_end_date: '', event_end_time: '',
     description: '', link: 'https://',
     location: '', google_maps_url: 'https://',
-    submitted_by: userName,
+    submitted_by: userName, image_url: '',
   });
 
   function set(field: string, value: string) { setForm(f => ({ ...f, [field]: value })); }
+
+  async function uploadImage(file: File): Promise<string | null> {
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const path = `member-events/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from('media').upload(path, file, { upsert: false, contentType: file.type });
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(path);
+      return publicUrl;
+    } catch (err: any) {
+      setError(`Image upload failed: ${err.message}`);
+      return null;
+    } finally { setUploading(false); }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -82,6 +99,8 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
       name: form.name,
       event_date: form.event_date,
       event_time: form.event_time,
+      event_end_date: form.event_end_date || null,
+      event_end_time: form.event_end_time || null,
       description: form.description,
       link: form.link === 'https://' ? '' : form.link,
       location: form.location,
@@ -89,9 +108,10 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
       submitted_by: form.submitted_by || userName,
       avatar_url: userAvatar,
       user_id: userId,
+      image_url: form.image_url || null,
     });
     if (err) { setError('Something went wrong. Please try again.'); setSaving(false); return; }
-    setForm({ name: '', event_date: '', event_time: '', description: '', link: 'https://', location: '', google_maps_url: 'https://', submitted_by: userName });
+    setForm({ name: '', event_date: '', event_time: '', event_end_date: '', event_end_time: '', description: '', link: 'https://', location: '', google_maps_url: 'https://', submitted_by: userName, image_url: '' });
     setShowForm(false); setSaving(false);
     router.refresh();
   }
@@ -124,23 +144,43 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
             <input className="pol-input" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Name of your event" required />
           </div>
 
-          <div style={{ marginBottom: 14 }}>
-            <label style={lbl}>Date *</label>
-            <div style={{ width: '100%', overflow: 'hidden' }}>
-              <input className="pol-input" type="text" value={form.event_date}
-                onChange={e => set('event_date', e.target.value)}
-                placeholder="e.g. 15 May 2026"
-                required style={{ width: '100%', boxSizing: 'border-box', display: 'block' }} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+            <div>
+              <label style={lbl}>Start Date *</label>
+              <input className="pol-input" type="date" value={form.event_date} onChange={e => set('event_date', e.target.value)} required />
+            </div>
+            <div>
+              <label style={lbl}>Start Time *</label>
+              <input className="pol-input" type="time" value={form.event_time} onChange={e => set('event_time', e.target.value)} required />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+            <div>
+              <label style={lbl}>End Date (optional)</label>
+              <input className="pol-input" type="date" value={form.event_end_date} onChange={e => set('event_end_date', e.target.value)} />
+            </div>
+            <div>
+              <label style={lbl}>End Time (optional)</label>
+              <input className="pol-input" type="time" value={form.event_end_time} onChange={e => set('event_end_time', e.target.value)} />
             </div>
           </div>
 
           <div style={{ marginBottom: 14 }}>
-            <label style={lbl}>Time *</label>
-            <div style={{ width: '100%', overflow: 'hidden' }}>
-              <input className="pol-input" type="text" value={form.event_time}
-                onChange={e => set('event_time', e.target.value)}
-                placeholder="e.g. 7:00pm"
-                required style={{ width: '100%', boxSizing: 'border-box', display: 'block' }} />
+            <label style={lbl}>Event Image (optional)</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {form.image_url && (
+                <img src={form.image_url} alt="" style={{ width: 64, height: 48, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }} />
+              )}
+              <label style={{ display: 'inline-block', padding: '8px 14px', background: '#F5F1EA', border: '1px solid #D1C9BE', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#1C1C1C', cursor: 'pointer' }}>
+                {uploading ? 'Uploading…' : form.image_url ? 'Change Image' : 'Upload Image'}
+                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
+                  const file = e.target.files?.[0]; if (!file) return;
+                  const url = await uploadImage(file);
+                  if (url) set('image_url', url);
+                  e.target.value = '';
+                }} />
+              </label>
             </div>
           </div>
 

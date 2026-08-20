@@ -96,13 +96,13 @@ interface Props {
   brandLogoUrl?: string;
   latestEpisodeUrl?: string;
   latestRec?: { id: string; name: string; category: string; neighbourhood: string; image_url?: string } | null;
-  nextMemberEvent?: { id: string; name: string; event_date: string; event_time: string; location: string; submitted_by: string } | null;
+  nextMemberEvents?: { id: string; name: string; event_date: string; event_time: string; location: string; submitted_by: string; image_url?: string }[];
   latestOffer?: { id: string; title: string; partner_name: string; partner_url: string; discount: string } | null;
   stickerPacketAvailable?: boolean;
   stickerCount?: number;
 }
 
-export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl, latestRec, nextMemberEvent, latestOffer, stickerPacketAvailable, stickerCount }: Props) {
+export default function HomeClient({ profile, recentMembers, upcomingEvents, latestUpdate, latestPhoto, stephenProfile, latestEpisodeUrl, latestRec, nextMemberEvents, latestOffer, stickerPacketAvailable, stickerCount }: Props) {
   const firstName = profile?.full_name?.split(' ')[0] || 'there';
   const gap = 18;
   const pad = '0 16px';
@@ -200,22 +200,31 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
         )}
 
         {/* ─── 3b. NEXT MEMBER EVENT ──────────────────────── */}
-        {nextMemberEvent && (
+        {/* ─── 3. UPCOMING MEMBER EVENTS ─────────────── */}
+        {nextMemberEvents && nextMemberEvents.length > 0 && (
           <div style={{ padding: pad, marginBottom: gap }}>
-            <Head eye="From the club" title="Member Events" href="/member-events" />
-            <Link href="/member-events" style={{ display: 'block', ...card, textDecoration: 'none' }}>
-              <div style={{ borderLeft: `4px solid ${RED}`, padding: '14px 18px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-                  <p style={{ fontSize: 16, fontWeight: 700, color: INK, margin: '0 0 4px', fontFamily: FF }}>{nextMemberEvent.name}</p>
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: RED, margin: 0 }}>{nextMemberEvent.event_date}</p>
-                    {nextMemberEvent.event_time && <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>{nextMemberEvent.event_time}</p>}
+            <Head eye="From the community" title="Member Events" href="/member-events" seeMore="See more" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {nextMemberEvents.map((ev) => (
+                <Link key={ev.id} href={`/member-events`} style={{ display: 'block', ...card, textDecoration: 'none', overflow: 'hidden' }}>
+                  {ev.image_url && (
+                    <div style={{ height: 120, overflow: 'hidden' }}>
+                      <img src={ev.image_url} alt={ev.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    </div>
+                  )}
+                  <div style={{ borderLeft: `4px solid ${RED}`, padding: '12px 16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                      <p style={{ fontSize: 15, fontWeight: 700, color: INK, margin: 0, fontFamily: FF }}>{ev.name}</p>
+                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                        <p style={{ fontSize: 11, fontWeight: 700, color: RED, margin: 0 }}>{ev.event_date}</p>
+                        {ev.event_time && <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>{ev.event_time}</p>}
+                      </div>
+                    </div>
+                    {ev.location && <p style={{ fontSize: 12, color: MUTED, margin: '4px 0 0' }}>📍 {ev.location}</p>}
                   </div>
-                </div>
-                {nextMemberEvent.location && <p style={{ fontSize: 12, color: MUTED, margin: '2px 0 0' }}>📍 {nextMemberEvent.location}</p>}
-                <p style={{ fontSize: 12, color: MUTED, margin: '6px 0 0' }}>By <strong style={{ color: INK }}>{nextMemberEvent.submitted_by}</strong></p>
-              </div>
-            </Link>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
 
@@ -320,7 +329,6 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
               </Link>
             </div>
 
-            <Mod href="/member-events" eye="Community" title="Member Events" sub="Events posted by club members" />
             <Mod href="/membership-card" eye="Members only" title="Membership Card + Offers" sub="Your card and member discounts" />
 
             {/* Latest offer */}
@@ -338,9 +346,6 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                     )}
                   </div>
                 </div>
-                <Link href="/membership-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 8, padding: '10px', background: '#fff', border: `1.5px solid ${RED}`, borderRadius: 6, fontSize: 13, fontWeight: 700, color: RED, textDecoration: 'none', fontFamily: FF }}>
-                  See more →
-                </Link>
               </div>
             )}
 
