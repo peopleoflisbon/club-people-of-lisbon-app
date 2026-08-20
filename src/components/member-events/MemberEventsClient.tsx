@@ -38,15 +38,31 @@ function charCount(text: string) { return text.length; }
 
 function formatDate(dateStr: string) {
   if (!dateStr) return '';
-  // Try parsing as ISO date (YYYY-MM-DD from date input)
   if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
-    const d = new Date(dateStr + 'T12:00:00'); // noon to avoid timezone issues
+    const d = new Date(dateStr + 'T12:00:00');
     if (!isNaN(d.getTime())) {
       return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
     }
   }
-  // Return free-text as-is (legacy entries)
   return dateStr;
+}
+
+// Format time only if it's a valid HH:MM — silently drops free-text like "Check in Thursday"
+function formatTime(timeStr: string) {
+  if (!timeStr) return '';
+  if (/^\d{1,2}:\d{2}/.test(timeStr)) {
+    const [h, m] = timeStr.split(':').map(Number);
+    const period = h >= 12 ? 'pm' : 'am';
+    const hour = h % 12 || 12;
+    return `${hour}:${String(m).padStart(2, '0')}${period}`;
+  }
+  return '';
+}
+
+function formatEventDate(dateStr: string, timeStr: string) {
+  const date = formatDate(dateStr);
+  const time = formatTime(timeStr);
+  return time ? `${date} · ${time}` : date;
 }
 
 const lbl: React.CSSProperties = {
@@ -63,8 +79,7 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
-    name: '', event_date: '', event_time: '',
-    event_end_date: '', event_end_time: '',
+    name: '', start_datetime: '', end_datetime: '',
     description: '', link: 'https://',
     location: '', google_maps_url: 'https://',
     submitted_by: userName, image_url: '',
@@ -89,8 +104,8 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name || !form.event_date || !form.event_time || !form.description) {
-      setError('Please fill in name, date, time and description.');
+    if (!form.name || !form.start_datetime || !form.description) {
+      setError('Please fill in name, start date/time and description.');
       return;
     }
     if (charCount(form.description) > 180) {
@@ -98,12 +113,14 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
       return;
     }
     setSaving(true); setError('');
+    const [startDate, startTime] = form.start_datetime.split('T');
+    const [endDate, endTime] = form.end_datetime ? form.end_datetime.split('T') : ['', ''];
     const { error: err } = await (supabase as any).from('member_events').insert({
       name: form.name,
-      event_date: form.event_date,
-      event_time: form.event_time,
-      event_end_date: form.event_end_date || null,
-      event_end_time: form.event_end_time || null,
+      event_date: startDate,
+      event_time: startTime || '',
+      event_end_date: endDate || null,
+      event_end_time: endTime || null,
       description: form.description,
       link: form.link === 'https://' ? '' : form.link,
       location: form.location,
@@ -114,12 +131,12 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
       image_url: form.image_url || null,
     });
     if (err) { setError('Something went wrong. Please try again.'); setSaving(false); return; }
-    setForm({ name: '', event_date: '', event_time: '', event_end_date: '', event_end_time: '', description: '', link: 'https://', location: '', google_maps_url: 'https://', submitted_by: userName, image_url: '' });
+    setForm({ name: '', start_datetime: '', end_datetime: '', description: '', link: 'https://', location: '', google_maps_url: 'https://', submitted_by: userName, image_url: '' });
     setShowForm(false); setSaving(false);
     router.refresh();
   }
 
-  const chars = charCount(form.description);
+    const chars = charCount(form.description);
 
   // Edit own event
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -175,26 +192,27 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
             <input className="pol-input" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Name of your event" required />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 14 }}>
-            <div>
-              <label style={lbl}>Start Date *</label>
-              <input className="pol-input" type="date" value={form.event_date} onChange={e => set('event_date', e.target.value)} required />
-            </div>
-            <div>
-              <label style={lbl}>Start Time *</label>
-              <input className="pol-input" type="time" value={form.event_time} onChange={e => set('event_time', e.target.value)} required />
-            </div>
+          <div style={{ marginBottom: 14 }}>
+            <label style={lbl}>Start Date &amp; Time *</label>
+            <input
+              className="pol-input"
+              type="datetime-local"
+              value={form.start_datetime}
+              onChange={e => set('start_datetime', e.target.value)}
+              required
+              style={{ width: '100%', boxSizing: 'border-box' }}
+            />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 14 }}>
-            <div>
-              <label style={lbl}>End Date (optional)</label>
-              <input className="pol-input" type="date" value={form.event_end_date} onChange={e => set('event_end_date', e.target.value)} />
-            </div>
-            <div>
-              <label style={lbl}>End Time (optional)</label>
-              <input className="pol-input" type="time" value={form.event_end_time} onChange={e => set('event_end_time', e.target.value)} />
-            </div>
+          <div style={{ marginBottom: 14 }}>
+            <label style={lbl}>End Date &amp; Time (optional)</label>
+            <input
+              className="pol-input"
+              type="datetime-local"
+              value={form.end_datetime}
+              onChange={e => set('end_datetime', e.target.value)}
+              style={{ width: '100%', boxSizing: 'border-box' }}
+            />
           </div>
 
           <div style={{ marginBottom: 14 }}>
@@ -320,13 +338,11 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
                     <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1C1C1C', margin: 0, lineHeight: 1.2 }}>{event.name}</h3>
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
                     <span style={{ fontSize: 11, fontWeight: 700, color: POL_RED, display: 'block' }}>
-                      {formatDate(event.event_date)}
-                      {event.event_time && ` · ${event.event_time}`}
+                      {formatEventDate(event.event_date, event.event_time)}
                     </span>
                     {event.event_end_date && (
                       <span style={{ fontSize: 10, color: '#A89A8C', display: 'block' }}>
-                        → {formatDate(event.event_end_date)}
-                        {event.event_end_time && ` · ${event.event_end_time}`}
+                        → {formatEventDate(event.event_end_date, event.event_end_time || '')}
                       </span>
                     )}
                   </div>

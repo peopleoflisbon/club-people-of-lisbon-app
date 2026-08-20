@@ -217,7 +217,15 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                       <p style={{ fontSize: 15, fontWeight: 700, color: INK, margin: 0, fontFamily: FF }}>{ev.name}</p>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
                         <p style={{ fontSize: 11, fontWeight: 700, color: RED, margin: 0 }}>
-                          {ev.event_date}{ev.event_time ? ` · ${ev.event_time}` : ''}
+                          {(() => {
+                            // Format YYYY-MM-DD dates; pass through legacy text dates
+                            const d = /^\d{4}-\d{2}-\d{2}/.test(ev.event_date)
+                              ? new Date(ev.event_date + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                              : ev.event_date;
+                            // Only show time if valid HH:MM — skips free-text like "Check in..."
+                            const t = ev.event_time && /^\d{1,2}:\d{2}/.test(ev.event_time) ? ev.event_time : '';
+                            return t ? `${d} · ${t}` : d;
+                          })()}
                         </p>
                       </div>
                     </div>
