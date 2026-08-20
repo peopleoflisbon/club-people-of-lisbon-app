@@ -32,7 +32,8 @@ export async function GET() {
       const col = collectedMap.get(s.id);
       return {
         type: 'rita', source_id: s.id, name: s.name, subtitle: s.subtitle || '',
-        description: s.description || '', image_url: s.image_url || null,
+        description: s.description || '', youtube_url: s.youtube_url || null,
+        image_url: s.image_url || null,
         number: s.sort_order, collected: !!col, collected_at: col?.collected_at || null,
       };
     });

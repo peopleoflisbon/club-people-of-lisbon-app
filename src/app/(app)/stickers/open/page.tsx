@@ -186,10 +186,16 @@ export default function OpenPacketPage() {
             </p>
           )}
           <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 22 }}>Added to your collection</p>
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+          {sticker.youtube_url && (
+            <a href={sticker.youtube_url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#FF0000', color: '#fff', padding: '10px 20px', borderRadius: 4, fontSize: 13, fontWeight: 700, textDecoration: 'none', marginBottom: 16 }}>
+              ▶ Watch on YouTube
+            </a>
+          )}
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 16 }}>
             <button onClick={() => router.push('/stickers')} style={{ background: RED, color: '#fff', border: 'none', padding: '13px 22px', fontSize: 12, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: FF, borderRadius: 4 }}>View Collection →</button>
             <button onClick={() => router.push('/home')} style={{ background: 'none', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.2)', padding: '13px 22px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: FF, borderRadius: 4 }}>Home</button>
           </div>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textAlign: 'center' }}>Open a new sticker every day ✦</p>
         </div>
       )}
 

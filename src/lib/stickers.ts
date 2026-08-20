@@ -5,6 +5,8 @@ export interface StickerDef {
   source_id: string;
   name: string;
   subtitle: string;
+  description: string;
+  youtube_url?: string;
   image_url: string | null;
   number: number;
 }

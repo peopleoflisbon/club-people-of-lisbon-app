@@ -17,6 +17,7 @@ type Sticker = {
   name: string;
   subtitle: string;
   description?: string;
+  youtube_url?: string;
   image_url: string | null;
   number: number;
   collected: boolean;
@@ -136,9 +137,14 @@ export default function StickersPage() {
           <div onClick={e => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 300 }}>
             <StickerCard sticker={enlarged} size="xl" />
             {enlarged.description && (
-              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', marginTop: 18, fontStyle: 'italic', lineHeight: 1.65, textAlign: 'center' }}>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)', marginTop: 18, fontStyle: 'italic', lineHeight: 1.65, textAlign: 'center' }}>
                 "{enlarged.description}"
               </p>
+            )}
+            {enlarged.youtube_url && (
+              <a href={enlarged.youtube_url} target="_blank" rel="noopener noreferrer" style={{ marginTop: 14, display: 'inline-flex', alignItems: 'center', gap: 8, background: '#FF0000', color: '#fff', padding: '10px 20px', borderRadius: 4, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+                ▶ Watch on YouTube
+              </a>
             )}
             <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 12, fontFamily: FF }}>
               Collected {enlarged.collected_at ? new Date(enlarged.collected_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}

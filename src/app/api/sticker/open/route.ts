@@ -73,7 +73,7 @@ export async function GET() {
 
     return NextResponse.json({
       alreadyOpened: false,
-      sticker: { type: 'rita', source_id: pick.id, name: pick.name, subtitle: pick.subtitle || '', description: pick.description || '', image_url: pick.image_url || null, number: pick.sort_order },
+      sticker: { type: 'rita', source_id: pick.id, name: pick.name, subtitle: pick.subtitle || '', description: pick.description || '', youtube_url: pick.youtube_url || null, image_url: pick.image_url || null, number: pick.sort_order },
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

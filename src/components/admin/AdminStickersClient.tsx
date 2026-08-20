@@ -29,6 +29,7 @@ export default function AdminStickersClient() {
   const [editName, setEditName] = useState('');
   const [editSubtitle, setEditSubtitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
+  const [editYoutubeUrl, setEditYoutubeUrl] = useState('');
   const [editSortOrder, setEditSortOrder] = useState(1);
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState<StickerRow | null>(null);
@@ -92,6 +93,7 @@ export default function AdminStickersClient() {
         name: editName.trim() || s.default_name,
         subtitle: editSubtitle,
         description: editDescription,
+        youtube_url: editYoutubeUrl || null,
         sort_order: editSortOrder,
       }),
     });
@@ -158,11 +160,13 @@ export default function AdminStickersClient() {
             <textarea className="pol-textarea" rows={2} value={newForm.description} onChange={e => setNewForm(f => ({ ...f, description: e.target.value }))} placeholder="A filmmaker who fell in love with Lisbon and never left." />
           </div>
           <div>
-            <label className="pol-label">Sticker Number (sort order)</label>
-            <input type="number" className="pol-input w-28" value={newForm.sort_order} onChange={e => setNewForm(f => ({ ...f, sort_order: parseInt(e.target.value) || 1 }))} />
+            <label className="pol-label">Photo</label>
+            <input className="pol-input" value={newForm.youtube_url || ''} onChange={e => setNewForm(f => ({ ...f, youtube_url: e.target.value }))} placeholder="https://youtube.com/watch?v=..." />
+          </div>
           </div>
           <div>
-            <label className="pol-label">Photo</label>
+            <label className="pol-label">Sticker Number (sort order)</label>
+            <input type="number" className="pol-input w-28" value={newForm.sort_order} onChange={e => setNewForm(f => ({ ...f, sort_order: parseInt(e.target.value) || 1 }))} />
             <div className="flex items-center gap-3 mt-1">
               {newForm.image_url && (
                 <img src={newForm.image_url} alt="" className="w-14 h-20 object-cover object-top rounded" />
@@ -228,6 +232,7 @@ export default function AdminStickersClient() {
                         <input className="pol-input text-sm py-1.5" value={editSubtitle} onChange={e => setEditSubtitle(e.target.value)} placeholder="Subtitle" />
                       </div>
                       <textarea className="pol-textarea text-sm py-1.5" rows={2} value={editDescription} onChange={e => setEditDescription(e.target.value)} placeholder="Quote / description shown on reveal…" />
+                      <input className="pol-input text-sm py-1.5" value={editYoutubeUrl} onChange={e => setEditYoutubeUrl(e.target.value)} placeholder="YouTube URL (https://youtube.com/watch?v=...)" />
                       <div className="flex items-center gap-2">
                         <label className="text-xs text-stone-500 font-semibold">Sticker #</label>
                         <input type="number" className="pol-input text-sm py-1 w-20" value={editSortOrder} onChange={e => setEditSortOrder(parseInt(e.target.value) || 1)} />
@@ -254,7 +259,7 @@ export default function AdminStickersClient() {
                       </>
                     ) : (
                       <>
-                        <button onClick={() => { setEditingId(id); setEditName(s.custom_name ?? s.default_name); setEditSubtitle(s.custom_subtitle ?? s.default_subtitle); setEditDescription(s.display_description || s.custom_description || s.default_description || ''); setEditSortOrder(s.number); }} className="text-xs px-3 py-1.5 border border-stone-200 hover:border-brand hover:text-brand transition-colors">Edit</button>
+                        <button onClick={() => { setEditingId(id); setEditName(s.custom_name ?? s.default_name); setEditSubtitle(s.custom_subtitle ?? s.default_subtitle); setEditDescription(s.display_description || s.custom_description || s.default_description || ''); setEditYoutubeUrl((s as any).youtube_url || ''); setEditSortOrder(s.number); }} className="text-xs px-3 py-1.5 border border-stone-200 hover:border-brand hover:text-brand transition-colors">Edit</button>
                         <button onClick={() => deleteSticker(s.source_id)} className="text-xs px-2 py-1.5 border border-red-200 text-red-400 hover:bg-red-50 transition-colors">✕</button>
                       </>
                     )}
