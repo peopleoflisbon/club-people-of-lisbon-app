@@ -181,7 +181,7 @@ p {
   border: 1.5px solid #E0D9CE; background: var(--card-bg);
   color: var(--text); font-size: 0.9rem; line-height: 1.5;
   border-radius: 8px; transition: border-color 0.2s, box-shadow 0.2s;
-  font-family: inherit;
+  font-family: inherit; box-sizing: border-box;
 }
 .pol-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(47,109,165,0.12); }
 .pol-input::placeholder { color: #A89A8C; }

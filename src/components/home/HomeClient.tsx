@@ -216,8 +216,9 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
                       <p style={{ fontSize: 15, fontWeight: 700, color: INK, margin: 0, fontFamily: FF }}>{ev.name}</p>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <p style={{ fontSize: 11, fontWeight: 700, color: RED, margin: 0 }}>{ev.event_date}</p>
-                        {ev.event_time && <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>{ev.event_time}</p>}
+                        <p style={{ fontSize: 11, fontWeight: 700, color: RED, margin: 0 }}>
+                          {ev.event_date}{ev.event_time ? ` · ${ev.event_time}` : ''}
+                        </p>
                       </div>
                     </div>
                     {ev.location && <p style={{ fontSize: 12, color: MUTED, margin: '4px 0 0' }}>📍 {ev.location}</p>}

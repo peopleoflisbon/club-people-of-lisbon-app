@@ -38,14 +38,14 @@ function charCount(text: string) { return text.length; }
 
 function formatDate(dateStr: string) {
   if (!dateStr) return '';
-  // Handle ISO format (2026-05-15) and text format (15 May 2026)
-  const d = new Date(dateStr);
-  if (!isNaN(d.getTime())) {
-    return d.toLocaleDateString('en-IE', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
+  // Try parsing as ISO date (YYYY-MM-DD from date input)
+  if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+    const d = new Date(dateStr + 'T12:00:00'); // noon to avoid timezone issues
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    }
   }
-  // Return as-is if can't parse (plain text date entered by user)
+  // Return free-text as-is (legacy entries)
   return dateStr;
 }
 
@@ -318,13 +318,18 @@ export default function MemberEventsClient({ events, userId, userName, userAvata
                 <div style={{ borderLeft: `4px solid ${POL_RED}`, padding: '16px 18px' }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
                     <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1C1C1C', margin: 0, lineHeight: 1.2 }}>{event.name}</h3>
-                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: POL_RED, display: 'block' }}>{formatDate(event.event_date)}</span>
-                      {event.event_time && <span style={{ fontSize: 11, color: '#A89A8C', display: 'block' }}>{event.event_time}{event.event_end_time ? ` – ${event.event_end_time}` : ''}</span>}
-                      {event.event_end_date && event.event_end_date !== event.event_date && (
-                        <span style={{ fontSize: 10, color: '#A89A8C', display: 'block' }}>until {formatDate(event.event_end_date)}</span>
-                      )}
-                    </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: POL_RED, display: 'block' }}>
+                      {formatDate(event.event_date)}
+                      {event.event_time && ` · ${event.event_time}`}
+                    </span>
+                    {event.event_end_date && (
+                      <span style={{ fontSize: 10, color: '#A89A8C', display: 'block' }}>
+                        → {formatDate(event.event_end_date)}
+                        {event.event_end_time && ` · ${event.event_end_time}`}
+                      </span>
+                    )}
+                  </div>
                   </div>
                   {event.location && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
