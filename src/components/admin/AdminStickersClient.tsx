@@ -34,7 +34,7 @@ export default function AdminStickersClient() {
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState<StickerRow | null>(null);
   const [addingNew, setAddingNew] = useState(false);
-  const [newForm, setNewForm] = useState({ name: '', subtitle: '', description: '', image_url: '', sort_order: 1 });
+  const [newForm, setNewForm] = useState({ name: '', subtitle: '', description: '', youtube_url: '', image_url: '', sort_order: 1 });
   const [uploading, setUploading] = useState(false);
   const [addSaving, setAddSaving] = useState(false);
   const [addMsg, setAddMsg] = useState('');
@@ -78,7 +78,7 @@ export default function AdminStickersClient() {
     const data = await res.json();
     if (data.error) { setAddMsg(`Error: ${data.error}`); setAddSaving(false); return; }
     setAddingNew(false);
-    setNewForm({ name: '', subtitle: '', description: '', image_url: '', sort_order: stickers.length + 1 });
+    setNewForm({ name: '', subtitle: '', description: '', youtube_url: '', image_url: '', sort_order: stickers.length + 1 });
     await load();
     setAddSaving(false);
   }
@@ -161,7 +161,7 @@ export default function AdminStickersClient() {
           </div>
           <div>
             <label className="pol-label">YouTube URL (optional — links to the POL video)</label>
-            <input className="pol-input" value={(newForm as any).youtube_url || ''} onChange={e => setNewForm(f => ({ ...f, youtube_url: e.target.value } as any))} placeholder="https://youtube.com/watch?v=..." />
+            <input className="pol-input" value={newForm.youtube_url} onChange={e => setNewForm(f => ({ ...f, youtube_url: e.target.value }))} placeholder="https://youtube.com/watch?v=..." />
           </div>
           <div>
             <label className="pol-label">Sticker Number (sort order)</label>

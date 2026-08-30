@@ -39,6 +39,8 @@ export async function POST(req: Request) {
     type: body.type,
     name: body.name,
     subtitle: body.subtitle || '',
+    description: body.description || '',
+    youtube_url: body.youtube_url || null,
     image_url: body.image_url || null,
     is_active: body.is_active ?? true,
     sort_order: body.sort_order ?? 0,

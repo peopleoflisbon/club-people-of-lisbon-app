@@ -198,6 +198,23 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
 
         </div>
       </div>
+
+      {/* Audio interview clip */}
+      {(profile as any).audio_url && (
+        <div className="px-5 pb-6">
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #EDE7DC', padding: '16px 20px' }}>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#C8102E', margin: '0 0 10px' }}>
+              Listen — Interview with {profile.full_name?.split(' ')[0]}
+            </p>
+            <audio
+              controls
+              src={(profile as any).audio_url}
+              style={{ width: '100%', height: 44 }}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="h-24 lg:h-0 flex-shrink-0" />
     </div>
   );

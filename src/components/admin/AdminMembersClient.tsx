@@ -39,11 +39,14 @@ export default function AdminMembersClient({ members, invitations }: Props) {
   const [error, setError] = useState('');
   const [localMembers, setLocalMembers] = useState(members);
   const [localInvites, setLocalInvites] = useState(invitations);
+  const [memberSearch, setMemberSearch] = useState('');
+  const [memberSort, setMemberSort] = useState<'recent' | 'alpha'>('recent');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [editingMember, setEditingMember] = useState<MemberRow | null>(null);
   const [editForm, setEditForm] = useState<any>({});
   const [editInterests, setEditInterests] = useState<string[]>([]);
   const [editAvatarUrl, setEditAvatarUrl] = useState('');
+  const [editAudioUrl, setEditAudioUrl] = useState('');
   const [editUploading, setEditUploading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
@@ -83,6 +86,7 @@ export default function AdminMembersClient({ members, invitations }: Props) {
     });
     setEditInterests(data?.interests || []);
     setEditAvatarUrl(data?.avatar_url || member.avatar_url || '');
+    setEditAudioUrl(data?.audio_url || '');
     setEditLoading(false);
   }
 
@@ -124,7 +128,7 @@ export default function AdminMembersClient({ members, invitations }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           memberId: editingMember.id,
-          updates: { ...editForm, avatar_url: editAvatarUrl, interests: editInterests },
+          updates: { ...editForm, avatar_url: editAvatarUrl, audio_url: editAudioUrl, interests: editInterests },
         }),
       });
       const data = await res.json();
@@ -363,7 +367,37 @@ export default function AdminMembersClient({ members, invitations }: Props) {
 
                 <hr className="border-stone-100" />
 
-                {/* Basic fields */}
+                {/* Audio interview clip */}
+                <div>
+                  <label className="pol-label">Audio Interview Clip (optional)</label>
+                  <div className="flex flex-col gap-2">
+                    {editAudioUrl && (
+                      <audio controls src={editAudioUrl} className="w-full" style={{ height: 40 }} />
+                    )}
+                    <div className="flex items-center gap-3">
+                      <label className="pol-btn-secondary text-sm cursor-pointer">
+                        {editAudioUrl ? 'Change Audio' : 'Upload Audio Clip'}
+                        <input type="file" accept="audio/*" className="hidden" onChange={async e => {
+                          const file = e.target.files?.[0]; if (!file) return;
+                          const ext = file.name.split('.').pop()?.toLowerCase() || 'mp3';
+                          const path = `audio/${editingMember.id}-${Date.now()}.${ext}`;
+                          const { error } = await supabase.storage.from('media').upload(path, file, { upsert: true, contentType: file.type });
+                          if (!error) {
+                            const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(path);
+                            setEditAudioUrl(publicUrl);
+                          }
+                          e.target.value = '';
+                        }} />
+                      </label>
+                      {editAudioUrl && (
+                        <button type="button" onClick={() => setEditAudioUrl('')} className="text-xs text-red-400 hover:text-red-600">Remove</button>
+                      )}
+                    </div>
+                    <p className="text-xs text-stone-400">MP3, WAV or M4A · Appears at the bottom of the member's profile</p>
+                  </div>
+                </div>
+
+                <hr className="border-stone-100" />
                 {[
                   { label: 'Full Name', key: 'full_name', placeholder: 'Jane Smith' },
                   { label: 'Headline', key: 'headline', placeholder: 'Filmmaker & Lisbon enthusiast' },
@@ -576,7 +610,27 @@ export default function AdminMembersClient({ members, invitations }: Props) {
       {/* MEMBERS TAB */}
       {tab === 'members' && (
         <div className="space-y-2">
-          {localMembers.map(member => (
+          {/* Search + Sort */}
+        <div className="flex items-center gap-3 mb-4">
+          <input
+            type="text"
+            placeholder="Search members by name…"
+            value={memberSearch}
+            onChange={e => setMemberSearch(e.target.value)}
+            className="pol-input flex-1"
+            style={{ padding: '8px 12px', fontSize: 14 }}
+          />
+          <button onClick={() => setMemberSort('alpha')} className={`text-xs px-3 py-2 border font-semibold transition-colors ${memberSort === 'alpha' ? 'bg-brand text-white border-brand' : 'border-stone-200 text-stone-500 hover:border-brand hover:text-brand'}`}>A–Z</button>
+          <button onClick={() => setMemberSort('recent')} className={`text-xs px-3 py-2 border font-semibold transition-colors ${memberSort === 'recent' ? 'bg-brand text-white border-brand' : 'border-stone-200 text-stone-500 hover:border-brand hover:text-brand'}`}>Recent</button>
+        </div>
+
+        {localMembers
+          .filter(m => !memberSearch || m.full_name?.toLowerCase().includes(memberSearch.toLowerCase()))
+          .sort((a, b) => memberSort === 'alpha'
+            ? (a.full_name || '').localeCompare(b.full_name || '')
+            : new Date(b.joined_at).getTime() - new Date(a.joined_at).getTime()
+          )
+          .map(member => (
             <div key={member.id} className="pol-card p-4">
               <div className="flex items-center gap-4">
                 <Avatar src={member.avatar_url} name={member.full_name} size="md" />
