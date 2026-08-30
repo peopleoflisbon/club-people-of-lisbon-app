@@ -18,6 +18,7 @@ type MemberRow = {
   short_bio: string;
   joined_at: string;
   interests?: string[];
+  youtube_url?: string;
 };
 
 export default function MembersClient({ initialMembers }: { initialMembers: MemberRow[] }) {
@@ -191,18 +192,36 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
 }
 
 function MemberCard({ member, index }: { member: MemberRow; index: number }) {
+  const isFeatured = !!member.youtube_url;
   return (
     <Link
       href={`/members/${member.id}`}
-      className="flex items-center gap-4 bg-white border border-stone-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 animate-fade-up"
-      style={{ animationDelay: `${index * 0.04}s`, opacity: 0 }}
+      className="flex items-center gap-4 bg-white p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 animate-fade-up"
+      style={{
+        animationDelay: `${index * 0.04}s`, opacity: 0,
+        border: isFeatured ? '2px solid #E6B75C' : '1px solid #f1ede7',
+      }}
     >
-      <Avatar src={member.avatar_url} name={member.full_name} size="xl" className="flex-shrink-0" />
+      <div className="relative flex-shrink-0">
+        <Avatar src={member.avatar_url} name={member.full_name} size="xl" />
+        {isFeatured && (
+          <div style={{
+            position: 'absolute', bottom: -4, left: '50%', transform: 'translateX(-50%)',
+            background: '#E6B75C', color: '#1C1C1C',
+            fontSize: 7, fontWeight: 800, letterSpacing: '.06em', textTransform: 'uppercase',
+            padding: '2px 6px', borderRadius: 3, whiteSpace: 'nowrap',
+          }}>
+            ▶ POL Video
+          </div>
+        )}
+      </div>
 
       <div className="flex-1 min-w-0">
-        <h3 style={{ fontFamily: '-apple-system, "SF Pro Display", "SF UI Display", BlinkMacSystemFont, sans-serif', fontWeight: 800, fontSize: '18px', lineHeight: 1.2, color: 'var(--ink)' }}>
-          {member.full_name}
-        </h3>
+        <div className="flex items-start gap-2 flex-wrap">
+          <h3 style={{ fontFamily: '-apple-system, "SF Pro Display", "SF UI Display", BlinkMacSystemFont, sans-serif', fontWeight: 800, fontSize: '18px', lineHeight: 1.2, color: 'var(--ink)' }}>
+            {member.full_name}
+          </h3>
+        </div>
         {member.job_title && (
           <p className="text-sm font-semibold mt-0.5" style={{ color: '#C8102E' }}>{member.job_title}</p>
         )}

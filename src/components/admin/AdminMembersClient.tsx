@@ -82,6 +82,7 @@ export default function AdminMembersClient({ members, invitations }: Props) {
       instagram_handle: data?.instagram_handle || '',
       linkedin_url: data?.linkedin_url || '',
       website_url: data?.website_url || '',
+      youtube_url: data?.youtube_url || '',
       open_to_feature: data?.open_to_feature || false,
     });
     setEditInterests(data?.interests || []);
@@ -407,6 +408,7 @@ export default function AdminMembersClient({ members, invitations }: Props) {
                   { label: 'Instagram', key: 'instagram_handle', placeholder: '@handle' },
                   { label: 'LinkedIn URL', key: 'linkedin_url', placeholder: 'https://linkedin.com/in/…' },
                   { label: 'Website', key: 'website_url', placeholder: 'https://…' },
+                  { label: 'People Of Lisbon Video (YouTube URL)', key: 'youtube_url', placeholder: 'https://youtube.com/watch?v=…' },
                 ].map(({ label, key, placeholder }) => (
                   <div key={key}>
                     <label className="pol-label">{label}</label>

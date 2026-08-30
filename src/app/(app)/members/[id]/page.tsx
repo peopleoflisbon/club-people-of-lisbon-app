@@ -199,6 +199,30 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
         </div>
       </div>
 
+      {/* People Of Lisbon video */}
+      {(profile as any).youtube_url && (() => {
+        const url = (profile as any).youtube_url as string;
+        const videoId = url.match(/(?:v=|youtu\.be\/|embed\/)([^&?/]+)/)?.[1];
+        if (!videoId) return null;
+        return (
+          <div className="px-5 pb-6">
+            <div style={{ background: 'white', borderRadius: 12, border: '2px solid #E6B75C', overflow: 'hidden' }}>
+              <div style={{ background: '#1C1C1C', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: '#E6B75C' }}>As Featured on People Of Lisbon</span>
+              </div>
+              <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
+                <iframe
+                  src={`https://www.youtube.com/embed/${videoId}?rel=0&playsinline=1&modestbranding=1`}
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Audio interview clip */}
       {(profile as any).audio_url && (
         <div className="px-5 pb-6">
