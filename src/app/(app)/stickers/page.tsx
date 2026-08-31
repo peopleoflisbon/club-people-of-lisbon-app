@@ -32,6 +32,7 @@ export default function StickersPage() {
   const [packetAvailable, setPacketAvailable] = useState(false);
   const [loading, setLoading] = useState(true);
   const [enlarged, setEnlarged] = useState<Sticker | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/sticker/collection')
@@ -143,9 +144,9 @@ export default function StickersPage() {
               </p>
             )}
             {enlarged.youtube_url && (
-              <a href={enlarged.youtube_url} target="_blank" rel="noopener noreferrer" style={{ marginTop: 14, display: 'inline-flex', alignItems: 'center', gap: 8, background: '#C8102E', color: '#fff', padding: '10px 20px', borderRadius: 4, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+              <button onClick={() => { setVideoUrl(enlarged.youtube_url!); setEnlarged(null); }} style={{ marginTop: 14, display: 'inline-flex', alignItems: 'center', gap: 8, background: '#C8102E', color: '#fff', padding: '10px 20px', borderRadius: 4, fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: FF }}>
                 ▶ Watch on YouTube
-              </a>
+              </button>
             )}
             <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 12, fontFamily: FF }}>
               Collected {enlarged.collected_at ? new Date(enlarged.collected_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
@@ -156,6 +157,28 @@ export default function StickersPage() {
           </div>
         </div>
       )}
+      {/* In-app YouTube video modal */}
+      {videoUrl && (() => {
+        const videoId = videoUrl.match(/(?:v=|youtu\.be\/|embed\/)([^&?/]+)/)?.[1];
+        if (!videoId) return null;
+        return (
+          <div onClick={() => setVideoUrl(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+            <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 500 }}>
+              <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, borderRadius: 8, overflow: 'hidden' }}>
+                <iframe
+                  src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1&modestbranding=1`}
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+                  allow="autoplay; fullscreen; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              <button onClick={() => setVideoUrl(null)} style={{ marginTop: 16, display: 'block', width: '100%', padding: '12px', background: 'none', border: '1px solid rgba(255,255,255,0.25)', color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: FF, borderRadius: 4 }}>
+                Close
+              </button>
+            </div>
+          </div>
+        );
+      })()}
     </>
   );
 }

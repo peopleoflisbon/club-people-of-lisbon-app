@@ -186,11 +186,20 @@ export default function OpenPacketPage() {
             </p>
           )}
           <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 22 }}>Added to your collection</p>
-          {sticker.youtube_url && (
-            <a href={sticker.youtube_url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#FF0000', color: '#fff', padding: '10px 20px', borderRadius: 4, fontSize: 13, fontWeight: 700, textDecoration: 'none', marginBottom: 16 }}>
-              ▶ Watch on YouTube
-            </a>
-          )}
+          {sticker.youtube_url && (() => {
+            const videoId = sticker.youtube_url.match(/(?:v=|youtu\.be\/|embed\/)([^&?/]+)/)?.[1];
+            return videoId ? (
+              <button onClick={() => {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';
+                overlay.innerHTML = `<div style="width:100%;max-width:500px"><div style="position:relative;padding-bottom:56.25%;height:0;border-radius:8px;overflow:hidden"><iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1&modestbranding=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="autoplay;fullscreen" allowfullscreen></iframe></div><button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:16px;display:block;width:100%;padding:12px;background:none;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.6);font-size:13px;font-weight:700;cursor:pointer;border-radius:4px">Close</button></div>`;
+                overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+                document.body.appendChild(overlay);
+              }} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#C8102E', color: '#fff', padding: '10px 20px', borderRadius: 4, fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: FF, marginBottom: 16 }}>
+                ▶ Watch on YouTube
+              </button>
+            ) : null;
+          })()}
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 16 }}>
             <button onClick={() => router.push('/stickers')} style={{ background: RED, color: '#fff', border: 'none', padding: '13px 22px', fontSize: 12, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: FF, borderRadius: 4 }}>View Collection →</button>
             <button onClick={() => router.push('/home')} style={{ background: 'none', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.2)', padding: '13px 22px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: FF, borderRadius: 4 }}>Home</button>

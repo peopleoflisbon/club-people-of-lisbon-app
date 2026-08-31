@@ -39,6 +39,7 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
   const [showOverlay,      setShowOverlay]      = useState(false);
   const [showFilters,      setShowFilters]      = useState(false);
   const [activeCategories, setActiveCategories] = useState<string[]>([]);
+  const [nameSearch, setNameSearch] = useState('');
   const [hoverPin,         setHoverPin]         = useState<MapPin | null>(null);
   const [hoverPos,         setHoverPos]         = useState({ x: 0, y: 0 });
 
@@ -88,9 +89,9 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
   }
 
   // Derived counts — safe to compute every render, no DOM side effects
-  const visiblePins = activeCategories.length === 0
-    ? pins
-    : pins.filter(p => activeCategories.some(id => (p.category_ids || []).includes(id)));
+  const visiblePins = pins
+    .filter(p => activeCategories.length === 0 || activeCategories.some(id => (p.category_ids || []).includes(id)))
+    .filter(p => !nameSearch || p.title?.toLowerCase().includes(nameSearch.toLowerCase()) || p.featured_person?.toLowerCase().includes(nameSearch.toLowerCase()));
 
   const visibleIds = new Set(visiblePins.map(p => p.id));
 
@@ -120,8 +121,9 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
     markersRef.current.forEach(({ marker }) => marker.remove());
     markersRef.current = [];
 
+    const pinOffsets = applyPinOffsets(pins);
     pins.forEach((pin) => {
-      const lng = Number(pin.longitude), lat = Number(pin.latitude);
+      const [lng, lat] = pinOffsets.get(pin.id) || [Number(pin.longitude), Number(pin.latitude)];
       if (isNaN(lng) || isNaN(lat)) return;
 
       const thumbnail = getThumbnail(pin);
@@ -181,7 +183,33 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
   }, [visibleIds]); // eslint-disable-line
 
   const safeTop = 'max(env(safe-area-inset-top), 16px)';
-  const hasFilters = activeCategories.length > 0;
+  const hasFilters = activeCategories.length > 0 || !!nameSearch;
+
+  // Offset pins that share the exact same coordinates so they sit side by side
+  function applyPinOffsets(pinList: MapPin[]): Map<string, [number, number]> {
+    const coordCount = new Map<string, number>();
+    const coordIndex = new Map<string, number>();
+    const offsets = new Map<string, [number, number]>();
+    // Count how many pins share each coordinate
+    pinList.forEach(p => {
+      const key = `${Number(p.longitude).toFixed(5)},${Number(p.latitude).toFixed(5)}`;
+      coordCount.set(key, (coordCount.get(key) || 0) + 1);
+      coordIndex.set(key, 0);
+    });
+    pinList.forEach(p => {
+      const lng = Number(p.longitude), lat = Number(p.latitude);
+      const key = `${lng.toFixed(5)},${lat.toFixed(5)}`;
+      const total = coordCount.get(key) || 1;
+      if (total === 1) { offsets.set(p.id, [lng, lat]); return; }
+      const idx = coordIndex.get(key) || 0;
+      coordIndex.set(key, idx + 1);
+      // Spread pins in a small arc — ~0.0003 degrees ≈ 30 metres apart
+      const angle = (idx / total) * 2 * Math.PI;
+      const radius = 0.0003;
+      offsets.set(p.id, [lng + radius * Math.cos(angle), lat + radius * Math.sin(angle)]);
+    });
+    return offsets;
+  }
   const selectedThumbnail = selectedPin ? getThumbnail(selectedPin) : '';
   const selectedCategories = selectedPin
     ? categories.filter(c => (selectedPin.category_ids || []).includes(c.id))
@@ -252,6 +280,32 @@ export default function LisbonMap({ pins, isMapUser = false, categories = [] }: 
             </span>
           </div>
         )}
+
+        {/* Name search */}
+        <div style={{ pointerEvents: 'auto', position: 'relative' }}>
+          <input
+            type="text"
+            value={nameSearch}
+            onChange={e => setNameSearch(e.target.value)}
+            placeholder="Search names…"
+            style={{
+              padding: '10px 12px 10px 32px',
+              background: 'rgba(250,248,244,0.93)', backdropFilter: 'blur(12px)',
+              border: nameSearch ? '1.5px solid #C8102E' : '1px solid rgba(0,0,0,0.08)',
+              borderRadius: 12, fontSize: 12, fontWeight: 600,
+              color: '#1C1C1C', outline: 'none', width: 140,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+              fontFamily: "'SF UI Display', -apple-system, BlinkMacSystemFont, sans-serif",
+              boxSizing: 'border-box',
+            }}
+          />
+          <svg style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9B8A7A" strokeWidth="2.5">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          {nameSearch && (
+            <button onClick={() => setNameSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#C8102E', fontSize: 14, padding: 0, lineHeight: 1 }}>✕</button>
+          )}
+        </div>
       </div>
 
       {/* ── Intro blurb — non-mapUser only, at very top ── */}
