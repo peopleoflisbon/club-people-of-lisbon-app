@@ -12,7 +12,7 @@ const SIZES = {
   sm: { w: 70,  h: 98,  pad: 4, headerSize: 4.5, nameSize: 5.5, subSize: 4.5, borderInset: 3, imgFontSize: 18 },
   md: { w: 96,  h: 135, pad: 6, headerSize: 5.5, nameSize: 7,   subSize: 5.5, borderInset: 4, imgFontSize: 26 },
   lg: { w: 160, h: 224, pad: 9, headerSize: 7,   nameSize: 11,  subSize: 8.5, borderInset: 6, imgFontSize: 42 },
-  xl: { w: 210, h: 294, pad: 11,headerSize: 8,   nameSize: 14,  subSize: 10,  borderInset: 7, imgFontSize: 54 },
+  xl: { w: 240, h: 336, pad: 12, headerSize: 9, nameSize: 16, subSize: 11, borderInset: 8, imgFontSize: 62 },
 };
 
 const TYPE_EMOJI: Record<string, string> = {

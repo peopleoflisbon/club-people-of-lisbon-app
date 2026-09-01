@@ -132,35 +132,52 @@ export default function OpenPacketPage() {
             opacity: state === 'opening' ? 0 : 1,
             transition: 'transform 0.4s ease, opacity 0.3s ease',
           }}>
-            {/* Big packet — 260px wide */}
-            <div style={{ width: 260, borderRadius: 14, overflow: 'hidden', border: `3px solid ${GOLD}`, background: INK, boxShadow: '0 24px 80px rgba(200,16,46,0.5), 0 0 0 1px rgba(230,183,92,0.3)', position: 'relative' }}>
-              {/* Shimmer overlay */}
-              <div style={{
-                position: 'absolute', inset: 0, zIndex: 10, pointerEvents: 'none',
-                background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.12) 50%, transparent 65%)',
-                backgroundSize: '200% 100%',
-                animation: 'shimmer 2.2s ease-in-out infinite',
-              }} />
-              {/* Top section */}
-              <div style={{ background: RED, padding: '22px 20px 18px', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: 0, left: '-40%', width: '25%', height: '100%', background: 'rgba(255,255,255,0.1)', transform: 'skewX(-18deg)' }} />
-                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.18em', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', textAlign: 'center', marginBottom: 8 }}>People Of Lisbon</div>
-                <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', textAlign: 'center', lineHeight: 1.0, letterSpacing: '-0.02em' }}>Sticker<br />Collection</div>
-              </div>
-              {/* Mid section */}
-              <div style={{ background: '#0d0d0d', padding: '28px 20px 24px', textAlign: 'center' }}>
-                <div style={{ width: 90, height: 90, borderRadius: '50%', background: RED, border: `3px solid ${GOLD}`, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', boxShadow: '0 0 30px rgba(200,16,46,0.4)' }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase' }}>POL</div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: GOLD, lineHeight: 1 }}>25</div>
+            {/* POL Official Sticker Pack design */}
+            <div style={{
+              width: 260, borderRadius: 12, overflow: 'hidden',
+              boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
+              background: '#C8102E',
+              backgroundImage: 'repeating-linear-gradient(90deg, rgba(0,0,0,0.07) 0px, rgba(0,0,0,0.07) 2px, transparent 2px, transparent 8px)',
+            }}>
+              <div style={{ margin: 8, borderRadius: 6, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.3)', background: '#C8102E' }}>
+                <div style={{ padding: '14px 14px 0', position: 'relative', minHeight: 190 }}>
+                  {/* Starburst badge */}
+                  <div style={{
+                    position: 'absolute', top: 10, right: 10, zIndex: 3,
+                    width: 64, height: 64, background: '#FFDB00',
+                    clipPath: 'polygon(50% 0%,61% 30%,93% 11%,75% 40%,100% 50%,75% 60%,93% 89%,61% 70%,50% 100%,39% 70%,7% 89%,25% 60%,0% 50%,25% 40%,7% 11%,39% 30%)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <div style={{ textAlign: 'center', fontSize: 6.5, fontWeight: 900, color: '#1C1C1C', lineHeight: 1.35 }}>
+                      REAL PEOPLE<br />REAL STORIES<br />LISBON
+                    </div>
+                  </div>
+                  {/* Title */}
+                  <div style={{ fontSize: 40, fontWeight: 900, color: '#fff', lineHeight: 0.95, letterSpacing: '-0.02em', marginBottom: 5, fontFamily: FF }}>
+                    People<br />Of<br />Lisbon
+                  </div>
+                  <div style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.85)', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 10 }}>
+                    The Official Sticker Collection
+                  </div>
+                  {/* Three polaroid photos */}
+                  <div style={{ position: 'relative', height: 100 }}>
+                    <div style={{ position: 'absolute', left: 0, bottom: 0, background: '#fff', padding: '3px 3px 10px', borderRadius: 2, width: 62, transform: 'rotate(-8deg)', boxShadow: '2px 2px 8px rgba(0,0,0,0.35)' }}>
+                      <div style={{ background: '#999', height: 52, borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>👤</div>
+                    </div>
+                    <div style={{ position: 'absolute', left: '50%', bottom: 0, transform: 'translateX(-50%) rotate(-1deg)', background: '#fff', padding: '3px 3px 12px', borderRadius: 2, width: 74, zIndex: 2, boxShadow: '2px 4px 12px rgba(0,0,0,0.45)' }}>
+                      <div style={{ background: '#777', height: 62, borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>👤</div>
+                    </div>
+                    <div style={{ position: 'absolute', right: 0, bottom: 0, background: '#fff', padding: '3px 3px 10px', borderRadius: 2, width: 62, transform: 'rotate(7deg)', boxShadow: '2px 2px 8px rgba(0,0,0,0.35)' }}>
+                      <div style={{ background: '#888', height: 52, borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>👤</div>
+                    </div>
+                  </div>
                 </div>
-                <div style={{ color: GOLD, fontSize: 18, letterSpacing: 8, marginBottom: 12 }}>◆ ◆ ◆</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '.14em', textTransform: 'uppercase' }}>1 sticker inside</div>
-              </div>
-              {/* Tear line */}
-              <div style={{ borderTop: '2px dashed rgba(255,255,255,0.18)', margin: '0 16px' }} />
-              {/* Bottom */}
-              <div style={{ background: RED, padding: '14px 20px', textAlign: 'center' }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: '#fff', letterSpacing: '.08em' }}>Tap to tear open ↓</div>
+                {/* Yellow strip */}
+                <div style={{ background: '#FFDB00', padding: '10px 12px', textAlign: 'center' }}>
+                  <span style={{ fontSize: 12, fontWeight: 900, color: '#1C1C1C', letterSpacing: '.04em', textTransform: 'uppercase', fontFamily: FF }}>
+                    Open 1 Sticker Per Day
+                  </span>
+                </div>
               </div>
             </div>
           </div>

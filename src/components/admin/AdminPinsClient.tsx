@@ -10,20 +10,17 @@ import { LISBON_NEIGHBORHOODS } from '@/lib/utils';
 
 interface Category { id: string; name: string; sort_order: number; }
 interface MapPin {
-  id: string; title: string; featured_person: string; neighborhood: string;
-  description: string; thumbnail_url: string; youtube_url: string;
+  id: string; title: string; description: string; youtube_url: string;
   latitude: number; longitude: number; is_published: boolean;
   filmed_address: string; google_maps_url: string;
 }
 interface PinForm {
-  title: string; featured_person: string; neighborhood: string; description: string;
-  youtube_url: string; latitude: number; longitude: number; thumbnail_url: string;
+  title: string; description: string; youtube_url: string; latitude: number; longitude: number;
   filmed_address: string; google_maps_url: string; category_ids: string[];
 }
 
 const EMPTY: PinForm = {
-  title: '', featured_person: '', neighborhood: '', description: '',
-  youtube_url: '', latitude: 38.7223, longitude: -9.1393, thumbnail_url: '',
+  title: '', description: '', youtube_url: '', latitude: 38.7223, longitude: -9.1393,
   filmed_address: '', google_maps_url: '', category_ids: [],
 };
 
@@ -85,9 +82,9 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
 
   function startEdit(p: MapPin) {
     setForm({
-      title: p.title, featured_person: p.featured_person, neighborhood: p.neighborhood,
+      title: p.title,
       description: p.description, youtube_url: p.youtube_url,
-      latitude: p.latitude, longitude: p.longitude, thumbnail_url: p.thumbnail_url,
+      latitude: p.latitude, longitude: p.longitude,
       filmed_address: p.filmed_address || '', google_maps_url: p.google_maps_url || '',
       category_ids: pinCategories[p.id] || [],
     });
@@ -106,7 +103,7 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
   async function save() {
     setSaving(true);
     const { category_ids, ...pinData } = form;
-    const payload = { ...pinData, thumbnail_url: pinData.thumbnail_url || getYouTubeThumbnail(pinData.youtube_url) };
+    const payload = { ...pinData, thumbnail_url: getYouTubeThumbnail(pinData.youtube_url) };
 
     let pinId = editingId;
     if (editingId) {
@@ -185,15 +182,8 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
           <input className="pol-input" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="The Baker of Alfama" />
         </div>
         <div>
-          <label className="pol-label">Featured person</label>
-          <input className="pol-input" value={form.featured_person} onChange={e => setForm({ ...form, featured_person: e.target.value })} placeholder="João Silva" />
         </div>
         <div>
-          <label className="pol-label">Neighborhood</label>
-          <select className="pol-input" value={form.neighborhood} onChange={e => setForm({ ...form, neighborhood: e.target.value })}>
-            <option value="">Select…</option>
-            {LISBON_NEIGHBORHOODS.map(n => <option key={n} value={n}>{n}</option>)}
-          </select>
         </div>
         <div>
           <label className="pol-label">Description</label>
@@ -204,8 +194,6 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
           <input className="pol-input" value={form.youtube_url} onChange={e => setForm({ ...form, youtube_url: e.target.value })} placeholder="https://youtube.com/watch?v=…" />
         </div>
         <div>
-          <label className="pol-label">Thumbnail URL (optional — uses YouTube if blank)</label>
-          <input className="pol-input" value={form.thumbnail_url} onChange={e => setForm({ ...form, thumbnail_url: e.target.value })} placeholder="https://…" />
         </div>
 
         {/* Filmed location */}
@@ -308,14 +296,11 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
           return (
             <div key={pin.id} className="bg-white rounded-xl border border-stone-200 p-4 flex gap-4 items-start">
               {pin.thumbnail_url && (
-                <img src={pin.thumbnail_url} alt={pin.title} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="font-semibold text-sm" style={{ color: '#1C1C1C' }}>{pin.title}</p>
-                    {pin.featured_person && <p className="text-xs text-stone-500">{pin.featured_person}</p>}
-                    {pin.neighborhood && <p className="text-xs" style={{ color: '#2F6DA5' }}>{pin.neighborhood}</p>}
                     {pin.filmed_address && <p className="text-xs text-stone-400 mt-0.5">📍 {pin.filmed_address}</p>}
                     {catNames.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1">
