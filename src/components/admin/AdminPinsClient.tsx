@@ -289,8 +289,6 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
           const catNames = categories.filter(c => catIds.includes(c.id)).map(c => c.name);
           return (
             <div key={pin.id} className="bg-white rounded-xl border border-stone-200 p-4 flex gap-4 items-start">
-              {pin.thumbnail_url && (
-              )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <div>
