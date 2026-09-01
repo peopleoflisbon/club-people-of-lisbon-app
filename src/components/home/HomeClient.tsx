@@ -423,16 +423,12 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
               {/* Subtle red glow */}
               <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 60% at 50% 30%, rgba(200,16,46,0.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
               <div style={{ position: 'relative', zIndex: 1, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
-                {/* Mini packet icon */}
-                <div style={{
-                  width: 52, height: 68, borderRadius: 5, background: RED,
-                  border: '2px solid #C8A84B', flexShrink: 0, display: 'flex',
-                  flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
-                }}>
-                  <span style={{ fontSize: 7, fontWeight: 800, letterSpacing: '.1em', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>POL</span>
-                  <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>🃏</span>
-                  <span style={{ fontSize: 5.5, color: '#C8A84B', letterSpacing: 3 }}>◆◆◆</span>
-                </div>
+                {/* Mini packet image */}
+                <img
+                  src="/sticker-packet.png"
+                  alt="Sticker Packet"
+                  style={{ width: 52, height: 68, objectFit: 'cover', objectPosition: 'top', borderRadius: 5, flexShrink: 0 }}
+                />
                 <div style={{ flex: 1 }}>
                   <Eye t="People Of Lisbon" color={RED} />
                   <h3 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: '0 0 4px', letterSpacing: '-0.02em', lineHeight: 1.1, fontFamily: FF }}>

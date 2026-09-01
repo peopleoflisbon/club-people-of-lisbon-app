@@ -132,54 +132,12 @@ export default function OpenPacketPage() {
             opacity: state === 'opening' ? 0 : 1,
             transition: 'transform 0.4s ease, opacity 0.3s ease',
           }}>
-            {/* POL Official Sticker Pack design */}
-            <div style={{
-              width: 260, borderRadius: 12, overflow: 'hidden',
-              boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
-              background: '#C8102E',
-              backgroundImage: 'repeating-linear-gradient(90deg, rgba(0,0,0,0.07) 0px, rgba(0,0,0,0.07) 2px, transparent 2px, transparent 8px)',
-            }}>
-              <div style={{ margin: 8, borderRadius: 6, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.3)', background: '#C8102E' }}>
-                <div style={{ padding: '14px 14px 0', position: 'relative', minHeight: 190 }}>
-                  {/* Starburst badge */}
-                  <div style={{
-                    position: 'absolute', top: 10, right: 10, zIndex: 3,
-                    width: 64, height: 64, background: '#FFDB00',
-                    clipPath: 'polygon(50% 0%,61% 30%,93% 11%,75% 40%,100% 50%,75% 60%,93% 89%,61% 70%,50% 100%,39% 70%,7% 89%,25% 60%,0% 50%,25% 40%,7% 11%,39% 30%)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <div style={{ textAlign: 'center', fontSize: 6.5, fontWeight: 900, color: '#1C1C1C', lineHeight: 1.35 }}>
-                      REAL PEOPLE<br />REAL STORIES<br />LISBON
-                    </div>
-                  </div>
-                  {/* Title */}
-                  <div style={{ fontSize: 40, fontWeight: 900, color: '#fff', lineHeight: 0.95, letterSpacing: '-0.02em', marginBottom: 5, fontFamily: FF }}>
-                    People<br />Of<br />Lisbon
-                  </div>
-                  <div style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.85)', letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 10 }}>
-                    The Official Sticker Collection
-                  </div>
-                  {/* Three polaroid photos */}
-                  <div style={{ position: 'relative', height: 100 }}>
-                    <div style={{ position: 'absolute', left: 0, bottom: 0, background: '#fff', padding: '3px 3px 10px', borderRadius: 2, width: 62, transform: 'rotate(-8deg)', boxShadow: '2px 2px 8px rgba(0,0,0,0.35)' }}>
-                      <div style={{ background: '#999', height: 52, borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>👤</div>
-                    </div>
-                    <div style={{ position: 'absolute', left: '50%', bottom: 0, transform: 'translateX(-50%) rotate(-1deg)', background: '#fff', padding: '3px 3px 12px', borderRadius: 2, width: 74, zIndex: 2, boxShadow: '2px 4px 12px rgba(0,0,0,0.45)' }}>
-                      <div style={{ background: '#777', height: 62, borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>👤</div>
-                    </div>
-                    <div style={{ position: 'absolute', right: 0, bottom: 0, background: '#fff', padding: '3px 3px 10px', borderRadius: 2, width: 62, transform: 'rotate(7deg)', boxShadow: '2px 2px 8px rgba(0,0,0,0.35)' }}>
-                      <div style={{ background: '#888', height: 52, borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>👤</div>
-                    </div>
-                  </div>
-                </div>
-                {/* Yellow strip */}
-                <div style={{ background: '#FFDB00', padding: '10px 12px', textAlign: 'center' }}>
-                  <span style={{ fontSize: 12, fontWeight: 900, color: '#1C1C1C', letterSpacing: '.04em', textTransform: 'uppercase', fontFamily: FF }}>
-                    Open 1 Sticker Per Day
-                  </span>
-                </div>
-              </div>
-            </div>
+            {/* POL Official Sticker Pack — using the actual packet image */}
+            <img
+              src="/sticker-packet.png"
+              alt="People Of Lisbon Sticker Packet"
+              style={{ width: 260, display: 'block', borderRadius: 8, boxShadow: '0 24px 80px rgba(0,0,0,0.6)' }}
+            />
           </div>
         </div>
       )}
