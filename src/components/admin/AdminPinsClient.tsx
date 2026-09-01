@@ -182,18 +182,12 @@ export default function AdminPinsClient({ pins: initial }: { pins: MapPin[] }) {
           <input className="pol-input" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="The Baker of Alfama" />
         </div>
         <div>
-        </div>
-        <div>
-        </div>
-        <div>
           <label className="pol-label">Description</label>
           <textarea className="pol-textarea" rows={2} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="A short description…" />
         </div>
         <div>
           <label className="pol-label">YouTube URL</label>
           <input className="pol-input" value={form.youtube_url} onChange={e => setForm({ ...form, youtube_url: e.target.value })} placeholder="https://youtube.com/watch?v=…" />
-        </div>
-        <div>
         </div>
 
         {/* Filmed location */}
