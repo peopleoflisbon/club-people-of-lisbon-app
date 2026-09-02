@@ -65,6 +65,7 @@ const NAV_ITEMS = [
 const SECONDARY_NAV = [
   { href: '/updates', label: 'Latest from Stephen' },
   { href: '/recommendations', label: 'Recommendations' },
+  { href: '/offers', label: 'Member Offers' },
   { href: '/membership-card', label: 'Membership Card' },
   { href: '/sponsors', label: 'Sponsors' },
   { href: '/photos', label: "Rita's Photos" },

@@ -11,42 +11,59 @@ const FF = "-apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', Aria
 
 type State = 'loading' | 'ready' | 'opening' | 'revealed' | 'already' | 'complete' | 'error';
 
-// Tear sound — works on iOS by resuming AudioContext inside user gesture
+// Aggressive ripping tear sound — 3 layers
 function playTearSound() {
   try {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
     const resume = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve();
     resume.then(() => {
-      // Layer 1: white noise burst (the rip)
-      const ripDuration = 0.3;
-      const buf1 = ctx.createBuffer(1, ctx.sampleRate * ripDuration, ctx.sampleRate);
-      const d1 = buf1.getChannelData(0);
-      for (let i = 0; i < d1.length; i++) {
-        d1[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d1.length, 0.8);
-      }
-      const src1 = ctx.createBufferSource();
-      src1.buffer = buf1;
-      const bp = ctx.createBiquadFilter();
-      bp.type = 'bandpass'; bp.frequency.value = 2200; bp.Q.value = 0.6;
-      const gain1 = ctx.createGain();
-      gain1.gain.setValueAtTime(1.8, ctx.currentTime);
-      gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + ripDuration);
-      src1.connect(bp); bp.connect(gain1); gain1.connect(ctx.destination);
-      src1.start();
+      const sr = ctx.sampleRate;
 
-      // Layer 2: short crinkle tail
-      const crinkleDuration = 0.15;
-      const buf2 = ctx.createBuffer(1, ctx.sampleRate * crinkleDuration, ctx.sampleRate);
-      const d2 = buf2.getChannelData(0);
-      for (let i = 0; i < d2.length; i++) {
-        d2[i] = (Math.random() * 2 - 1) * 0.3 * Math.pow(1 - i / d2.length, 2);
+      // Layer 1: sharp initial RIP — loud, fast decay
+      const rip = ctx.createBuffer(1, sr * 0.18, sr);
+      const rd = rip.getChannelData(0);
+      for (let i = 0; i < rd.length; i++) {
+        rd[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / rd.length, 0.4) * 1.8;
       }
-      const src2 = ctx.createBufferSource();
-      src2.buffer = buf2;
-      const hp = ctx.createBiquadFilter();
-      hp.type = 'highpass'; hp.frequency.value = 3000;
-      src2.connect(hp); hp.connect(ctx.destination);
-      src2.start(ctx.currentTime + 0.12);
+      const ripSrc = ctx.createBufferSource();
+      ripSrc.buffer = rip;
+      const ripBP = ctx.createBiquadFilter();
+      ripBP.type = 'bandpass'; ripBP.frequency.value = 3500; ripBP.Q.value = 0.5;
+      const ripGain = ctx.createGain();
+      ripGain.gain.setValueAtTime(2.5, ctx.currentTime);
+      ripGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+      ripSrc.connect(ripBP); ripBP.connect(ripGain); ripGain.connect(ctx.destination);
+      ripSrc.start(ctx.currentTime);
+
+      // Layer 2: mid tear — slightly delayed, extended
+      const tear = ctx.createBuffer(1, sr * 0.35, sr);
+      const td = tear.getChannelData(0);
+      for (let i = 0; i < td.length; i++) {
+        td[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / td.length, 1.2) * 1.2;
+      }
+      const tearSrc = ctx.createBufferSource();
+      tearSrc.buffer = tear;
+      const tearBP = ctx.createBiquadFilter();
+      tearBP.type = 'bandpass'; tearBP.frequency.value = 1800; tearBP.Q.value = 0.4;
+      const tearGain = ctx.createGain();
+      tearGain.gain.setValueAtTime(0, ctx.currentTime + 0.02);
+      tearGain.gain.linearRampToValueAtTime(1.8, ctx.currentTime + 0.06);
+      tearGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      tearSrc.connect(tearBP); tearBP.connect(tearGain); tearGain.connect(ctx.destination);
+      tearSrc.start(ctx.currentTime + 0.02);
+
+      // Layer 3: high crinkle tail
+      const crinkle = ctx.createBuffer(1, sr * 0.25, sr);
+      const cd = crinkle.getChannelData(0);
+      for (let i = 0; i < cd.length; i++) {
+        cd[i] = (Math.random() * 2 - 1) * 0.4 * Math.pow(1 - i / cd.length, 2.5);
+      }
+      const crinkleSrc = ctx.createBufferSource();
+      crinkleSrc.buffer = crinkle;
+      const crinkleHP = ctx.createBiquadFilter();
+      crinkleHP.type = 'highpass'; crinkleHP.frequency.value = 4000;
+      crinkleSrc.connect(crinkleHP); crinkleHP.connect(ctx.destination);
+      crinkleSrc.start(ctx.currentTime + 0.1);
     });
   } catch {}
 }

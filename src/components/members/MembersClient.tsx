@@ -19,6 +19,7 @@ type MemberRow = {
   joined_at: string;
   interests?: string[];
   youtube_url?: string;
+  audio_url?: string;
 };
 
 export default function MembersClient({ initialMembers }: { initialMembers: MemberRow[] }) {
@@ -193,6 +194,7 @@ export default function MembersClient({ initialMembers }: { initialMembers: Memb
 
 function MemberCard({ member, index }: { member: MemberRow; index: number }) {
   const isFeatured = !!member.youtube_url;
+  const hasAudio = !!member.audio_url;
   return (
     <Link
       href={`/members/${member.id}`}
@@ -217,10 +219,15 @@ function MemberCard({ member, index }: { member: MemberRow; index: number }) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="flex items-start gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           <h3 style={{ fontFamily: '-apple-system, "SF Pro Display", "SF UI Display", BlinkMacSystemFont, sans-serif', fontWeight: 800, fontSize: '18px', lineHeight: 1.2, color: 'var(--ink)' }}>
             {member.full_name}
           </h3>
+          {hasAudio && (
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#C8102E', background: '#FDECEA', padding: '2px 7px', borderRadius: 3, letterSpacing: '.05em', flexShrink: 0 }}>
+              🎙 Interview
+            </span>
+          )}
         </div>
         {member.job_title && (
           <p className="text-sm font-semibold mt-0.5" style={{ color: '#C8102E' }}>{member.job_title}</p>

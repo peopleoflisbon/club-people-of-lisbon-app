@@ -345,12 +345,13 @@ export default function HomeClient({ profile, recentMembers, upcomingEvents, lat
               </Link>
             </div>
 
-            <Mod href="/membership-card" eye="Members only" title="Membership Card + Offers" sub="Your card and member discounts" />
+            <Mod href="/membership-card" eye="Members only" title="Membership Card" sub="Your digital membership card" />
+            <Mod href="/offers" eye="Members only" title="Member Offers" sub="Exclusive discounts for members" />
 
             {/* Latest offer */}
             {latestOffer && (
               <div>
-                <Head eye="For members" title="Featured Offer" href="/membership-card" seeMore="See more" />
+                <Head eye="For members" title="Featured Offer" href="/offers" seeMore="See all offers" />
                 <div style={{ background: '#fff', borderRadius: RADIUS, border: '1px solid #EDE7DC', borderLeft: `4px solid ${RED}`, padding: '16px 18px' }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>

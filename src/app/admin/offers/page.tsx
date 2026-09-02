@@ -229,8 +229,10 @@ export default function AdminOffersPage() {
           )}
         </div>
       </div>
+      <MemberOffersAdmin />
     </div>
   );
 }
 
+import MemberOffersAdmin from './MemberOffersAdmin';
 const inputStyle = iStyle;
